@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Arsalan Arshad">
+  <defs>
+    <linearGradient id="mist" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f7f9fb"/>
+      <stop offset="1" stop-color="#e4e9ef"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="18" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2c4a6e"/>
+      <stop offset="1" stop-color="#1a2f48"/>
+    </linearGradient>
+  </defs>
+  <!-- Soft porcelain tile -->
+  <rect width="64" height="64" rx="14" fill="url(#mist)"/>
+  <!-- Thin Prussian frame -->
+  <rect x="3.5" y="3.5" width="57" height="57" rx="11.5" fill="none" stroke="#2c4a6e" stroke-opacity="0.22" stroke-width="1.25"/>
+  <!-- Stylized A monogram: left stem, right stem, crossbar as studio “shelf” -->
+  <path d="M32 14.5 L46.5 49.5 H40.2 L37.1 41.2 H26.9 L23.8 49.5 H17.5 L32 14.5 Z M28.55 36.4 H35.45 L32 27.1 L28.55 36.4 Z" fill="url(#ink)"/>
+  <!-- Small polite accent dash under the crossbar — studio mark -->
+  <rect x="26.2" y="44.2" width="11.6" height="2.1" rx="1.05" fill="#3f6a5c" fill-opacity="0.85"/>
+</svg>

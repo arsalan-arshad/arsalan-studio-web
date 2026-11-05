@@ -97,7 +97,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       note: "Public repo. Early development — not installable yet; contributions welcome on the engine and docs.",
     },
     buildingNote:
-      "Honest status: built and tested locally (engine, SF client, sync, app shell). No Shopify app registered / not deployed. AI explain layer is explicitly out of v1.",
+      "Honest status: engine, SF client, sync, and app shell are built and tested. Pending Shopify Partner review / App Store listing — not a vague “coming soon.” AI explain layer is explicitly out of v1.",
   },
   "bridge-core-recipes": {
     summary:
@@ -139,7 +139,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       note: "Developer preview — not App Store reviewed. PRs on recipes and core hardening welcome.",
     },
     buildingNote:
-      "Not deployed to production hosting yet; deploy guide is draft. Working name may change for Shopify listing rules.",
+      "Pending Shopify Partner review / App Store listing. Core + recipes work in developer preview; production listing is the gate — not a vague “coming soon.” Working name may change for listing rules.",
   },
   "practitioner-protocols": {
     summary:
@@ -534,6 +534,8 @@ export function statusLabelLong(status: CaseStudyStatus): string {
       return "Released (packaged / hosted)";
     case "completed":
       return "Completed library / product";
+    case "pending-shopify":
+      return "Pending Shopify review / App Store listing";
     case "coming-soon":
       return "Coming soon / launching";
   }

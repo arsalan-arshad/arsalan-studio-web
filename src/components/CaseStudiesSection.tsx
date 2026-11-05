@@ -123,6 +123,7 @@ export function CaseStudiesSection({
                           <CaseStudyVisual
                             study={study}
                             banner
+                            fit="cover"
                             className="h-full w-full"
                           />
                         </Link>

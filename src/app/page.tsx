@@ -23,8 +23,8 @@ export default function HomePage() {
       <OffersSection />
       <OffersCtaStrip />
       <OpenSourceNote />
-      {/* Full Salesforce suite always; Shopify + SF icons/banners on home */}
-      <CaseStudiesSection ensureAllSalesforce showBanners />
+      {/* Full Salesforce suite; icons only on home (banners on /work/[slug]) */}
+      <CaseStudiesSection ensureAllSalesforce />
       <HowItWorks />
       <PresenceSection />
       <ExperienceSection />

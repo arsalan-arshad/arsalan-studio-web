@@ -61,11 +61,6 @@ export function ChatApp() {
   }, [status, loadThreads]);
 
   useEffect(() => {
-    const fromQuery = params.get("thread");
-    if (fromQuery) setActiveId(fromQuery);
-  }, [params]);
-
-  useEffect(() => {
     if (!activeId) return;
     loadThread(activeId);
     const t = setInterval(() => loadThread(activeId), 4000);

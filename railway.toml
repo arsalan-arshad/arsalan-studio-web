@@ -1,0 +1,16 @@
+# Railway deploy — Next.js web (repo root = app).
+# 1. Deploy from GitHub repo arsalan-studio-web (no Root Directory subdirectory)
+# 2. Attach Railway Postgres → DATABASE_URL on this service
+# 3. Set AUTH_SECRET, AUTH_URL (= https://YOUR-SERVICE.up.railway.app first),
+#    NEXT_PUBLIC_SITE_URL, ADMIN_*, optional RESEND_*
+# 4. Optional: volume at /data/uploads + UPLOAD_DIR=/data/uploads
+# 5. After DNS propagates: Custom Domain → arsalandev.studio (do not block launch)
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npx prisma generate && npm run build"
+
+[deploy]
+startCommand = "npx prisma migrate deploy && npm run start"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"

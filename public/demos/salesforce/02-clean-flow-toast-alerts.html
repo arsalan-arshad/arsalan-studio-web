@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clean Flow Toast & Alerts — Interactive Simulation & Demo</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Salesforce Lightning Design System (SLDS) 2.22.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.22.1/styles/salesforce-lightning-design-system.min.css">
+  
+  <!-- Tailwind CSS CDN for layout utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+          },
+          colors: {
+            slds: {
+              blue: '#0176d3',
+              blueDark: '#014486',
+              blueLight: '#f4f6f9',
+              green: '#2e844a',
+              greenDark: '#1e5e34',
+              red: '#ea001e',
+              redDark: '#ba0517',
+              amber: '#fe9339',
+              amberDark: '#dd7a26',
+              gray: '#747474',
+              surface: '#f3f3f3',
+              card: '#ffffff'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom SLDS Animations & Transitions */
+    @keyframes sldsToastSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-24px) scale(0.96);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(2px) scale(1.01);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes sldsToastSlideOut {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        max-height: 120px;
+        margin-bottom: 12px;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+        max-height: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+    }
+
+    .toast-enter {
+      animation: sldsToastSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .toast-exit {
+      animation: sldsToastSlideOut 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* Range slider custom styling */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #7e22ce;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(126, 34, 206, 0.4);
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* Confetti Canvas overlay */
+    #celebration-canvas {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-purple-200 selection:text-purple-900">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP HEADER & ENTERPRISE BRANDING                                       -->
+  <!-- ========================================================================= -->
+  <header class="bg-gradient-to-r from-[#3b0764] via-[#7e22ce] to-[#0176d3] text-white shadow-lg sticky top-0 z-50 border-b border-purple-400/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Project Identity -->
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-xl shadow-inner shadow-white/20">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+              Clean Flow Toast & Alerts
+              <span class="text-[11px] font-semibold bg-white/15 px-2 py-0.5 rounded-full border border-white/20 tracking-normal text-purple-100">v0.1.0</span>
+            </h1>
+          </div>
+          <p class="text-xs text-purple-200/90 font-medium hidden sm:block">
+            Native 2GP Flow Screen Component • Zero-Dependency Toast & Alert Engine for Salesforce
+          </p>
+        </div>
+      </div>
+
+      <!-- Enterprise Badges -->
+      <div class="hidden md:flex items-center gap-2 text-[11px] font-medium">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 rounded-full font-mono">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          100% Free Open-Source (MIT)
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/20 text-blue-200 border border-blue-400/30 rounded-full font-mono">
+          📦 2GP: 04tg7000000WDVBAA4
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/20 text-purple-200 border border-purple-400/30 rounded-full font-mono">
+          ⚡ Flow Screen Component
+        </span>
+      </div>
+
+      <!-- Action CTAs -->
+      <div class="flex items-center gap-2.5">
+        <a href="https://github.com/arsalan-arshad/clean-flow-toast-alerts" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          <span class="hidden sm:inline">GitHub</span>
+        </a>
+        <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tg7000000WDVBAA4" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold shadow-md shadow-emerald-900/30 transition-all flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98]">
+          <span>🚀 1-Click Install</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN WORKSPACE CONTAINER                                               -->
+  <!-- ========================================================================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1 w-full">
+
+    <!-- Value Proposition Banner -->
+    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-700 font-bold text-[10px] rounded uppercase tracking-wider">Zero Setup</span>
+          <span class="text-xs text-slate-500">• 100% Native Lightning Web Component</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900">
+          Native Toast Notifications, Reactive Alerts & Celebrations inside Screen Flows
+        </h2>
+        <p class="text-xs text-slate-600 max-w-2xl leading-relaxed">
+          Standard Salesforce Flows cannot fire native toast notifications without heavy code or outdated Aura hacks. <span class="font-semibold text-purple-700">Clean Flow Toast & Alerts</span> enables Admins to drop a zero-dependency component onto any Flow screen to trigger rich toasts, Web Audio chimes, and confetti!
+        </p>
+      </div>
+
+      <!-- Quick Stats Pill -->
+      <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs shrink-0 font-medium">
+        <div class="text-center px-2">
+          <div class="text-base font-extrabold text-emerald-600">93%</div>
+          <div class="text-[10px] text-slate-500">Apex Coverage</div>
+        </div>
+        <div class="h-7 w-[1px] bg-slate-200"></div>
+        <div class="text-center px-2">
+          <div class="text-base font-extrabold text-purple-600">17/17</div>
+          <div class="text-[10px] text-slate-500">Jest Tests</div>
+        </div>
+        <div class="h-7 w-[1px] bg-slate-200"></div>
+        <div class="text-center px-2">
+          <div class="text-base font-extrabold text-blue-600">&lt;28KB</div>
+          <div class="text-[10px] text-slate-500">Zero Dependencies</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 3. INTERACTIVE TOAST BUILDER & PLAYGROUND                               -->
+    <!-- ======================================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN: INTERACTIVE CONTROL PANEL -->
+      <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-black">⚙️</span>
+              Flow Component Properties
+            </h3>
+            <p class="text-[11px] text-slate-500">Configure parameters as you would in Salesforce Flow Builder</p>
+          </div>
+          <!-- Quick Presets -->
+          <div class="relative">
+            <select id="quick-preset-select" onchange="applyPreset(this.value)" class="text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg px-2 py-1 outline-none cursor-pointer">
+              <option value="success_deal">Preset: Closed-Won 🎉</option>
+              <option value="error_payment">Preset: Payment Error ❌</option>
+              <option value="warning_stock">Preset: Low Stock Warning ⚠️</option>
+              <option value="info_sync">Preset: System Sync ℹ️</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-xs">
+
+          <!-- 1. VARIANT SELECTOR -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span>Toast Variant</span>
+              <span id="variant-name-badge" class="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">success</span>
+            </label>
+            <div class="grid grid-cols-4 gap-2">
+              <!-- Success -->
+              <button type="button" onclick="setVariant('success')" id="btn-variant-success" class="variant-btn relative py-2 px-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-bold flex flex-col items-center gap-1 transition-all shadow-sm">
+                <span class="text-base">✅</span>
+                <span class="text-[11px]">Success</span>
+                <span class="active-dot absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] shadow">✓</span>
+              </button>
+
+              <!-- Error -->
+              <button type="button" onclick="setVariant('error')" id="btn-variant-error" class="variant-btn relative py-2 px-2.5 rounded-xl border border-slate-200 hover:border-red-400 bg-slate-50 text-slate-700 font-bold flex flex-col items-center gap-1 transition-all">
+                <span class="text-base">❌</span>
+                <span class="text-[11px]">Error</span>
+                <span class="active-dot hidden absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[9px] shadow">✓</span>
+              </button>
+
+              <!-- Warning -->
+              <button type="button" onclick="setVariant('warning')" id="btn-variant-warning" class="variant-btn relative py-2 px-2.5 rounded-xl border border-slate-200 hover:border-amber-400 bg-slate-50 text-slate-700 font-bold flex flex-col items-center gap-1 transition-all">
+                <span class="text-base">⚠️</span>
+                <span class="text-[11px]">Warning</span>
+                <span class="active-dot hidden absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[9px] shadow">✓</span>
+              </button>
+
+              <!-- Info -->
+              <button type="button" onclick="setVariant('info')" id="btn-variant-info" class="variant-btn relative py-2 px-2.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-slate-50 text-slate-700 font-bold flex flex-col items-center gap-1 transition-all">
+                <span class="text-base">ℹ️</span>
+                <span class="text-[11px]">Info</span>
+                <span class="active-dot hidden absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] shadow">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. MODE SELECTOR -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span>Display Mode</span>
+              <span class="text-[10px] text-slate-500 font-normal">Controls auto-dismiss & close button</span>
+            </label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="mode-card cursor-pointer border border-purple-500 bg-purple-50/50 p-2.5 rounded-xl flex items-start gap-2 transition-all">
+                <input type="radio" name="toast-mode" value="dismissable" checked onchange="setMode('dismissable')" class="mt-0.5 text-purple-600 focus:ring-purple-500">
+                <div>
+                  <div class="font-bold text-slate-800 text-[11px]">Dismissable</div>
+                  <div class="text-[10px] text-slate-500 leading-tight">Auto-dismiss + 'X' button</div>
+                </div>
+              </label>
+
+              <label class="mode-card cursor-pointer border border-slate-200 hover:border-slate-300 p-2.5 rounded-xl flex items-start gap-2 transition-all">
+                <input type="radio" name="toast-mode" value="pester" onchange="setMode('pester')" class="mt-0.5 text-purple-600 focus:ring-purple-500">
+                <div>
+                  <div class="font-bold text-slate-800 text-[11px]">Pester</div>
+                  <div class="text-[10px] text-slate-500 leading-tight">Auto-dismiss only (no 'X')</div>
+                </div>
+              </label>
+
+              <label class="mode-card cursor-pointer border border-slate-200 hover:border-slate-300 p-2.5 rounded-xl flex items-start gap-2 transition-all">
+                <input type="radio" name="toast-mode" value="sticky" onchange="setMode('sticky')" class="mt-0.5 text-purple-600 focus:ring-purple-500">
+                <div>
+                  <div class="font-bold text-slate-800 text-[11px]">Sticky</div>
+                  <div class="text-[10px] text-slate-500 leading-tight">Requires manual close</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. DURATION SLIDER -->
+          <div id="duration-control-container">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="font-bold text-slate-700">Auto-Close Duration</label>
+              <span id="duration-display" class="font-mono font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded text-[11px]">5.0s (5000ms)</span>
+            </div>
+            <input type="range" id="duration-slider" min="1" max="15" step="0.5" value="5" oninput="updateDuration(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+              <span>1s</span>
+              <span>5s (Default)</span>
+              <span>10s</span>
+              <span>15s</span>
+            </div>
+          </div>
+
+          <!-- 4. SOUND & CELEBRATION EFFECTS -->
+          <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+            <!-- Audio Chime Toggle -->
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+                <input type="checkbox" id="sound-toggle" checked onchange="updateSoundSetting(this.checked)" class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4">
+                <span>Sound Effect 🔊</span>
+              </label>
+              <p class="text-[10px] text-slate-500 mt-0.5">Synthesized via Web Audio API (Zero MP3 files / CSP-safe)</p>
+              <button type="button" onclick="testCurrentChime()" class="mt-1.5 text-[10px] text-purple-700 hover:text-purple-900 font-bold underline flex items-center gap-1">
+                ▶ Test Current Sound
+              </button>
+            </div>
+
+            <!-- Confetti Particles Toggle -->
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+                <input type="checkbox" id="confetti-toggle" checked class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4">
+                <span>Celebration Confetti 🎉</span>
+              </label>
+              <p class="text-[10px] text-slate-500 mt-0.5">HTML5 Canvas particle engine for milestones</p>
+              <button type="button" onclick="triggerConfettiCannon()" class="mt-1.5 text-[10px] text-purple-700 hover:text-purple-900 font-bold underline flex items-center gap-1">
+                ✨ Trigger Cannon Now
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. INPUT FIELDS (TITLE & MESSAGE) -->
+          <div class="space-y-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1 flex justify-between">
+                <span>Toast Title</span>
+                <span class="text-[10px] text-slate-400 font-mono">Max 60 chars</span>
+              </label>
+              <input type="text" id="toast-title-input" value="Opportunity Closed-Won! 🎉" oninput="updateInspector()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all shadow-sm">
+            </div>
+
+            <div>
+              <label class="block font-bold text-slate-700 mb-1 flex justify-between">
+                <span>Message Body</span>
+                <span class="text-[10px] text-slate-400 font-mono">Supports text & link</span>
+              </label>
+              <textarea id="toast-message-input" rows="2" oninput="updateInspector()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all shadow-sm">Acme Corp Enterprise SaaS Contract for $185,000 ARR has been provisioned.</textarea>
+            </div>
+
+            <div>
+              <label class="block font-bold text-slate-700 mb-1 flex justify-between">
+                <span>Record Action Link (Optional)</span>
+                <span class="text-[10px] text-slate-400 font-mono">URL or label</span>
+              </label>
+              <input type="text" id="toast-link-input" value="View Opportunity (0068c00000abc12)" oninput="updateInspector()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all shadow-sm">
+            </div>
+          </div>
+
+          <!-- TRIGGER BUTTON -->
+          <div class="pt-2">
+            <button type="button" onclick="fireToastFromUI()" id="btn-fire-toast" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-800 hover:to-indigo-700 text-white font-extrabold text-sm shadow-md shadow-purple-900/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group">
+              <span class="text-base group-hover:scale-125 transition-transform">⚡</span>
+              <span>Fire Flow Toast Now</span>
+              <span class="text-[10px] opacity-75 font-mono ml-1 font-normal bg-white/20 px-1.5 py-0.5 rounded">Enter ↵</span>
+            </button>
+            <p class="text-[10px] text-center text-slate-400 mt-1.5">
+              Can be fired multiple times to test stackable toasts and individual countdowns
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: SIMULATED LIGHTNING SCREEN FLOW RUNTIME -->
+      <div class="lg:col-span-7 space-y-4">
+
+        <!-- Outer Salesforce Lightning Window Frame -->
+        <div class="bg-white rounded-2xl border border-slate-300/80 shadow-md overflow-hidden flex flex-col min-h-[580px] relative">
+          
+          <!-- Confetti Overlay Canvas -->
+          <canvas id="celebration-canvas"></canvas>
+
+          <!-- Simulated Lightning Experience Window Header -->
+          <div class="bg-slate-800 text-slate-300 px-4 py-2.5 text-xs flex items-center justify-between border-b border-slate-700">
+            <div class="flex items-center space-x-2">
+              <div class="flex space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+              </div>
+              <span class="text-slate-400 font-mono text-[11px] ml-2 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-blue-400 fill-current" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                Salesforce Lightning Experience — Flow Screen Viewport
+              </span>
+            </div>
+            <div class="flex items-center space-x-2 text-[10px] font-mono text-slate-400">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-700 text-slate-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Flow Session: Active
+              </span>
+            </div>
+          </div>
+
+          <!-- Lightning Navigation Bar Simulation -->
+          <div class="bg-[#0176d3] text-white px-4 py-2 flex items-center justify-between text-xs shadow-inner">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded bg-white/20 flex items-center justify-center font-bold text-xs">
+                ⚡
+              </div>
+              <div class="font-bold flex items-center gap-2">
+                <span>Fast Order Checkout Flow</span>
+                <span class="text-[10px] font-normal opacity-80">v4.2 (Active)</span>
+              </div>
+            </div>
+            <div class="text-[11px] font-mono opacity-80">
+              Screen: Order_Confirmation_Screen
+            </div>
+          </div>
+
+          <!-- Flow Breadcrumb Progress Indicator -->
+          <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5">
+            <div class="flex items-center justify-between max-w-lg mx-auto text-xs">
+              <div class="flex items-center gap-1.5 text-slate-500">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px] flex items-center justify-center">✓</span>
+                <span class="font-medium text-[11px]">1. Cart</span>
+              </div>
+              <div class="h-0.5 w-8 bg-emerald-300"></div>
+              <div class="flex items-center gap-1.5 text-slate-500">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px] flex items-center justify-center">✓</span>
+                <span class="font-medium text-[11px]">2. Payment</span>
+              </div>
+              <div class="h-0.5 w-8 bg-purple-400"></div>
+              <div class="flex items-center gap-1.5 text-purple-700 font-bold">
+                <span class="w-5 h-5 rounded-full bg-purple-600 text-white font-bold text-[10px] flex items-center justify-center shadow">3</span>
+                <span class="text-[11px]">3. Confirmation</span>
+              </div>
+              <div class="h-0.5 w-8 bg-slate-200"></div>
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 font-bold text-[10px] flex items-center justify-center">4</span>
+                <span class="font-medium text-[11px]">4. Finish</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flow Screen Body & Canvas -->
+          <div class="p-6 flex-1 flex flex-col justify-between relative bg-slate-50/50">
+
+            <!-- ============================================================= -->
+            <!-- LIVE TOAST VIEWPORT CONTAINER (SLDS FLOATING TOASTS)          -->
+            <!-- ============================================================= -->
+            <div id="live-toast-container" class="absolute top-4 left-4 right-4 z-40 pointer-events-none flex flex-col items-center space-y-2.5">
+              <!-- Dynamically injected stacked toasts will render here -->
+            </div>
+
+            <!-- Simulated Flow Screen Card Content -->
+            <div class="space-y-5 max-w-xl mx-auto w-full pt-4">
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+                      📋
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-900 text-sm">Contract Provisioning Confirmation</h4>
+                      <p class="text-[11px] text-slate-500">Order #ORD-88294 • Final Step</p>
+                    </div>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Ready to Activate
+                  </span>
+                </div>
+
+                <!-- Record Details Grid -->
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Account</span>
+                    <span class="font-semibold text-slate-800">Acme Corporation</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Opportunity</span>
+                    <span class="font-semibold text-slate-800">Cloud Migration Enterprise</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Contract ARR</span>
+                    <span class="font-bold text-emerald-700 font-mono text-sm">$185,000.00 USD</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Service Tier</span>
+                    <span class="font-semibold text-purple-700">Enterprise 24/7 Platinum</span>
+                  </div>
+                </div>
+
+                <!-- Embedded Flow Screen Note -->
+                <div class="p-3 bg-purple-50/60 border border-purple-200/80 rounded-xl text-xs space-y-1">
+                  <div class="font-bold text-purple-900 flex items-center gap-1.5">
+                    <span>⚡</span> CleanFlowToast Component Embedded on Screen
+                  </div>
+                  <p class="text-[11px] text-purple-800/80 leading-relaxed">
+                    When this screen loads or when the Admin clicks 'Save & Provision', the embedded LWC invokes the client-side toast engine, generates sound feedback, and optionally auto-advances the flow.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Interactive Quick Triggers inside Flow -->
+              <div class="flex items-center justify-center gap-2">
+                <button type="button" onclick="fireToastFromUI()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all">
+                  <span>🔄 Re-trigger Component</span>
+                </button>
+                <button type="button" onclick="clearAllToasts()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all">
+                  <span>🧹 Dismiss All Toasts</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Standard Salesforce Flow Navigation Footer -->
+            <div class="border-t border-slate-200 pt-4 mt-6 flex items-center justify-between bg-white -mx-6 -mb-6 px-6 py-3.5">
+              <button type="button" onclick="logEvent('Flow Engine', 'Previous button clicked (staying on confirmation screen)')" class="px-4 py-2 border border-slate-300 text-slate-600 hover:text-slate-800 rounded-lg text-xs font-semibold transition-all">
+                Previous
+              </button>
+              
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="logEvent('Flow Engine', 'Pause button clicked — Flow interview paused')" class="px-4 py-2 border border-slate-300 text-slate-600 hover:text-slate-800 rounded-lg text-xs font-semibold transition-all">
+                  Pause
+                </button>
+                <button type="button" onclick="simulateFlowFinish()" class="px-5 py-2 bg-[#0176d3] hover:bg-[#014486] text-white rounded-lg text-xs font-bold shadow transition-all flex items-center gap-1.5">
+                  <span>Finish / Next Step</span>
+                  <span>→</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 4. FLOW BUILDER PROPERTY EDITOR INSPECTOR                                -->
+    <!-- ======================================================================= -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-[#0176d3] flex items-center justify-center text-base font-black">
+            🛠️
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              Salesforce Flow Builder Property Inspector
+              <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-normal">Component: c:cleanFlowToast</span>
+            </h3>
+            <p class="text-[11px] text-slate-500">Live reflection of Admin inputs mapped to Flow Component input variables</p>
+          </div>
+        </div>
+
+        <!-- 1-Click Copy XML Button -->
+        <button type="button" onclick="copyFlowXml()" id="btn-copy-xml" class="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          <span id="copy-xml-text">Copy Flow XML Metadata</span>
+        </button>
+      </div>
+
+      <!-- Properties Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+        
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <span class="text-[10px] text-slate-400 uppercase font-mono font-bold tracking-wider">Property: title</span>
+          <div id="inspector-title" class="font-mono font-bold text-slate-900 truncate">Opportunity Closed-Won! 🎉</div>
+          <span class="text-[10px] text-slate-500 font-mono">Mapped: {!varToastTitle}</span>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <span class="text-[10px] text-slate-400 uppercase font-mono font-bold tracking-wider">Property: variant</span>
+          <div id="inspector-variant" class="font-mono font-bold text-emerald-700">success</div>
+          <span class="text-[10px] text-slate-500 font-mono">SLDS Theme: slds-theme_success</span>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <span class="text-[10px] text-slate-400 uppercase font-mono font-bold tracking-wider">Property: mode</span>
+          <div id="inspector-mode" class="font-mono font-bold text-purple-700">dismissable</div>
+          <span class="text-[10px] text-slate-500 font-mono">Auto-Dismiss + 'X' Icon</span>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <span class="text-[10px] text-slate-400 uppercase font-mono font-bold tracking-wider">Property: duration</span>
+          <div id="inspector-duration" class="font-mono font-bold text-blue-700">5000 ms</div>
+          <span class="text-[10px] text-slate-500 font-mono">Real-time Countdown Bar</span>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <span class="text-[10px] text-slate-400 uppercase font-mono font-bold tracking-wider">Property: playSound</span>
+          <div id="inspector-sound" class="font-mono font-bold text-emerald-700">true (Web Audio API)</div>
+          <span class="text-[10px] text-slate-500 font-mono">Pure Browser Synthesizer</span>
+        </div>
+
+      </div>
+
+      <!-- Collapsible Raw Flow XML Preview -->
+      <details class="text-xs group">
+        <summary class="cursor-pointer font-bold text-slate-600 hover:text-purple-700 transition-colors flex items-center gap-1.5 pt-1">
+          <span>▶ View Salesforce Flow Metadata XML Block</span>
+        </summary>
+        <pre id="flow-xml-preview" class="mt-2.5 p-3.5 bg-slate-900 text-purple-300 font-mono text-[11px] rounded-xl overflow-x-auto leading-relaxed border border-slate-800"></pre>
+      </details>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 5. LIVE SIMULATION EVENT STREAM CONSOLE                                 -->
+    <!-- ======================================================================= -->
+    <div class="bg-slate-900 text-slate-200 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+      
+      <!-- Console Header Bar -->
+      <div class="bg-slate-950 px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+          <span class="font-mono text-xs font-bold text-slate-300 ml-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Flow Engine Event Stream (Live Telemetry)
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="log-counter" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
+            0 Events
+          </span>
+          <button type="button" onclick="clearEventLogs()" class="text-[11px] font-mono text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded transition-colors">
+            Clear Logs
+          </button>
+        </div>
+      </div>
+
+      <!-- Event Stream Log Lines -->
+      <div id="event-log-container" class="p-4 font-mono text-[11px] space-y-1.5 max-h-48 overflow-y-auto leading-relaxed">
+        <!-- Live logs will append here -->
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 6. 1-CLICK INSTALLATION & 2GP METADATA REFERENCE                        -->
+    <!-- ======================================================================= -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <span>📦</span> 1-Click 2GP Package Installation
+          </h3>
+          <p class="text-xs text-slate-500">Deploy clean, managed, second-generation package directly into any Salesforce Org</p>
+        </div>
+        <span class="text-xs font-mono font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
+          Package Version: 04tg7000000WDVBAA4
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        
+        <!-- Dev / Prod Card -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+              <span>🏢</span> Production / Developer Org
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Direct package install via login.salesforce.com</p>
+          </div>
+          <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tg7000000WDVBAA4" target="_blank" rel="noopener noreferrer" class="w-full py-2 bg-[#0176d3] hover:bg-[#014486] text-white font-bold rounded-lg text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+            <span>Install in Production</span> <span>↗</span>
+          </a>
+        </div>
+
+        <!-- Sandbox Card -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+              <span>🧪</span> Sandbox Environment
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Direct package install via test.salesforce.com</p>
+          </div>
+          <a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tg7000000WDVBAA4" target="_blank" rel="noopener noreferrer" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+            <span>Install in Sandbox</span> <span>↗</span>
+          </a>
+        </div>
+
+        <!-- Salesforce CLI Card -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+              <span>💻</span> Salesforce CLI (sf)
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Deploy via terminal command</p>
+          </div>
+          <button type="button" onclick="copyCliCommand()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-mono font-bold rounded-lg text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+            <span id="cli-btn-text">📋 Copy CLI Command</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 7. FOOTER                                                                 -->
+  <!-- ========================================================================= -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-800">Clean Flow Toast & Alerts</span>
+        <span>•</span>
+        <span>Open-Source MIT License</span>
+        <span>•</span>
+        <span>Built for Salesforce Trailblazers</span>
+      </div>
+      <div>
+        <a href="https://github.com/arsalan-arshad/clean-flow-toast-alerts" target="_blank" rel="noopener noreferrer" class="font-semibold text-purple-700 hover:underline">
+          GitHub Repository
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- 8. PURE VANILLA JAVASCRIPT LOGIC & AUDIO SYNTHESIZER                      -->
+  <!-- ========================================================================= -->
+  <script>
+    // Global State
+    const state = {
+      variant: 'success',
+      mode: 'dismissable',
+      duration: 5000,
+      playSound: true,
+      confetti: true,
+      activeToasts: [],
+      nextToastId: 1,
+      eventLogs: []
+    };
+
+    // SLDS Theme Definitions
+    const SLDS_CONFIG = {
+      success: {
+        bg: '#2e844a',
+        textColor: '#ffffff',
+        icon: '✓',
+        iconBg: '#1e5e34',
+        name: 'success',
+        border: '#2e844a'
+      },
+      error: {
+        bg: '#ea001e',
+        textColor: '#ffffff',
+        icon: '✕',
+        iconBg: '#ba0517',
+        name: 'error',
+        border: '#ea001e'
+      },
+      warning: {
+        bg: '#fe9339',
+        textColor: '#080707',
+        icon: '!',
+        iconBg: '#dd7a26',
+        name: 'warning',
+        border: '#fe9339'
+      },
+      info: {
+        bg: '#0176d3',
+        textColor: '#ffffff',
+        icon: 'ℹ',
+        iconBg: '#014486',
+        name: 'info',
+        border: '#0176d3'
+      }
+    };
+
+    // Web Audio Synthesizer (Zero External Dependencies)
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playAudioChime(variant) {
+      if (!state.playSound) return;
+
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        if (variant === 'success') {
+          // Ascending 3-tone pleasant harp chime (C5 -> E5 -> G5)
+          const notes = [523.25, 659.25, 783.99];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+            gain.gain.setValueAtTime(0, now + idx * 0.08);
+            gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.08 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.45);
+          });
+          logEvent('Web Audio', `Synthesized success harmonic chime (523Hz -> 784Hz)`);
+        } else if (variant === 'error') {
+          // Dissonant dual-tone alert buzz (220Hz + 207Hz)
+          [220, 207].forEach(freq => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.38);
+          });
+          logEvent('Web Audio', `Synthesized error dissonant buzz (220Hz & 207Hz)`);
+        } else if (variant === 'warning') {
+          // Double pulse alert ping
+          [440, 440].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+
+            gain.gain.setValueAtTime(0, now + idx * 0.12);
+            gain.gain.linearRampToValueAtTime(0.16, now + idx * 0.12 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.25);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now + idx * 0.12);
+            osc.stop(now + idx * 0.12 + 0.28);
+          });
+          logEvent('Web Audio', `Synthesized warning pulse ping (440Hz double cue)`);
+        } else {
+          // Info: gentle crystal bell (587Hz -> 880Hz)
+          [587.33, 880].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+
+            gain.gain.setValueAtTime(0, now + idx * 0.07);
+            gain.gain.linearRampToValueAtTime(0.15, now + idx * 0.07 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now + idx * 0.07);
+            osc.stop(now + idx * 0.07 + 0.38);
+          });
+          logEvent('Web Audio', `Synthesized info crystal chime (587Hz -> 880Hz)`);
+        }
+      } catch (e) {
+        console.warn('Web Audio synthesis error:', e);
+      }
+    }
+
+    function testCurrentChime() {
+      playAudioChime(state.variant);
+    }
+
+    // Canvas Confetti Celebration Engine
+    let confettiCanvas, confettiCtx;
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function initConfettiCanvas() {
+      confettiCanvas = document.getElementById('celebration-canvas');
+      if (!confettiCanvas) return;
+      confettiCanvas.width = confettiCanvas.parentElement.clientWidth;
+      confettiCanvas.height = confettiCanvas.parentElement.clientHeight;
+      confettiCtx = confettiCanvas.getContext('2d');
+    }
+
+    function triggerConfettiCannon() {
+      initConfettiCanvas();
+      if (!confettiCtx) return;
+
+      cancelAnimationFrame(confettiAnimId);
+      confettiParticles = [];
+
+      const colors = ['#0070d2', '#4bca81', '#ffb75d', '#ea001e', '#9050e9', '#00c6b7', '#ff5388'];
+      const count = 90;
+      const w = confettiCanvas.width;
+      const h = confettiCanvas.height;
+
+      for (let i = 0; i < count; i++) {
+        const isLeft = i % 2 === 0;
+        confettiParticles.push({
+          x: isLeft ? 30 : w - 30,
+          y: h - 30,
+          vx: isLeft ? Math.random() * 8 + 3 : -(Math.random() * 8 + 3),
+          vy: -(Math.random() * 12 + 6),
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 7 + 4,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 12,
+          opacity: 1
+        });
+      }
+
+      const start = Date.now();
+      function render() {
+        const elapsed = (Date.now() - start) / 1000;
+        if (elapsed > 3.5) {
+          confettiCtx.clearRect(0, 0, w, h);
+          return;
+        }
+
+        confettiCtx.clearRect(0, 0, w, h);
+        confettiParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.28; // gravity
+          p.vx *= 0.98; // drag
+          p.rot += p.rotSpeed;
+          if (elapsed > 2.5) p.opacity = Math.max(0, 1 - (elapsed - 2.5));
+
+          confettiCtx.save();
+          confettiCtx.translate(p.x, p.y);
+          confettiCtx.rotate(p.rot * Math.PI / 180);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.globalAlpha = p.opacity;
+          confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          confettiCtx.restore();
+        });
+
+        confettiAnimId = requestAnimationFrame(render);
+      }
+      render();
+      logEvent('Celebration', 'Triggered HTML5 Canvas Confetti Cannon (90 particles)');
+    }
+
+    // UI State Setters
+    function setVariant(variant) {
+      state.variant = variant;
+      
+      // Update button active indicators
+      ['success', 'error', 'warning', 'info'].forEach(v => {
+        const btn = document.getElementById(`btn-variant-${v}`);
+        const dot = btn.querySelector('.active-dot');
+        if (v === variant) {
+          btn.className = `variant-btn relative py-2 px-2.5 rounded-xl border-2 font-bold flex flex-col items-center gap-1 transition-all shadow-sm ${
+            v === 'success' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' :
+            v === 'error' ? 'border-red-600 bg-red-50 text-red-800' :
+            v === 'warning' ? 'border-amber-500 bg-amber-50 text-amber-900' :
+            'border-blue-600 bg-blue-50 text-blue-800'
+          }`;
+          dot.classList.remove('hidden');
+        } else {
+          btn.className = 'variant-btn relative py-2 px-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold flex flex-col items-center gap-1 transition-all';
+          dot.classList.add('hidden');
+        }
+      });
+
+      // Update badge
+      const badge = document.getElementById('variant-name-badge');
+      badge.textContent = variant;
+      badge.className = `font-mono text-[10px] font-semibold px-2 py-0.5 rounded border ${
+        variant === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+        variant === 'error' ? 'bg-red-50 text-red-700 border-red-200' :
+        variant === 'warning' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+        'bg-blue-50 text-blue-700 border-blue-200'
+      }`;
+
+      updateInspector();
+      logEvent('Component', `Variant changed to '${variant}'`);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      
+      // Visually disable duration slider if sticky
+      const durationContainer = document.getElementById('duration-control-container');
+      const durationSlider = document.getElementById('duration-slider');
+      if (mode === 'sticky') {
+        durationSlider.disabled = true;
+        durationContainer.classList.add('opacity-40');
+      } else {
+        durationSlider.disabled = false;
+        durationContainer.classList.remove('opacity-40');
+      }
+
+      updateInspector();
+      logEvent('Component', `Mode set to '${mode}'`);
+    }
+
+    function updateDuration(val) {
+      state.duration = Math.round(parseFloat(val) * 1000);
+      document.getElementById('duration-display').textContent = `${parseFloat(val).toFixed(1)}s (${state.duration}ms)`;
+      updateInspector();
+    }
+
+    function updateSoundSetting(checked) {
+      state.playSound = checked;
+      updateInspector();
+      logEvent('Component', `Sound setting toggled: ${checked}`);
+    }
+
+    function applyPreset(presetKey) {
+      if (presetKey === 'success_deal') {
+        setVariant('success');
+        document.getElementById('toast-title-input').value = "Opportunity Closed-Won! 🎉";
+        document.getElementById('toast-message-input').value = "Acme Corp Enterprise SaaS Contract for $185,000 ARR has been provisioned.";
+        document.getElementById('toast-link-input').value = "View Opportunity (0068c00000abc12)";
+        document.getElementById('confetti-toggle').checked = true;
+      } else if (presetKey === 'error_payment') {
+        setVariant('error');
+        document.getElementById('toast-title-input').value = "Payment Processing Failed";
+        document.getElementById('toast-message-input').value = "Credit card ending in 4242 was declined: Insufficient funds (ERR_DECLINED).";
+        document.getElementById('toast-link-input').value = "Update Payment Method";
+        document.getElementById('confetti-toggle').checked = false;
+      } else if (presetKey === 'warning_stock') {
+        setVariant('warning');
+        document.getElementById('toast-title-input').value = "Low Inventory Warning";
+        document.getElementById('toast-message-input').value = "Only 2 units of SKU-9942 remain in stock. Backorder may apply.";
+        document.getElementById('toast-link-input').value = "Review Warehouse Stock";
+        document.getElementById('confetti-toggle').checked = false;
+      } else if (presetKey === 'info_sync') {
+        setVariant('info');
+        document.getElementById('toast-title-input').value = "ERP Sync Scheduled";
+        document.getElementById('toast-message-input').value = "Account records will sync with SAP NetWeaver tonight at 11:00 PM EST.";
+        document.getElementById('toast-link-input').value = "View Integration Logs";
+        document.getElementById('confetti-toggle').checked = false;
+      }
+      updateInspector();
+      logEvent('User Action', `Applied preset '${presetKey}'`);
+    }
+
+    // Toast Spawner & Lifecycle
+    function fireToastFromUI() {
+      const title = document.getElementById('toast-title-input').value.trim() || 'Notification';
+      const message = document.getElementById('toast-message-input').value.trim() || 'No message provided.';
+      const link = document.getElementById('toast-link-input').value.trim();
+      const triggerConfetti = document.getElementById('confetti-toggle').checked && state.variant === 'success';
+
+      createAndDisplayToast({
+        title,
+        message,
+        link,
+        variant: state.variant,
+        mode: state.mode,
+        duration: state.duration,
+        confetti: triggerConfetti
+      });
+    }
+
+    function createAndDisplayToast(config) {
+      const container = document.getElementById('live-toast-container');
+      const toastId = `toast-${state.nextToastId++}`;
+      const theme = SLDS_CONFIG[config.variant] || SLDS_CONFIG.info;
+
+      const toastEl = document.createElement('div');
+      toastEl.id = toastId;
+      toastEl.className = "toast-enter pointer-events-auto w-full max-w-md rounded-xl shadow-2xl p-3.5 text-white flex flex-col relative overflow-hidden transition-all duration-200 border border-white/20 select-none";
+      toastEl.style.backgroundColor = theme.bg;
+      toastEl.style.color = theme.textColor;
+
+      // Inner Layout
+      const showCloseBtn = config.mode === 'dismissable' || config.mode === 'sticky';
+      toastEl.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-2.5 flex-1 min-w-0">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-inner" style="background-color: ${theme.iconBg}; color: #ffffff;">
+              ${theme.icon}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-xs leading-snug tracking-tight truncate">${escapeHtml(config.title)}</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-black/20 text-white/90 uppercase tracking-wider">${config.variant}</span>
+              </div>
+              <p class="text-[11px] mt-0.5 leading-snug opacity-95 break-words">${escapeHtml(config.message)}</p>
+              ${config.link ? `<a href="#" onclick="event.preventDefault(); logEvent('Flow Action', 'Clicked link: ${escapeHtml(config.link)}');" class="text-[11px] underline font-bold mt-1 inline-block text-white/90 hover:text-white">${escapeHtml(config.link)} ↗</a>` : ''}
+            </div>
+          </div>
+          ${showCloseBtn ? `
+            <button type="button" onclick="dismissToast('${toastId}', 'user_click')" class="text-white/70 hover:text-white p-1 rounded-md hover:bg-black/10 transition-colors leading-none text-sm font-bold shrink-0">
+              ✕
+            </button>
+          ` : ''}
+        </div>
+        ${config.mode !== 'sticky' ? `
+          <!-- Millisecond Progress Bar -->
+          <div class="w-full bg-black/20 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div id="${toastId}-progress" class="bg-white/80 h-full w-full origin-left transition-all ease-linear"></div>
+          </div>
+        ` : ''}
+      `;
+
+      container.prepend(toastEl);
+
+      // Play Sound Chime
+      playAudioChime(config.variant);
+
+      // Celebration Confetti
+      if (config.confetti) {
+        triggerConfettiCannon();
+      }
+
+      logEvent('Component', `Toast #${toastId} spawned (variant: ${config.variant}, mode: ${config.mode}, timeout: ${config.duration}ms)`);
+
+      // Timer & Countdown Lifecycle
+      if (config.mode !== 'sticky') {
+        const startTime = Date.now();
+        const duration = config.duration;
+        let isPaused = false;
+        let pausedElapsed = 0;
+
+        const progressBar = document.getElementById(`${toastId}-progress`);
+
+        // Hover to Pause
+        toastEl.addEventListener('mouseenter', () => {
+          isPaused = true;
+          logEvent('User Action', `Toast #${toastId} hovered — countdown paused`);
+        });
+
+        toastEl.addEventListener('mouseleave', () => {
+          isPaused = false;
+          logEvent('User Action', `Toast #${toastId} mouse leave — countdown resumed`);
+        });
+
+        const interval = setInterval(() => {
+          if (!document.getElementById(toastId)) {
+            clearInterval(interval);
+            return;
+          }
+
+          if (isPaused) {
+            pausedElapsed += 50;
+            return;
+          }
+
+          const elapsed = (Date.now() - startTime) - pausedElapsed;
+          const remainingPct = Math.max(0, 100 - (elapsed / duration) * 100);
+
+          if (progressBar) {
+            progressBar.style.width = `${remainingPct}%`;
+          }
+
+          if (elapsed >= duration) {
+            clearInterval(interval);
+            dismissToast(toastId, 'auto_timeout');
+          }
+        }, 50);
+      }
+    }
+
+    function dismissToast(toastId, reason = 'manual') {
+      const toastEl = document.getElementById(toastId);
+      if (!toastEl) return;
+
+      toastEl.classList.remove('toast-enter');
+      toastEl.classList.add('toast-exit');
+
+      setTimeout(() => {
+        if (toastEl.parentElement) {
+          toastEl.parentElement.removeChild(toastEl);
+        }
+        logEvent('Component', `Toast #${toastId} dismissed (${reason})`);
+      }, 260);
+    }
+
+    function clearAllToasts() {
+      const container = document.getElementById('live-toast-container');
+      if (container) {
+        container.innerHTML = '';
+        logEvent('User Action', 'Cleared all active toasts from viewport');
+      }
+    }
+
+    function simulateFlowFinish() {
+      logEvent('Flow Engine', 'Step 3 completed. Auto-advancing to finish screen...');
+      createAndDisplayToast({
+        title: 'Deal Flow Completed! 🚀',
+        message: 'All screen inputs saved, assets provisioned, and notifications dispatched.',
+        link: 'Return to Lightning Home',
+        variant: 'success',
+        mode: 'pester',
+        duration: 4000,
+        confetti: true
+      });
+    }
+
+    // Flow Builder Property Inspector Updating
+    function updateInspector() {
+      const title = document.getElementById('toast-title-input')?.value.trim() || 'Opportunity Closed-Won!';
+      const variant = state.variant;
+      const mode = state.mode;
+      const duration = state.duration;
+      const sound = state.playSound;
+
+      document.getElementById('inspector-title').textContent = title;
+      document.getElementById('inspector-variant').textContent = variant;
+      document.getElementById('inspector-mode').textContent = mode;
+      document.getElementById('inspector-duration').textContent = `${duration} ms`;
+      document.getElementById('inspector-sound').textContent = `${sound} (Web Audio API)`;
+
+      // Flow XML Metadata Generator
+      const xmlCode = `<fields>
+    <name>Toast_Notification_Component</name>
+    <extensionName>c:cleanFlowToast</extensionName>
+    <fieldType>ComponentInstance</fieldType>
+    <inputParameters>
+        <name>title</name>
+        <value>
+            <stringValue>${escapeXml(title)}</stringValue>
+        </value>
+    </inputParameters>
+    <inputParameters>
+        <name>message</name>
+        <value>
+            <stringValue>${escapeXml(document.getElementById('toast-message-input')?.value.trim() || '')}</stringValue>
+        </value>
+    </inputParameters>
+    <inputParameters>
+        <name>variant</name>
+        <value>
+            <stringValue>${variant}</stringValue>
+        </value>
+    </inputParameters>
+    <inputParameters>
+        <name>mode</name>
+        <value>
+            <stringValue>${mode}</stringValue>
+        </value>
+    </inputParameters>
+    <inputParameters>
+        <name>duration</name>
+        <value>
+            <numberValue>${duration}.0</numberValue>
+        </value>
+    </inputParameters>
+    <inputParameters>
+        <name>playSound</name>
+        <value>
+            <booleanValue>${sound}</booleanValue>
+        </value>
+    </inputParameters>
+    <isRequired>true</isRequired>
+</fields>`;
+
+      document.getElementById('flow-xml-preview').textContent = xmlCode;
+    }
+
+    function copyFlowXml() {
+      const xmlText = document.getElementById('flow-xml-preview').textContent;
+      navigator.clipboard.writeText(xmlText).then(() => {
+        const textSpan = document.getElementById('copy-xml-text');
+        const orig = textSpan.textContent;
+        textSpan.textContent = "Copied to Clipboard! ✓";
+        setTimeout(() => textSpan.textContent = orig, 2000);
+        logEvent('User Action', 'Copied Salesforce Flow XML snippet to clipboard');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+
+    function copyCliCommand() {
+      const cmd = "sf package install --package 04tg7000000WDVBAA4 --wait 20 --target-org <YOUR_ORG_ALIAS>";
+      navigator.clipboard.writeText(cmd).then(() => {
+        const btnText = document.getElementById('cli-btn-text');
+        const orig = btnText.textContent;
+        btnText.textContent = "Command Copied! ✓";
+        setTimeout(() => btnText.textContent = orig, 2000);
+        logEvent('User Action', 'Copied Salesforce CLI install command to clipboard');
+      });
+    }
+
+    // Telemetry & Logging Console
+    function logEvent(category, message) {
+      const container = document.getElementById('event-log-container');
+      const counter = document.getElementById('log-counter');
+      if (!container) return;
+
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      let catColor = "text-purple-400";
+      if (category === 'Flow Engine') catColor = "text-cyan-400";
+      if (category === 'Component') catColor = "text-emerald-400";
+      if (category === 'Web Audio') catColor = "text-purple-400";
+      if (category === 'User Action') catColor = "text-amber-400";
+      if (category === 'Celebration') catColor = "text-pink-400";
+
+      const line = document.createElement('div');
+      line.className = "flex items-start gap-2 hover:bg-slate-800/50 px-1 rounded transition-colors";
+      line.innerHTML = `
+        <span class="text-slate-500 shrink-0">[${time}]</span>
+        <span class="${catColor} font-bold shrink-0">[${category}]</span>
+        <span class="text-slate-200">${escapeHtml(message)}</span>
+      `;
+
+      container.appendChild(line);
+      container.scrollTop = container.scrollHeight;
+
+      state.eventLogs.push({ time, category, message });
+      if (counter) counter.textContent = `${state.eventLogs.length} Events`;
+    }
+
+    function clearEventLogs() {
+      const container = document.getElementById('event-log-container');
+      const counter = document.getElementById('log-counter');
+      if (container) container.innerHTML = '<div class="text-slate-500 italic">Logs cleared. Waiting for Flow events...</div>';
+      state.eventLogs = [];
+      if (counter) counter.textContent = '0 Events';
+    }
+
+    // Utilities
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function escapeXml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+    }
+
+    // Global Keyboard Shortcut: Enter to fire toast
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' && (e.metaKey || e.ctrlKey)) || (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA')) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BODY') {
+          e.preventDefault();
+          fireToastFromUI();
+        }
+      }
+    });
+
+    // Window resize handler for canvas
+    window.addEventListener('resize', () => {
+      initConfettiCanvas();
+    });
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      initConfettiCanvas();
+      updateInspector();
+
+      logEvent('Flow Engine', 'Initializing Flow runtime: Screen Step 3 (Confirmation)');
+      logEvent('Component', 'CleanFlowToast LWC mounted (Version 0.1.0 • 2GP: 04tg7000000WDVBAA4)');
+      logEvent('Flow Engine', 'Auto-firing initial deal confirmation toast...');
+
+      // Auto-fire initial toast on first load for instant delight
+      setTimeout(() => {
+        fireToastFromUI();
+      }, 400);
+    });
+  </script>
+</body>
+</html>

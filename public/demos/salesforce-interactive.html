@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Record Cloner — Interactive Salesforce Demo & Simulation</title>
+  
+  <!-- Salesforce Lightning Design System (SLDS) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.22.1/styles/salesforce-lightning-design-system.min.css">
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --slds-c-brand-header-start: #014486;
+      --slds-c-brand-header-end: #0176D3;
+      --slds-c-accent-cyan: #00A1E0;
+      --slds-c-accent-emerald: #2E844A;
+      --slds-c-terminal-bg: #0B132B;
+      --slds-c-terminal-border: #1C2541;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #F3F3F3;
+      color: #181818;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Custom Header Gradient */
+    .app-header {
+      background: linear-gradient(135deg, var(--slds-c-brand-header-start) 0%, var(--slds-c-brand-header-end) 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(1, 68, 134, 0.25);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+    }
+
+    .badge-pill-success {
+      background: rgba(46, 132, 74, 0.3);
+      border-color: rgba(69, 198, 90, 0.5);
+      color: #A3F9B9;
+    }
+
+    .badge-pill-cyan {
+      background: rgba(0, 161, 224, 0.25);
+      border-color: rgba(0, 161, 224, 0.45);
+      color: #BAEAFF;
+    }
+
+    .cta-btn-primary {
+      background-color: #00A1E0 !important;
+      border-color: #00A1E0 !important;
+      color: #FFFFFF !important;
+      font-weight: 700 !important;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 2px 6px rgba(0, 161, 224, 0.4);
+    }
+    .cta-btn-primary:hover {
+      background-color: #0087BD !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 161, 224, 0.5);
+    }
+
+    .cta-btn-action {
+      background: #FFFFFF !important;
+      color: #0176D3 !important;
+      font-weight: 700 !important;
+      border-color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .cta-btn-action:hover {
+      background: #F3F3F3 !important;
+      transform: translateY(-1px);
+    }
+
+    /* Lightning Path Stage Indicator */
+    .slds-path__item.is-active .slds-path__link {
+      background-color: #0176D3 !important;
+      color: white !important;
+      font-weight: 600;
+    }
+    .slds-path__item.is-won .slds-path__link {
+      background-color: #2E844A !important;
+      color: white !important;
+    }
+    .slds-path__item.is-complete .slds-path__link {
+      background-color: #4BCA81 !important;
+      color: white !important;
+    }
+
+    /* Terminal Console */
+    .terminal-window {
+      background-color: var(--slds-c-terminal-bg);
+      border: 1px solid var(--slds-c-terminal-border);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: #E2E8F0;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background-color: #141E38;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1C2541;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background-color: #FF5F56; }
+    .dot-yellow { background-color: #FFBD2E; }
+    .dot-green { background-color: #27C93F; }
+
+    .terminal-body {
+      padding: 16px;
+      max-height: 480px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .log-entry {
+      margin-bottom: 6px;
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    .log-time { color: #64748B; flex-shrink: 0; }
+    .log-tag-soql { color: #38BDF8; font-weight: 600; }
+    .log-tag-dml { color: #4ADE80; font-weight: 600; }
+    .log-tag-sec { color: #FBBF24; font-weight: 600; }
+    .log-tag-ai { color: #C084FC; font-weight: 600; }
+    .log-tag-info { color: #94A3B8; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal Animation */
+    .slds-modal__container {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .superpower-card {
+      border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      padding: 12px;
+      background: #F9FAFB;
+      transition: all 0.15s ease;
+    }
+    .superpower-card:hover {
+      border-color: #0176D3;
+      background: #F0F7FD;
+    }
+
+    .mono-chip {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: #EEF2F6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #014486;
+      border: 1px solid #CFD8DC;
+    }
+
+    /* Diff View Table */
+    .diff-table th {
+      background: #F3F3F3;
+      font-weight: 700;
+      color: #514F4D;
+      text-transform: uppercase;
+      font-size: 0.6875rem;
+      letter-spacing: 0.05em;
+    }
+
+    .diff-original {
+      background: #FFF5F5;
+      color: #C23934;
+      text-decoration: line-through;
+    }
+
+    .diff-cloned {
+      background: #EBF9F1;
+      color: #2E844A;
+      font-weight: 600;
+    }
+
+    /* Floating Toast */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10000;
+      min-width: 380px;
+      max-width: 500px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(110%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. TOP HEADER & BRANDING                   -->
+  <!-- ========================================== -->
+  <header class="app-header slds-p-around_medium">
+    <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+      
+      <!-- Logo & Title -->
+      <div class="slds-col slds-size_1-1 slds-medium-size_7-12">
+        <div class="slds-media slds-media_center">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-opportunity" style="background-color: #00A1E0; border-radius: 8px; padding: 10px; display: inline-flex;">
+              <svg class="slds-icon slds-icon_small" aria-hidden="true" viewBox="0 0 100 100" fill="white">
+                <path d="M50 15 L85 35 L85 75 L50 95 L15 75 L15 35 Z M50 25 L25 40 L50 55 L75 40 Z M20 48 L20 70 L45 84 L45 62 Z M55 62 L55 84 L80 70 L80 48 Z"/>
+              </svg>
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <div class="slds-grid slds-grid_vertical-align-center slds-wrap" style="gap: 8px;">
+              <h1 class="slds-text-heading_large" style="font-weight: 800; letter-spacing: -0.02em; margin: 0; color: #FFFFFF;">
+                Smart Record Cloner
+              </h1>
+              <span class="badge-pill badge-pill-cyan">v0.2.0 Released</span>
+              <span class="badge-pill badge-pill-success">100% Free MIT</span>
+              <span class="badge-pill">🛡️ AppExchange Verified</span>
+            </div>
+            <p class="slds-text-body_regular" style="color: #E0EFFF; margin-top: 4px; font-weight: 400;">
+              Production-Grade Deep Clone Engine for Salesforce records, child lists, date shifting, and Agentforce AI workflows.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Install CTAs -->
+      <div class="slds-col slds-size_1-1 slds-medium-size_5-12 slds-text-align_right slds-m-top_small slds-medium-m-top_none">
+        <div class="slds-grid slds-grid_align-end" style="gap: 10px; flex-wrap: wrap;">
+          <a href="https://github.com/arsalan-arshad/smart-record-cloner" target="_blank" class="slds-button slds-button_outline-brand" style="border-color: rgba(255,255,255,0.6); color: white; background: rgba(255,255,255,0.08);">
+            <svg class="slds-button__icon slds-button__icon_left" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub Repo
+          </a>
+
+          <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tg7000000V6E1AAK" target="_blank" class="slds-button cta-btn-primary">
+            🚀 1-Click Install Package (04t)
+          </a>
+
+          <button onclick="openCloneModal()" class="slds-button cta-btn-action">
+            ⚡ Clone Acme Opportunity
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. METRICS BANNER STRIP                   -->
+  <!-- ========================================== -->
+  <section class="slds-p-horizontal_large slds-p-vertical_small" style="background: #FFFFFF; border-bottom: 1px solid #D8DDE6;">
+    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap" style="gap: 12px;">
+      <div class="slds-grid slds-grid_vertical-align-center" style="gap: 16px;">
+        <span class="slds-text-title_bold" style="color: #514F4D; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          Source Record:
+        </span>
+        <span class="slds-text-heading_small" style="font-weight: 700; color: #014486;">
+          Acme Cloud Migration & Hybrid ERP
+        </span>
+        <span class="mono-chip">Id: 006g7000002mKLP</span>
+        <span class="slds-badge slds-theme_success" style="font-weight: 600;">$125,000 USD</span>
+      </div>
+
+      <div class="slds-grid slds-grid_vertical-align-center" style="gap: 20px;">
+        <div class="slds-text-align_right">
+          <span class="slds-text-title" style="color: #706E6B; font-size: 0.75rem;">Discovered Related Lists</span>
+          <div class="slds-text-title_bold" style="color: #0176D3;">4 Child Objects (14 Records)</div>
+        </div>
+        <div class="slds-text-align_right">
+          <span class="slds-text-title" style="color: #706E6B; font-size: 0.75rem;">Simulated Clones Generated</span>
+          <div id="clone-count-badge" class="slds-text-title_bold" style="color: #2E844A;">0 Clones Created</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 3. NAVIGATION TABS                         -->
+  <!-- ========================================== -->
+  <main class="slds-p-around_large" style="max-width: 1440px; margin: 0 auto;">
+    
+    <div class="slds-tabs_default">
+      <ul class="slds-tabs_default__nav" role="tablist" style="background: #FFFFFF; border-radius: 8px 8px 0 0; padding: 0 16px; border: 1px solid #DDDBDA; border-bottom: 2px solid #DDDBDA;">
+        <li id="tab-opp-item" class="slds-tabs_default__item slds-is-active" title="Opportunity Deep Clone Demo" role="presentation">
+          <a class="slds-tabs_default__link" href="javascript:void(0);" onclick="switchTab('opp')" role="tab" tabindex="0">
+            💼 1. Opportunity Record & Live Preview
+          </a>
+        </li>
+        <li id="tab-rules-item" class="slds-tabs_default__item" title="Field Overrides & Mapping Config" role="presentation">
+          <a class="slds-tabs_default__link" href="javascript:void(0);" onclick="switchTab('rules')" role="tab" tabindex="-1">
+            ⚙️ 2. Smart Superpowers & Config Rules
+          </a>
+        </li>
+        <li id="tab-logs-item" class="slds-tabs_default__item" title="Apex Execution & Audit Stream" role="presentation">
+          <a class="slds-tabs_default__link" href="javascript:void(0);" onclick="switchTab('logs')" role="tab" tabindex="-1">
+            📟 3. Live Apex Execution & Audit Console
+          </a>
+        </li>
+      </ul>
+
+      <!-- ========================================== -->
+      <!-- TAB 1: OPPORTUNITY RECORD & LIVE PREVIEW   -->
+      <!-- ========================================== -->
+      <div id="tab-opp-content" class="slds-tabs_default__content slds-show slds-p-around_none" role="tabpanel">
+        
+        <!-- Record Page Highlights Panel -->
+        <div class="slds-card slds-m-bottom_medium" style="box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+          <div class="slds-page-header slds-page-header_record-home" style="border: none; border-radius: 8px;">
+            <div class="slds-page-header__row">
+              <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                  <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-opportunity" style="background-color: #E26017; border-radius: 4px; padding: 6px; display: inline-flex;">
+                      <svg class="slds-icon slds-icon_medium" viewBox="0 0 100 100" fill="white">
+                        <circle cx="50" cy="50" r="40"/>
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="slds-media__body">
+                    <nav role="navigation" aria-label="Breadcrumbs">
+                      <ol class="slds-breadcrumb slds-list_horizontal slds-wrap">
+                        <li class="slds-breadcrumb__item"><a href="javascript:void(0);">Opportunities</a></li>
+                        <li class="slds-breadcrumb__item"><a href="javascript:void(0);">Acme Corporation</a></li>
+                      </ol>
+                    </nav>
+                    <h1 class="slds-page-header__title slds-m-right_small slds-truncate" title="Acme Cloud Migration & Hybrid ERP" style="font-weight: 700;">
+                      Acme Cloud Migration & Hybrid ERP
+                    </h1>
+                  </div>
+                </div>
+              </div>
+              <div class="slds-page-header__col-actions">
+                <div class="slds-page-header__controls">
+                  <button onclick="openCloneModal()" class="slds-button slds-button_brand" style="background-color: #0176D3; font-weight: 600;">
+                    ⚡ Clone with Related
+                  </button>
+                  <button onclick="resetDemoState()" class="slds-button slds-button_neutral">
+                    🔄 Reset Demo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Path Chevrons -->
+            <div class="slds-m-top_medium">
+              <div class="slds-path">
+                <div class="slds-grid slds-path__track">
+                  <div class="slds-grid slds-path__scroller-container">
+                    <div class="slds-path__scroller">
+                      <div class="slds-path__scroller_inner">
+                        <ul class="slds-path__nav" role="listbox" aria-orientation="horizontal">
+                          <li class="slds-path__item is-complete" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Prospecting</a></li>
+                          <li class="slds-path__item is-complete" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Qualification</a></li>
+                          <li class="slds-path__item is-complete" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Needs Analysis</a></li>
+                          <li class="slds-path__item is-complete" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Value Proposition</a></li>
+                          <li class="slds-path__item is-active" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Negotiation / Review</a></li>
+                          <li class="slds-path__item is-incomplete" role="presentation"><a class="slds-path__link" href="javascript:void(0);">Closed Won</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Field Highlights Grid -->
+            <ul class="slds-grid slds-page-header__detail-row slds-m-top_medium" style="background: #FAFAF9; padding: 12px; border-radius: 6px; border: 1px solid #E5E5E5;">
+              <li class="slds-page-header__detail-block">
+                <div class="slds-text-title slds-truncate" title="Amount">Amount</div>
+                <div class="slds-text-heading_small slds-truncate" style="font-weight: 700; color: #2E844A;">$125,000.00</div>
+              </li>
+              <li class="slds-page-header__detail-block">
+                <div class="slds-text-title slds-truncate" title="Close Date">Close Date</div>
+                <div class="slds-text-heading_small slds-truncate" id="header-close-date">2026-11-15</div>
+              </li>
+              <li class="slds-page-header__detail-block">
+                <div class="slds-text-title slds-truncate" title="Account Name">Account Name</div>
+                <div class="slds-text-heading_small slds-truncate"><a href="javascript:void(0);">Acme Corporation</a></div>
+              </li>
+              <li class="slds-page-header__detail-block">
+                <div class="slds-text-title slds-truncate" title="Stage">Current Stage</div>
+                <div class="slds-text-heading_small slds-truncate" style="font-weight: 600; color: #0176D3;">Negotiation / Review</div>
+              </li>
+              <li class="slds-page-header__detail-block">
+                <div class="slds-text-title slds-truncate" title="Opportunity Owner">Opportunity Owner</div>
+                <div class="slds-text-heading_small slds-truncate">Arsalan Arshad</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Two Column Record Page Body -->
+        <div class="slds-grid slds-gutters">
+          
+          <!-- Left Column: Live Comparison & Clone Preview -->
+          <div class="slds-col slds-size_1-1 slds-medium-size_7-12">
+            
+            <div class="slds-card" style="box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+              <div class="slds-card__header slds-grid slds-grid_vertical-align-center">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                  <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                      <span class="slds-text-heading_small" style="font-weight: 700;">
+                        🔍 Live Clone Comparison: Original vs. Target Clone
+                      </span>
+                    </h2>
+                  </div>
+                </header>
+                <button onclick="openCloneModal()" class="slds-button slds-button_neutral slds-button_stateful">
+                  ⚡ Adjust Rules
+                </button>
+              </div>
+
+              <div class="slds-card__body slds-card__body_inner">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered diff-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 25%;">Field / Property</th>
+                      <th scope="col" style="width: 37%;">Original Record (Source)</th>
+                      <th scope="col" style="width: 38%;">Cloned Record (Target)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 600;">Opportunity Name</td>
+                      <td>Acme Cloud Migration & Hybrid ERP</td>
+                      <td class="diff-cloned" id="preview-opp-name">Acme Cloud Migration & Hybrid ERP - [CLONE]</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Sales Stage</td>
+                      <td class="diff-original">Negotiation / Review</td>
+                      <td class="diff-cloned" id="preview-opp-stage">Prospecting (Reset to initial)</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Close Date</td>
+                      <td>2026-11-15</td>
+                      <td class="diff-cloned" id="preview-opp-date">2026-12-15 (+30 Days Shifted)</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Opportunity Line Items</td>
+                      <td>5 Products ($125,000)</td>
+                      <td class="diff-cloned" id="preview-opp-items">5 Products Cloned & Reparented</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Contact Roles</td>
+                      <td>3 Key Stakeholders</td>
+                      <td class="diff-cloned" id="preview-opp-contacts">3 Roles Cloned</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Quotes & Line Items</td>
+                      <td>2 Draft/Presented Quotes</td>
+                      <td class="diff-cloned" id="preview-opp-quotes">2 Quotes Cloned</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Open Tasks</td>
+                      <td>4 Pending Follow-ups</td>
+                      <td class="diff-cloned" id="preview-opp-tasks">4 Tasks Re-assigned</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Audit & System Fields</td>
+                      <td>CreatedById, CreatedDate, etc.</td>
+                      <td class="diff-cloned">Cleanly Stripped (Security.stripInaccessible)</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="slds-m-top_medium slds-p-around_small slds-theme_shade" style="border-radius: 6px;">
+                  <div class="slds-grid slds-grid_vertical-align-center" style="gap: 12px;">
+                    <div class="slds-icon_container slds-icon-utility-shield slds-icon-text-default">
+                      🛡️
+                    </div>
+                    <div class="slds-text-body_small" style="color: #444;">
+                      <strong>Enterprise Safety Built-in:</strong> Dynamic Describe checks ensure users without FLS cannot clone forbidden fields. Duplicate rules automatically handled with <code>allowSave = true</code>.
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Last Cloned Record Card (Dynamically populated) -->
+            <div id="cloned-record-card" class="slds-card slds-m-top_medium slds-hide" style="border: 2px solid #2E844A; box-shadow: 0 4px 12px rgba(46, 132, 74, 0.15);">
+              <div class="slds-card__header slds-grid" style="background: #EBF9F1; padding: 12px 16px; border-bottom: 1px solid #A3F9B9;">
+                <div class="slds-media slds-media_center">
+                  <div class="slds-media__figure">🎉</div>
+                  <div class="slds-media__body">
+                    <h3 class="slds-text-heading_small" style="font-weight: 700; color: #2E844A;">
+                      Successfully Cloned! New Record Active in System
+                    </h3>
+                  </div>
+                </div>
+              </div>
+              <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-grid slds-wrap" style="gap: 12px;">
+                  <div class="slds-size_1-1 slds-medium-size_1-2">
+                    <span class="slds-text-title" style="color: #706E6B;">New Cloned Record ID:</span>
+                    <div id="result-record-id" class="mono-chip" style="font-size: 0.9rem; font-weight: 700; color: #0176D3; margin-top: 4px;">
+                      006g7000000X9ABAA1
+                    </div>
+                  </div>
+                  <div class="slds-size_1-1 slds-medium-size_1-2">
+                    <span class="slds-text-title" style="color: #706E6B;">Total Records Created:</span>
+                    <div id="result-metrics" style="font-weight: 700; color: #181818; margin-top: 4px;">
+                      1 Parent + 14 Related Records
+                    </div>
+                  </div>
+                </div>
+                <div class="slds-m-top_medium">
+                  <button onclick="switchTab('logs')" class="slds-button slds-button_outline-brand" style="font-size: 0.8125rem;">
+                    View Detailed DML & SOQL Execution Logs ➔
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Discovered Child Lists Tabs -->
+          <div class="slds-col slds-size_1-1 slds-medium-size_5-12">
+            
+            <!-- Opportunity Line Items Card -->
+            <div class="slds-card slds-m-bottom_medium" style="box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+              <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                  <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-product" style="background: #1B96FF; padding: 4px; border-radius: 4px;">
+                      📦
+                    </span>
+                  </div>
+                  <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                      <span style="font-weight: 700;">Opportunity Products (5)</span>
+                    </h2>
+                  </div>
+                </header>
+                <span class="slds-badge" style="font-weight: 600;">$125,000</span>
+              </div>
+              <div class="slds-card__body slds-card__body_inner">
+                <table class="slds-table slds-table_cell-buffer slds-table_compact slds-table_bordered">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Qty</th>
+                      <th>Sales Price</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 600;">Enterprise Cloud Migration Suite</td>
+                      <td>1</td>
+                      <td>$50,000</td>
+                      <td style="font-weight: 600;">$50,000</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Hybrid ERP Database Connector</td>
+                      <td>2</td>
+                      <td>$15,000</td>
+                      <td style="font-weight: 600;">$30,000</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Premier 24/7 Architect Support</td>
+                      <td>12</td>
+                      <td>$2,000</td>
+                      <td style="font-weight: 600;">$24,000</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Security & Identity Shield License</td>
+                      <td>100</td>
+                      <td>$150</td>
+                      <td style="font-weight: 600;">$15,000</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600;">Custom Integration Services (Hours)</td>
+                      <td>40</td>
+                      <td>$150</td>
+                      <td style="font-weight: 600;">$6,000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Key Contact Roles Card -->
+            <div class="slds-card slds-m-bottom_medium" style="box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+              <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                  <div class="slds-media__figure">👥</div>
+                  <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                      <span style="font-weight: 700;">Opportunity Contact Roles (3)</span>
+                    </h2>
+                  </div>
+                </header>
+              </div>
+              <div class="slds-card__body slds-card__body_inner">
+                <ul class="slds-has-dividers_bottom-space">
+                  <li class="slds-item slds-grid slds-grid_align-spread">
+                    <div>
+                      <strong>Sarah Jenkins</strong> (VP of Engineering)<br>
+                      <span class="slds-text-body_small" style="color: #706E6B;">Decision Maker • s.jenkins@acme.com</span>
+                    </div>
+                    <span class="slds-badge slds-theme_success" style="font-size: 0.65rem;">Primary</span>
+                  </li>
+                  <li class="slds-item slds-grid slds-grid_align-spread">
+                    <div>
+                      <strong>David Chen</strong> (Enterprise Architect)<br>
+                      <span class="slds-text-body_small" style="color: #706E6B;">Technical Evaluator • d.chen@acme.com</span>
+                    </div>
+                    <span class="slds-badge" style="font-size: 0.65rem;">Influencer</span>
+                  </li>
+                  <li class="slds-item slds-grid slds-grid_align-spread">
+                    <div>
+                      <strong>Elena Rostova</strong> (Chief Procurement Officer)<br>
+                      <span class="slds-text-body_small" style="color: #706E6B;">Economic Buyer • e.rostova@acme.com</span>
+                    </div>
+                    <span class="slds-badge" style="font-size: 0.65rem;">Signer</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: FIELD OVERRIDES & CONFIG RULES      -->
+      <!-- ========================================== -->
+      <div id="tab-rules-content" class="slds-tabs_default__content slds-hide slds-p-around_none" role="tabpanel">
+        
+        <div class="slds-card" style="box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+          <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+              <div class="slds-media__body">
+                <h2 class="slds-card__header-title">
+                  <span class="slds-text-heading_small" style="font-weight: 700;">
+                    ⚙️ Smart Record Cloner Superpowers & Field Override Matrix
+                  </span>
+                </h2>
+                <p class="slds-text-body_small" style="color: #706E6B;">
+                  Configure intelligent rules for timeline dates, child filtering, and naming conventions.
+                </p>
+              </div>
+            </header>
+          </div>
+
+          <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-grid slds-gutters slds-wrap">
+              
+              <!-- Rule 1: Smart Date Shifter -->
+              <div class="slds-col slds-size_1-1 slds-medium-size_1-2 slds-m-bottom_medium">
+                <div class="superpower-card">
+                  <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                    <span style="font-weight: 700; color: #014486; font-size: 0.9375rem;">
+                      📅 1. Smart Date Shifter (<code>dateShiftDays</code>)
+                    </span>
+                    <span class="slds-badge slds-theme_brand" style="font-size: 0.7rem;">Automated Arithmetic</span>
+                  </div>
+                  <p class="slds-text-body_small slds-m-bottom_small" style="color: #444;">
+                    Automatically shifts all Date and Datetime fields forward by N days across the parent and all child records (Line item dates, milestone deadlines).
+                  </p>
+                  
+                  <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="cfg-days">Days to Shift Forward:</label>
+                    <div class="slds-form-element__control slds-grid" style="gap: 10px;">
+                      <input type="number" id="cfg-days" class="slds-input" value="30" onchange="updateConfigState()" style="max-width: 120px;">
+                      <button onclick="setDays(30)" class="slds-button slds-button_neutral slds-button_small">+30 Days</button>
+                      <button onclick="setDays(60)" class="slds-button slds-button_neutral slds-button_small">+60 Days</button>
+                      <button onclick="setDays(90)" class="slds-button slds-button_neutral slds-button_small">+90 Days</button>
+                    </div>
+                  </div>
+                  <div class="slds-m-top_small slds-text-body_small" style="color: #2E844A; font-weight: 600;" id="cfg-date-preview">
+                    Calculated Close Date: 2026-12-15 (+30 days)
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rule 2: Child Name Tagging -->
+              <div class="slds-col slds-size_1-1 slds-medium-size_1-2 slds-m-bottom_medium">
+                <div class="superpower-card">
+                  <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                    <span style="font-weight: 700; color: #014486; font-size: 0.9375rem;">
+                      🏷️ 2. Child Name Tagging (<code>childNameSuffix</code>)
+                    </span>
+                    <span class="slds-badge slds-theme_brand" style="font-size: 0.7rem;">Safe String Truncation</span>
+                  </div>
+                  <p class="slds-text-body_small slds-m-bottom_small" style="color: #444;">
+                    Appends customizable identification tags to cloned child records so deals and tasks are instantly searchable in reports without field overflow.
+                  </p>
+                  
+                  <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="cfg-suffix">Child Record Suffix Tag:</label>
+                    <div class="slds-form-element__control">
+                      <input type="text" id="cfg-suffix" class="slds-input" value="[Clone]" oninput="updateConfigState()" style="max-width: 200px;">
+                    </div>
+                  </div>
+                  <div class="slds-m-top_small slds-text-body_small" style="color: #0176D3; font-weight: 600;" id="cfg-name-preview">
+                    Example: "Enterprise Cloud Migration Suite - [Clone]"
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rule 3: Active-Only Child Filter -->
+              <div class="slds-col slds-size_1-1 slds-medium-size_1-2 slds-m-bottom_medium">
+                <div class="superpower-card">
+                  <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                    <span style="font-weight: 700; color: #014486; font-size: 0.9375rem;">
+                      🎯 3. Active-Only Filter (<code>onlyActiveChildren</code>)
+                    </span>
+                    <span class="slds-badge slds-theme_success" style="font-size: 0.7rem;">Smart Noise Filter</span>
+                  </div>
+                  <p class="slds-text-body_small slds-m-bottom_small" style="color: #444;">
+                    Automatically excludes lost opportunities, closed/cancelled cases, or inactive line items so only active, valid records are carried forward.
+                  </p>
+                  
+                  <div class="slds-form-element">
+                    <label class="slds-checkbox_toggle slds-grid">
+                      <input type="checkbox" id="cfg-active-toggle" checked onchange="updateConfigState()">
+                      <span class="slds-checkbox_faux_container" aria-live="assertive">
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-checkbox_on">Active Records Only</span>
+                        <span class="slds-checkbox_off">Include All Historical</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rule 4: Stage & Status Reset -->
+              <div class="slds-col slds-size_1-1 slds-medium-size_1-2 slds-m-bottom_medium">
+                <div class="superpower-card">
+                  <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                    <span style="font-weight: 700; color: #014486; font-size: 0.9375rem;">
+                      🔄 4. Stage & Status Reset (<code>resetStatus</code>)
+                    </span>
+                    <span class="slds-badge slds-theme_info" style="font-size: 0.7rem;">Sales Pipeline Safety</span>
+                  </div>
+                  <p class="slds-text-body_small slds-m-bottom_small" style="color: #444;">
+                    Prevents cloned deals from starting at "Negotiation" or "Closed Won", automatically resetting the pipeline to the initial evaluation stage.
+                  </p>
+                  
+                  <div class="slds-form-element">
+                    <label class="slds-form-element__label" for="cfg-stage-select">Reset Target Stage To:</label>
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container" style="max-width: 240px;">
+                        <select class="slds-select" id="cfg-stage-select" onchange="updateConfigState()">
+                          <option value="Prospecting" selected>Prospecting (Default Initial)</option>
+                          <option value="Qualification">Qualification</option>
+                          <option value="Needs Analysis">Needs Analysis</option>
+                          <option value="Keep Original">Keep Original (Negotiation)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="slds-text-align_right slds-m-top_medium">
+              <button onclick="openCloneModal()" class="slds-button slds-button_brand">
+                ⚡ Apply Rules & Open Cloner Modal
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: APEX EXECUTION & AUDIT STREAM       -->
+      <!-- ========================================== -->
+      <div id="tab-logs-content" class="slds-tabs_default__content slds-hide slds-p-around_none" role="tabpanel">
+        
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="terminal-dot dot-red"></span>
+              <span class="terminal-dot dot-yellow"></span>
+              <span class="terminal-dot dot-green"></span>
+            </div>
+            <div style="font-weight: 600; color: #94A3B8; font-size: 0.75rem;">
+              SmartRecordCloner Apex Service & DML Execution Stream (Savepoint Atomic Session)
+            </div>
+            <div>
+              <button onclick="clearConsole()" class="slds-button slds-button_icon slds-button_icon-inverse" title="Clear Console" style="color: #94A3B8;">
+                🗑️ Clear
+              </button>
+            </div>
+          </div>
+          
+          <div id="terminal-log-body" class="terminal-body">
+            <div class="log-entry">
+              <span class="log-time">[00:00:00.001]</span>
+              <span class="log-tag-info">[INIT]</span>
+              <span>SmartRecordCloner Engine initialized. Schema Describe cache ready.</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[00:00:00.015]</span>
+              <span class="log-tag-soql">[DESCRIBE]</span>
+              <span>Discovered child relationships on Opportunity: OpportunityLineItems, OpportunityContactRoles, Quotes, Tasks.</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[00:00:00.024]</span>
+              <span class="log-tag-sec">[SECURITY]</span>
+              <span>CRUD check: Opportunity (isCreateable=true), OpportunityLineItem (isCreateable=true).</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 4. INTERACTIVE SLDS MODAL DIALOG          -->
+  <!-- ========================================== -->
+  <div id="clone-modal-backdrop" class="slds-backdrop slds-hide"></div>
+  
+  <div id="clone-modal" class="slds-modal slds-modal_medium slds-hide" role="dialog" aria-modal="true">
+    <div class="slds-modal__container" style="max-width: 800px;">
+      
+      <!-- Modal Header -->
+      <header class="slds-modal__header" style="background: #F3F3F3; border-bottom: 2px solid #DDDBDA;">
+        <button onclick="closeCloneModal()" class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+          ✖️
+        </button>
+        <h2 class="slds-modal__title slds-hyphenate" style="font-weight: 800; color: #014486; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span>⚡</span> Smart Record Cloner — Deep Clone Record
+        </h2>
+        <p class="slds-m-top_x-small" style="color: #514F4D; font-size: 0.8125rem;">
+          Source: <strong>Acme Cloud Migration & Hybrid ERP</strong> <code class="mono-chip">006g7000002mKLP</code>
+        </p>
+      </header>
+
+      <!-- Modal Body -->
+      <div class="slds-modal__content slds-p-around_medium" style="max-height: 540px; overflow-y: auto;">
+        
+        <!-- Step 1: Naming & Field Overrides -->
+        <fieldset class="slds-form-element slds-form-element_compound slds-m-bottom_medium">
+          <legend class="slds-form-element__legend slds-form-element__label" style="font-weight: 700; color: #0176D3;">
+            1. CLONED RECORD DETAILS & TIMELINE
+          </legend>
+          <div class="slds-form-element__control">
+            <div class="slds-form-element__row">
+              
+              <div class="slds-size_2-3">
+                <div class="slds-form-element">
+                  <label class="slds-form-element__label" for="modal-input-name">New Opportunity Name:</label>
+                  <div class="slds-form-element__control">
+                    <input type="text" id="modal-input-name" class="slds-input" value="Acme Cloud Migration & Hybrid ERP - [CLONE]">
+                  </div>
+                </div>
+              </div>
+
+              <div class="slds-size_1-3">
+                <div class="slds-form-element">
+                  <label class="slds-form-element__label" for="modal-input-stage">Reset Initial Stage:</label>
+                  <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                      <select class="slds-select" id="modal-input-stage">
+                        <option value="Prospecting" selected>Prospecting</option>
+                        <option value="Qualification">Qualification</option>
+                        <option value="Needs Analysis">Needs Analysis</option>
+                        <option value="Negotiation / Review">Keep Original</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Step 2: Date Shifting & Superpowers Box -->
+        <div class="slds-box slds-m-bottom_medium" style="background: #F9FAFB; border-color: #E2E8F0;">
+          <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small">
+            <span style="font-weight: 700; color: #014486;">⚡ Smart Date Shifting & Child Filters</span>
+            <span class="badge-pill badge-pill-cyan" style="color: #014486; background: #E0F2FE;">Production Ready</span>
+          </div>
+          
+          <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-2">
+              <label class="slds-form-element__label" for="modal-days-shift">📅 Shift All Dates By (Days):</label>
+              <div class="slds-form-element__control slds-grid" style="gap: 8px;">
+                <input type="number" id="modal-days-shift" class="slds-input" value="30" style="max-width: 100px;">
+                <span class="slds-text-body_small" style="align-self: center; color: #2E844A; font-weight: 600;">
+                  ➔ Closes Dec 15, 2026
+                </span>
+              </div>
+            </div>
+
+            <div class="slds-col slds-size_1-2">
+              <label class="slds-form-element__label" for="modal-child-suffix">🏷️ Child Name Suffix Tag:</label>
+              <div class="slds-form-element__control">
+                <input type="text" id="modal-child-suffix" class="slds-input" value="[Clone]">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Child Selection Table -->
+        <fieldset class="slds-form-element">
+          <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small">
+            <legend class="slds-form-element__legend slds-form-element__label" style="font-weight: 700; color: #0176D3; margin: 0;">
+              2. SELECT RELATED LISTS TO DEEP CLONE
+            </legend>
+            <div>
+              <button onclick="toggleAllChildren(true)" class="slds-button slds-button_neutral slds-button_x-small">Select All</button>
+              <button onclick="toggleAllChildren(false)" class="slds-button slds-button_neutral slds-button_x-small">Deselect All</button>
+            </div>
+          </div>
+
+          <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_compact">
+            <thead>
+              <tr class="slds-line-height_reset">
+                <th style="width: 40px;"></th>
+                <th>Child Relationship</th>
+                <th>Target SObject</th>
+                <th>Record Count</th>
+                <th>Estimated Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input type="checkbox" id="chk-products" checked onchange="updateModalSummary()">
+                </td>
+                <td style="font-weight: 600;">Opportunity Line Items</td>
+                <td><code>OpportunityLineItem</code></td>
+                <td><span class="slds-badge slds-theme_success">5 Records</span></td>
+                <td>$125,000.00</td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="chk-contacts" checked onchange="updateModalSummary()">
+                </td>
+                <td style="font-weight: 600;">Contact Roles (Stakeholders)</td>
+                <td><code>OpportunityContactRole</code></td>
+                <td><span class="slds-badge slds-theme_info">3 Contacts</span></td>
+                <td>Key Decision Makers</td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="chk-quotes" checked onchange="updateModalSummary()">
+                </td>
+                <td style="font-weight: 600;">Generated Quotes</td>
+                <td><code>Quote</code></td>
+                <td><span class="slds-badge">2 Quotes</span></td>
+                <td>$125,000.00</td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="chk-tasks" checked onchange="updateModalSummary()">
+                </td>
+                <td style="font-weight: 600;">Open Activities & Tasks</td>
+                <td><code>Task</code></td>
+                <td><span class="slds-badge">4 Tasks</span></td>
+                <td>Due dates auto-shifted</td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+
+        <!-- Dynamic Summary Bar -->
+        <div class="slds-m-top_medium slds-p-around_small slds-theme_shade" style="border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-weight: 600; color: #181818;" id="modal-summary-text">
+            Total to Create: 1 Parent Opportunity + 14 Related Records = 15 Total Records
+          </div>
+          <span class="mono-chip" style="background: #EBF9F1; color: #2E844A; font-weight: 700;">
+            100% Savepoint Safe
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+        <button onclick="closeCloneModal()" class="slds-button slds-button_neutral">
+          Cancel
+        </button>
+        <button onclick="executeDeepClone()" class="slds-button slds-button_brand" style="background-color: #0176D3; font-weight: 700; padding: 0 20px;">
+          ⚡ Execute Deep Clone Now
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 5. SPINNER OVERLAY                        -->
+  <!-- ========================================== -->
+  <div id="loading-spinner" class="slds-spinner_container slds-hide" style="position: fixed; z-index: 10001; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);">
+    <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+      <span class="slds-assistive-text">Processing Deep Clone...</span>
+      <div class="slds-spinner__dot-a"></div>
+      <div class="slds-spinner__dot-b"></div>
+    </div>
+    <div style="position: absolute; top: 58%; width: 100%; text-align: center; font-weight: 700; color: #014486; font-size: 1rem;">
+      Cloning Record & Reparenting 14 Related Records...
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 6. FLOATING TOAST NOTIFICATION             -->
+  <!-- ========================================== -->
+  <div id="toast-notification" class="toast-container slds-hide">
+    <div class="slds-notify slds-notify_toast slds-theme_success" role="status" style="border-radius: 8px;">
+      <span class="slds-assistive-text">Success</span>
+      <span class="slds-icon_container slds-icon-utility-success slds-m-right_small">
+        ✅
+      </span>
+      <div class="slds-notify__content" style="flex: 1;">
+        <h2 class="slds-text-heading_small" style="font-weight: 700; margin: 0;">
+          Deep Clone Successful!
+        </h2>
+        <p class="slds-text-body_regular" id="toast-message" style="margin-top: 2px;">
+          Record 006g7000000X9ABAA1 created with 14 reparented child records.
+        </p>
+      </div>
+      <button onclick="hideToast()" class="slds-button slds-button_icon slds-button_icon-inverse slds-notify__close" title="Close">
+        ✖️
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7. VANILLA JAVASCRIPT REACTIVE CONTROLLER -->
+  <!-- ========================================== -->
+  <script>
+    // State Store
+    const state = {
+      clonesCount: 0,
+      activeTab: 'opp',
+      lastClonedId: null,
+      config: {
+        dateShiftDays: 30,
+        childSuffix: '[Clone]',
+        onlyActive: true,
+        resetStage: 'Prospecting',
+        namePrefix: '',
+        nameSuffix: ' - [CLONE]'
+      },
+      sourceOpp: {
+        id: '006g7000002mKLP',
+        name: 'Acme Cloud Migration & Hybrid ERP',
+        amount: 125000,
+        closeDate: '2026-11-15',
+        stage: 'Negotiation / Review',
+        productsCount: 5,
+        contactsCount: 3,
+        quotesCount: 2,
+        tasksCount: 4
+      }
+    };
+
+    function logToConsole(tag, message, category = 'info') {
+      const now = new Date();
+      const timeStr = `[${now.toTimeString().split(' ')[0]}.${String(now.getMilliseconds()).padStart(3, '0')}]`;
+      const terminal = document.getElementById('terminal-log-body');
+      
+      let tagClass = 'log-tag-info';
+      if (category === 'soql') tagClass = 'log-tag-soql';
+      if (category === 'dml') tagClass = 'log-tag-dml';
+      if (category === 'sec') tagClass = 'log-tag-sec';
+      if (category === 'ai') tagClass = 'log-tag-ai';
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <span class="log-time">${timeStr}</span>
+        <span class="${tagClass}">[${tag}]</span>
+        <span>${message}</span>
+      `;
+      terminal.appendChild(entry);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('terminal-log-body').innerHTML = `
+        <div class="log-entry">
+          <span class="log-time">[System]</span>
+          <span class="log-tag-info">[CLEAR]</span>
+          <span>Execution logs reset by user.</span>
+        </div>
+      `;
+    }
+
+    // Tab Navigation
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      ['opp', 'rules', 'logs'].forEach(t => {
+        const item = document.getElementById(`tab-${t}-item`);
+        const content = document.getElementById(`tab-${t}-content`);
+        if (t === tabName) {
+          item.classList.add('slds-is-active');
+          item.querySelector('a').setAttribute('tabindex', '0');
+          content.classList.remove('slds-hide');
+          content.classList.add('slds-show');
+        } else {
+          item.classList.remove('slds-is-active');
+          item.querySelector('a').setAttribute('tabindex', '-1');
+          content.classList.remove('slds-show');
+          content.classList.add('slds-hide');
+        }
+      });
+    }
+
+    // Modal Controls
+    function openCloneModal() {
+      document.getElementById('modal-input-name').value = state.sourceOpp.name + state.config.nameSuffix;
+      document.getElementById('modal-input-stage').value = state.config.resetStage;
+      document.getElementById('modal-days-shift').value = state.config.dateShiftDays;
+      document.getElementById('modal-child-suffix').value = state.config.childSuffix;
+
+      document.getElementById('clone-modal').classList.remove('slds-hide');
+      document.getElementById('clone-modal-backdrop').classList.remove('slds-hide');
+      updateModalSummary();
+    }
+
+    function closeCloneModal() {
+      document.getElementById('clone-modal').classList.add('slds-hide');
+      document.getElementById('clone-modal-backdrop').classList.add('slds-hide');
+    }
+
+    function toggleAllChildren(checked) {
+      document.getElementById('chk-products').checked = checked;
+      document.getElementById('chk-contacts').checked = checked;
+      document.getElementById('chk-quotes').checked = checked;
+      document.getElementById('chk-tasks').checked = checked;
+      updateModalSummary();
+    }
+
+    function updateModalSummary() {
+      let count = 0;
+      if (document.getElementById('chk-products').checked) count += 5;
+      if (document.getElementById('chk-contacts').checked) count += 3;
+      if (document.getElementById('chk-quotes').checked) count += 2;
+      if (document.getElementById('chk-tasks').checked) count += 4;
+      
+      document.getElementById('modal-summary-text').innerText = 
+        `Total to Create: 1 Parent Opportunity + ${count} Related Records = ${count + 1} Total Records`;
+    }
+
+    // Superpowers config updates
+    function setDays(n) {
+      document.getElementById('cfg-days').value = n;
+      updateConfigState();
+    }
+
+    function updateConfigState() {
+      const days = parseInt(document.getElementById('cfg-days').value) || 0;
+      const suffix = document.getElementById('cfg-suffix').value;
+      const stage = document.getElementById('cfg-stage-select').value;
+      const onlyActive = document.getElementById('cfg-active-toggle').checked;
+
+      state.config.dateShiftDays = days;
+      state.config.childSuffix = suffix;
+      state.config.resetStage = stage;
+      state.config.onlyActive = onlyActive;
+
+      // Update previews in Tab 1 and Tab 2
+      const baseDate = new Date('2026-11-15');
+      baseDate.setDate(baseDate.getDate() + days);
+      const shiftedDateStr = baseDate.toISOString().split('T')[0];
+
+      document.getElementById('cfg-date-preview').innerText = `Calculated Close Date: ${shiftedDateStr} (+${days} days)`;
+      document.getElementById('cfg-name-preview').innerText = `Example: "Enterprise Cloud Migration Suite - ${suffix}"`;
+      document.getElementById('preview-opp-date').innerText = `${shiftedDateStr} (+${days} Days Shifted)`;
+      document.getElementById('preview-opp-stage').innerText = `${stage} (Reset to initial)`;
+
+      logToConsole('CONFIG', `Superpowers updated: dateShiftDays=${days}, childSuffix='${suffix}', resetStage='${stage}'`, 'info');
+    }
+
+    // Execute Deep Clone Workflow
+    function executeDeepClone() {
+      const clonedName = document.getElementById('modal-input-name').value;
+      const shiftDays = parseInt(document.getElementById('modal-days-shift').value) || 0;
+      const childSuffix = document.getElementById('modal-child-suffix').value;
+      const stage = document.getElementById('modal-input-stage').value;
+
+      closeCloneModal();
+      document.getElementById('loading-spinner').classList.remove('slds-hide');
+
+      // Generate simulated Record ID
+      const newIdNum = Math.floor(1000 + Math.random() * 9000);
+      const newCloneId = `006g7000000X9ABAA${newIdNum.toString().slice(0, 1)}`;
+      state.lastClonedId = newCloneId;
+
+      setTimeout(() => {
+        document.getElementById('loading-spinner').classList.add('slds-hide');
+
+        state.clonesCount++;
+        document.getElementById('clone-count-badge').innerText = `${state.clonesCount} Clones Created`;
+
+        // Update UI
+        document.getElementById('cloned-record-card').classList.remove('slds-hide');
+        document.getElementById('result-record-id').innerText = newCloneId;
+        document.getElementById('preview-opp-name').innerText = clonedName;
+
+        // Populate Audit Console
+        logToConsole('SAVEPOINT', 'Database.setSavepoint() created: SP_CLONE_TXN_01', 'sec');
+        logToConsole('SOQL', `SELECT Id, Name, Amount, CloseDate, StageName FROM Opportunity WHERE Id = '${state.sourceOpp.id}' (1 row)`, 'soql');
+        logToConsole('STRIP_INACCESSIBLE', 'Security.stripInaccessible(AccessType.CREATABLE): 0 unauthorized fields stripped', 'sec');
+        logToConsole('DML', `INSERT Opportunity '${clonedName}' ➔ Generated ID: ${newCloneId}`, 'dml');
+        
+        if (shiftDays !== 0) {
+          logToConsole('DATE_SHIFT', `Parent CloseDate shifted by ${shiftDays} days: 2026-11-15 ➔ 2026-12-15`, 'ai');
+        }
+
+        logToConsole('SOQL', `SELECT Id, PricebookEntryId, Quantity, UnitPrice FROM OpportunityLineItem WHERE OpportunityId = '${state.sourceOpp.id}' (5 rows)`, 'soql');
+        logToConsole('REPARENT', `Reparented 5 OpportunityLineItems to new OpportunityId = '${newCloneId}'`, 'soql');
+        logToConsole('DML', `INSERT 5 OpportunityLineItems with suffix '${childSuffix}' (Success)`, 'dml');
+        
+        logToConsole('SOQL', `SELECT ContactId, Role, IsPrimary FROM OpportunityContactRole WHERE OpportunityId = '${state.sourceOpp.id}' (3 rows)`, 'soql');
+        logToConsole('DML', `INSERT 3 OpportunityContactRoles to '${newCloneId}'`, 'dml');
+
+        logToConsole('SOQL', `SELECT Id, Name, GrandTotal FROM Quote WHERE OpportunityId = '${state.sourceOpp.id}' (2 rows)`, 'soql');
+        logToConsole('DML', `INSERT 2 Quotes to '${newCloneId}'`, 'dml');
+
+        logToConsole('SOQL', `SELECT Subject, ActivityDate, Status FROM Task WHERE WhatId = '${state.sourceOpp.id}' (4 rows)`, 'soql');
+        logToConsole('DML', `INSERT 4 Tasks to '${newCloneId}' with shifted DueDates`, 'dml');
+
+        logToConsole('COMMIT', `Transaction completed atomically in 412ms. 1 Parent + 14 Related Records created.`, 'dml');
+
+        // Show Toast
+        showToast(`Opportunity cloned successfully into ${newCloneId} with 14 related records!`);
+
+      }, 600);
+    }
+
+    function showToast(msg) {
+      document.getElementById('toast-message').innerText = msg;
+      const toast = document.getElementById('toast-notification');
+      toast.classList.remove('slds-hide');
+      setTimeout(() => {
+        hideToast();
+      }, 5000);
+    }
+
+    function hideToast() {
+      document.getElementById('toast-notification').classList.add('slds-hide');
+    }
+
+    function resetDemoState() {
+      state.clonesCount = 0;
+      document.getElementById('clone-count-badge').innerText = '0 Clones Created';
+      document.getElementById('cloned-record-card').classList.add('slds-hide');
+      document.getElementById('preview-opp-name').innerText = 'Acme Cloud Migration & Hybrid ERP - [CLONE]';
+      clearConsole();
+      showToast('Demo state reset to initial source record.');
+    }
+
+    // Auto-init
+    window.addEventListener('DOMContentLoaded', () => {
+      logToConsole('READY', 'Demo App fully initialized with SLDS design tokens. Click "⚡ Clone Acme Opportunity" to simulate.', 'ai');
+    });
+  </script>
+
+</body>
+</html>

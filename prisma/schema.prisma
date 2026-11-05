@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum ThreadStatus {
+  NEW
+  ACTIVE
+  CLOSED
+}
+
+enum InquiryStatus {
+  NEW
+  LINKED
+  ARCHIVED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(CLIENT)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  threads      Thread[]  @relation("ClientThreads")
+  messages     Message[]
+  inquiries    Inquiry[]
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  needs     Json          @default("[]")
+  otherNeed String?
+  timeline  String?
+  budget    String?
+  message   String
+  status    InquiryStatus @default(NEW)
+  createdAt DateTime      @default(now())
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
+  threadId  String?       @unique
+  thread    Thread?       @relation(fields: [threadId], references: [id])
+}
+
+model Thread {
+  id        String       @id @default(cuid())
+  subject   String
+  status    ThreadStatus @default(NEW)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  clientId  String
+  client    User         @relation("ClientThreads", fields: [clientId], references: [id])
+  inquiry   Inquiry?
+  messages  Message[]
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  threadId       String
+  thread         Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User     @relation(fields: [senderId], references: [id])
+  body           String
+  attachmentName String?
+  attachmentUrl  String?
+  attachmentSize Int?
+  createdAt      DateTime @default(now())
+
+  @@index([threadId, createdAt])
+}

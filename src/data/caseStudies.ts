@@ -1,4 +1,9 @@
-export type CaseStudyStatus = "live" | "released" | "completed" | "coming-soon";
+export type CaseStudyStatus =
+  | "live"
+  | "released"
+  | "completed"
+  | "pending-shopify"
+  | "coming-soon";
 
 export type CaseStudy = {
   id: string;
@@ -36,9 +41,9 @@ export const caseStudies: CaseStudy[] = [
     id: "pipeline-aware-forecast",
     title: "Pipeline-Aware Forecast",
     category: "shopify",
-    status: "coming-soon",
+    status: "pending-shopify",
     blurb:
-      "Salesforce pipeline becomes forward demand in Shopify forecasting — the connective tissue most stacks skip.",
+      "Salesforce pipeline becomes forward demand in Shopify forecasting — the connective tissue most stacks skip. Pending Shopify review / App Store listing.",
     githubHref: "https://github.com/arsalan-arshad/pipeline-aware-forecast",
     iconSrc: "/brands/shopify/pipeline-aware-forecast/icon.png",
     bannerSrc: "/brands/shopify/pipeline-aware-forecast/banner.png",
@@ -47,9 +52,10 @@ export const caseStudies: CaseStudy[] = [
     id: "bridge-core-recipes",
     title: "Bridge Core Recipes",
     category: "shopify",
-    status: "coming-soon",
+    status: "pending-shopify",
     blurb:
-      "Small shared core + narrow Shopify → Salesforce recipes instead of a bloated horizontal sync.",
+      "Small shared core + narrow Shopify → Salesforce recipes instead of a bloated horizontal sync. Pending Shopify review / App Store listing.",
+    githubHref: "https://github.com/arsalan-arshad/bridge-recipes",
     iconSrc: "/brands/shopify/bridge-core-recipes/icon.png",
     bannerSrc: "/brands/shopify/bridge-core-recipes/banner.png",
   },
@@ -60,6 +66,7 @@ export const caseStudies: CaseStudy[] = [
     status: "coming-soon",
     blurb:
       "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
+    githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
     iconSrc: "/brands/shopify/practitioner-protocols/icon.png",
     bannerSrc: "/brands/shopify/practitioner-protocols/banner.png",
   },
@@ -209,6 +216,7 @@ export const statusLabel: Record<CaseStudyStatus, string> = {
   live: "Live",
   released: "Released",
   completed: "Completed",
+  "pending-shopify": "Pending Shopify",
   "coming-soon": "Coming soon",
 };
 

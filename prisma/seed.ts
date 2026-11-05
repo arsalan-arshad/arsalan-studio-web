@@ -12,12 +12,18 @@ async function main() {
   const passwordHash = await bcrypt.hash(password, 12);
   const admin = await prisma.user.upsert({
     where: { email },
-    update: { passwordHash, name, role: Role.ADMIN },
+    update: {
+      passwordHash,
+      name,
+      role: Role.ADMIN,
+      emailVerified: new Date(),
+    },
     create: {
       email,
       name,
       passwordHash,
       role: Role.ADMIN,
+      emailVerified: new Date(),
     },
   });
 

@@ -1,6 +1,7 @@
 import {
   forbidden,
   getSessionUser,
+  requireVerifiedEmail,
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,8 @@ const schema = z.object({
 export async function POST(request: Request, ctx: Ctx) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  const unverified = requireVerifiedEmail(user);
+  if (unverified) return unverified;
   const { id } = await ctx.params;
 
   const thread = await prisma.thread.findUnique({ where: { id } });

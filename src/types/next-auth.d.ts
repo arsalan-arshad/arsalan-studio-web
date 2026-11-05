@@ -8,11 +8,14 @@ declare module "next-auth" {
       email: string;
       name: string;
       role: Role;
+      /** True when DB emailVerified is set (ADMIN always treated as verified in UI). */
+      isEmailVerified: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: Role;
+    emailVerified?: Date | null;
   }
 }
 
@@ -20,5 +23,6 @@ declare module "@auth/core/jwt" {
   interface JWT {
     id?: string;
     role?: Role;
+    isEmailVerified?: boolean;
   }
 }

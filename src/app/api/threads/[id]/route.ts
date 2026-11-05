@@ -1,6 +1,7 @@
 import {
   forbidden,
   getSessionUser,
+  requireVerifiedEmail,
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -30,6 +31,8 @@ async function loadThreadForUser(id: string, userId: string, isAdmin: boolean) {
 export async function GET(request: Request, ctx: Ctx) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  const unverified = requireVerifiedEmail(user);
+  if (unverified) return unverified;
   const { id } = await ctx.params;
   const thread = await loadThreadForUser(id, user.id, user.role === "ADMIN");
   if (thread === "forbidden") return forbidden();

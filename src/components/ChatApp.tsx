@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 
 type ThreadListItem = {
   id: string;
@@ -43,11 +44,14 @@ export function ChatApp() {
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState("");
   const isAdmin = session?.user?.role === "ADMIN";
+  const emailVerified =
+    isAdmin || Boolean(session?.user?.isEmailVerified);
 
   const loadThreads = useCallback(async () => {
     const res = await fetch("/api/threads");
     const data = await res.json();
     if (res.ok) setThreads(data.threads);
+    else if (data.code === "EMAIL_NOT_VERIFIED") setThreads([]);
   }, []);
 
   const loadThread = useCallback(async (id: string) => {
@@ -57,15 +61,15 @@ export function ChatApp() {
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") loadThreads();
-  }, [status, loadThreads]);
+    if (status === "authenticated" && emailVerified) loadThreads();
+  }, [status, emailVerified, loadThreads]);
 
   useEffect(() => {
-    if (!activeId) return;
+    if (!activeId || !emailVerified) return;
     loadThread(activeId);
     const t = setInterval(() => loadThread(activeId), 4000);
     return () => clearInterval(t);
-  }, [activeId, loadThread]);
+  }, [activeId, emailVerified, loadThread]);
 
   async function createThread(e: FormEvent) {
     e.preventDefault();
@@ -133,6 +137,17 @@ export function ChatApp() {
             Sign up
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (!emailVerified) {
+    return (
+      <div className="mx-auto max-w-lg px-[clamp(1.25rem,4vw,3.5rem)] py-6">
+        <VerifyEmailBanner compact />
+        <p className="mt-4 text-sm text-muted">
+          After you confirm your email, refresh this page to open your inbox.
+        </p>
       </div>
     );
   }

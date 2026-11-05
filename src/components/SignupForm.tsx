@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 
 export function SignupForm() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export function SignupForm() {
       setError(data.error || "Could not register");
       return;
     }
+    trackEvent("signup");
     const login = await signIn("credentials", {
       email: payload.email,
       password: payload.password,
@@ -38,15 +40,18 @@ export function SignupForm() {
     });
     setLoading(false);
     if (login?.error) {
-      router.push("/login");
+      router.push("/login?verify=1");
       return;
     }
-    router.push("/chat");
+    router.push("/chat?verify=1");
     router.refresh();
   }
 
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+      <p className="rounded-sm border border-line bg-bg-elevated px-3 py-2 text-sm text-muted">
+        After signup we’ll email a verification link to unlock Messages.
+      </p>
       <div>
         <label htmlFor="name" className="mb-1.5 block text-sm text-muted">
           Name

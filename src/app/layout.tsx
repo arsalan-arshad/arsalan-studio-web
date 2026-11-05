@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree, Fraunces } from "next/font/google";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -69,6 +70,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${figtree.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-bg font-[family-name:var(--font-body)] text-ink antialiased">
+        <GoogleAnalytics />
         <Providers>
           <SiteHeader />
           <main className="flex-1 pb-24 md:pb-8">{children}</main>

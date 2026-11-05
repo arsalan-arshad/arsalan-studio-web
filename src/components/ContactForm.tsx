@@ -1,6 +1,7 @@
 "use client";
 
 import { projectNeeds } from "@/data/inquiryOptions";
+import { trackEvent } from "@/lib/analytics";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
@@ -43,6 +44,7 @@ export function ContactForm() {
         }),
       });
       if (!res.ok) throw new Error("failed");
+      trackEvent("contact_submit");
       setStatus("sent");
       e.currentTarget.reset();
       setNeeds([]);

@@ -1,6 +1,7 @@
 import {
   forbidden,
   getSessionUser,
+  requireVerifiedEmail,
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -10,6 +11,8 @@ import { z } from "zod";
 export async function GET(request: Request) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  const unverified = requireVerifiedEmail(user);
+  if (unverified) return unverified;
 
   const threads =
     user.role === "ADMIN"
@@ -50,6 +53,8 @@ const createSchema = z.object({
 export async function POST(request: Request) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  const unverified = requireVerifiedEmail(user);
+  if (unverified) return unverified;
   if (user.role === "ADMIN") {
     return forbidden("Admins reply in existing threads");
   }

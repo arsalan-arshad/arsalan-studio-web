@@ -25,16 +25,29 @@ enum InquiryStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  name         String
-  role         Role      @default(CLIENT)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  threads      Thread[]  @relation("ClientThreads")
-  messages     Message[]
-  inquiries    Inquiry[]
+  id            String                   @id @default(cuid())
+  email         String                   @unique
+  passwordHash  String
+  name          String
+  role          Role                     @default(CLIENT)
+  emailVerified DateTime?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  threads       Thread[]                 @relation("ClientThreads")
+  messages      Message[]
+  inquiries     Inquiry[]
+  emailTokens   EmailVerificationToken[]
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Inquiry {

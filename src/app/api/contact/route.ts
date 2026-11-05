@@ -41,9 +41,13 @@ export async function POST(request: Request) {
       },
     });
 
-    // If the email belongs to a registered client, open a follow-up thread.
+    // If the email belongs to a verified registered client, open a follow-up thread.
     let threadId: string | null = null;
-    if (existingUser && existingUser.role === "CLIENT") {
+    if (
+      existingUser &&
+      existingUser.role === "CLIENT" &&
+      existingUser.emailVerified
+    ) {
       const thread = await prisma.thread.create({
         data: {
           subject: `Inquiry from ${name}`,

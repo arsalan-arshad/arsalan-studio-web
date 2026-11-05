@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/auth-helpers";
+import { issueAndSendVerification } from "@/lib/email-verification";
 import { signMobileToken } from "@/lib/mobile-token";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -31,8 +32,15 @@ export async function POST(request: Request) {
         name: body.name,
         passwordHash,
         role: "CLIENT",
+        emailVerified: null,
       },
     });
+
+    try {
+      await issueAndSendVerification(user);
+    } catch (err) {
+      console.error("[register] verification email failed", err);
+    }
 
     const token = signMobileToken({
       sub: user.id,
@@ -44,6 +52,7 @@ export async function POST(request: Request) {
       ok: true,
       user: toPublicUser(user),
       token,
+      needsEmailVerification: true,
     });
   } catch (err) {
     if (err instanceof z.ZodError) {

@@ -21,14 +21,16 @@ Open source PRs are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 | API | Route Handlers under `src/app/api/*` |
 | DB | PostgreSQL + Prisma 6 |
 | Auth | Auth.js (NextAuth v5) credentials + JWT; mobile Bearer JWTs signed with `AUTH_SECRET` |
-| Email | Optional Resend (`RESEND_API_KEY`); inquiries always persist |
+| Email | Resend (`RESEND_API_KEY`) from `noreply@arsalandev.studio` — verification + inquiry notify; inquiries always persist |
+| Analytics | Free **GA4** via `NEXT_PUBLIC_GA_MEASUREMENT_ID` (script omitted when unset) |
 | Host | Railway (`railway.toml`) |
 
 ### Schema (Prisma)
 
-- **User** — `CLIENT` \| `ADMIN`, bcrypt `passwordHash`
+- **User** — `CLIENT` \| `ADMIN`, bcrypt `passwordHash`, optional `emailVerified`
+- **EmailVerificationToken** — signup verify links (24h)
 - **Inquiry** — public contact submissions
-- **Thread** / **Message** — client chat (+ optional attachments)
+- **Thread** / **Message** — client chat (+ optional attachments); gated until email verified
 
 ---
 
@@ -72,9 +74,26 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | `AUTH_SECRET` | Auth.js + mobile JWT HMAC |
 | `AUTH_URL` | Public site origin |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed admin (`npm run db:seed`) |
-| `CONTACT_TO_EMAIL` / `RESEND_API_KEY` | Optional notify |
+| `RESEND_API_KEY` | Send verification + contact notify |
+| `EMAIL_FROM` | From address (default `noreply@arsalandev.studio`) |
+| `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO` | Inquiry notify recipient |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Free GA4 Measurement ID (`G-…`); omit to disable |
 | `UPLOAD_DIR` | Attachment storage root |
 | `NEXT_PUBLIC_SITE_URL` | Public URL for links |
+
+### Email verification
+
+1. Signup creates an unverified client and emails a link from `EMAIL_FROM`.
+2. Open `/verify-email?token=…` (also works without being logged in).
+3. Messages (`/chat` + `/api/threads*`) stay gated until verified. Use **Resend verification** on the chat gate (rate-limited ~60s).
+4. Without `RESEND_API_KEY`, the token is still created and the verify URL is logged (local-friendly).
+
+### Analytics (free forever)
+
+1. [Google Analytics](https://analytics.google.com) → create a **GA4** property → Web data stream for `arsalandev.studio`.
+2. Copy the Measurement ID (`G-XXXXXXXX`) into Railway / `.env` as `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+3. Redeploy. The site loads gtag only when the env is set; events include `page_view`, `signup`, `contact_submit`.
+4. Later: [Google Search Console](https://search.google.com/search-console) for queries/indexing. Optional: PostHog free tier if you want product analytics + mobile later — not required for visit/source reporting.
 
 ---
 
@@ -89,7 +108,9 @@ Do **not** wait on custom DNS. Use Railway’s `*.up.railway.app` URL first; add
    - `AUTH_URL` = `https://YOUR-SERVICE.up.railway.app`
    - `NEXT_PUBLIC_SITE_URL` = same as `AUTH_URL` for now
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`
-   - Optional: `RESEND_API_KEY`, `CONTACT_*`, volume at `/data/uploads` + `UPLOAD_DIR=/data/uploads`
+   - `EMAIL_FROM=noreply@arsalandev.studio`
+   - `RESEND_API_KEY`, `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO`
+   - Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, volume at `/data/uploads` + `UPLOAD_DIR=/data/uploads`
 4. Deploy. `railway.toml` runs `prisma generate` on build and `prisma migrate deploy` on start.
 5. After first deploy: open the Railway URL, then seed admin if not auto-run:
    - Locally against prod DB only if needed, or use Railway shell: `npm run db:seed`
@@ -104,9 +125,10 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Surface | Path |
 |---|---|
 | Contact | `/contact` → `POST /api/contact` |
-| Auth | `/login`, `/signup` |
-| Chat | `/chat` |
+| Auth | `/login`, `/signup`, `/verify-email` |
+| Chat | `/chat` (email verified) |
 | Admin | `/admin` (server-gated `role === ADMIN`) |
+| SEO | `/sitemap.xml`, `/robots.txt` |
 
 ---
 

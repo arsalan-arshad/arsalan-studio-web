@@ -9,6 +9,7 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") || "/chat";
+  const showVerifyHint = params.get("verify") === "1";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +34,11 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+      {showVerifyHint ? (
+        <p className="rounded-sm border border-accent/40 bg-accent-wash px-3 py-2 text-sm text-ink">
+          Check your inbox for a verification link before using Messages.
+        </p>
+      ) : null}
       <div>
         <label htmlFor="email" className="mb-1.5 block text-sm text-muted">
           Email

@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { isEmailVerified } from "@/lib/email-verification";
 import { prisma } from "@/lib/prisma";
 import { verifyMobileToken } from "@/lib/mobile-token";
 import type { Role, User } from "@prisma/client";
@@ -9,6 +10,7 @@ export type SessionUser = {
   email: string;
   name: string;
   role: Role;
+  emailVerified: boolean;
 };
 
 export async function getSessionUser(
@@ -16,11 +18,18 @@ export async function getSessionUser(
 ): Promise<SessionUser | null> {
   const session = await auth();
   if (session?.user?.id) {
+    // Prefer live DB flag so verify-email takes effect without re-login
+    const db = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { emailVerified: true, role: true, email: true, name: true },
+    });
+    if (!db) return null;
     return {
       id: session.user.id,
-      email: session.user.email,
-      name: session.user.name,
-      role: session.user.role,
+      email: db.email,
+      name: db.name,
+      role: db.role,
+      emailVerified: isEmailVerified(db),
     };
   }
 
@@ -38,6 +47,7 @@ export async function getSessionUser(
     email: user.email,
     name: user.name,
     role: user.role,
+    emailVerified: isEmailVerified(user),
   };
 }
 
@@ -47,6 +57,24 @@ export function unauthorized(message = "Unauthorized") {
 
 export function forbidden(message = "Forbidden") {
   return NextResponse.json({ ok: false, error: message }, { status: 403 });
+}
+
+export function emailUnverified() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "Email not verified",
+      code: "EMAIL_NOT_VERIFIED",
+    },
+    { status: 403 },
+  );
+}
+
+/** Gate client chat mutations/reads until email is verified. Admins pass. */
+export function requireVerifiedEmail(user: SessionUser) {
+  if (user.role === "ADMIN") return null;
+  if (user.emailVerified) return null;
+  return emailUnverified();
 }
 
 export function requireAdmin(user: SessionUser | null) {
@@ -59,5 +87,6 @@ export function toPublicUser(user: User) {
     email: user.email,
     name: user.name,
     role: user.role,
+    emailVerified: Boolean(user.emailVerified) || user.role === "ADMIN",
   };
 }

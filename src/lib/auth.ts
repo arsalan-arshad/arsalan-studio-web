@@ -36,18 +36,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          emailVerified: user.emailVerified,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id!;
         token.role = user.role;
         token.name = user.name;
         token.email = user.email;
+        token.isEmailVerified =
+          user.role === "ADMIN" ||
+          Boolean((user as { emailVerified?: Date | null }).emailVerified);
       }
+
+      // Refresh verification flag after verify-email or resend flows
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: String(token.id) },
+          select: { emailVerified: true, role: true, name: true, email: true },
+        });
+        if (dbUser) {
+          token.isEmailVerified =
+            dbUser.role === "ADMIN" || Boolean(dbUser.emailVerified);
+          token.name = dbUser.name;
+          token.email = dbUser.email;
+          token.role = dbUser.role;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -56,6 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as Role;
         session.user.name = String(token.name ?? "");
         session.user.email = String(token.email ?? "");
+        session.user.isEmailVerified = Boolean(token.isEmailVerified);
       }
       return session;
     },

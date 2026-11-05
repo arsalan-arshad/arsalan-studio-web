@@ -9,30 +9,52 @@ export function CaseStudyVisual({
   study,
   size = "md",
   banner = false,
+  fit = "contain",
   className = "",
 }: {
   study: Pick<CaseStudy, "iconSrc" | "bannerSrc" | "category" | "title">;
   size?: "md" | "lg";
   banner?: boolean;
+  /** cover = listing crop; contain = full banner (case study pages) */
+  fit?: "contain" | "cover";
   className?: string;
 }) {
   if (banner && study.bannerSrc) {
+    const fitClass =
+      fit === "cover"
+        ? "h-full w-full object-cover object-center"
+        : "h-auto w-full object-contain object-center";
+
     if (isSvg(study.bannerSrc)) {
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={study.bannerSrc}
           alt=""
-          className={`object-cover object-center ${className}`}
+          className={`${fitClass} ${className}`}
         />
       );
     }
+
+    if (fit === "cover") {
+      return (
+        <Image
+          src={study.bannerSrc}
+          alt=""
+          fill
+          className={`object-cover object-center ${className}`}
+          sizes="(max-width: 768px) 100vw, 768px"
+        />
+      );
+    }
+
     return (
       <Image
         src={study.bannerSrc}
         alt=""
-        fill
-        className={`object-cover object-center ${className}`}
+        width={1600}
+        height={900}
+        className={`h-auto w-full object-contain object-center ${className}`}
         sizes="(max-width: 768px) 100vw, 768px"
       />
     );

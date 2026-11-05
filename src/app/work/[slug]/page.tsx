@@ -51,8 +51,8 @@ export default async function CaseStudyPage({ params }: Props) {
         </div>
 
         {study.bannerSrc ? (
-          <div className="relative mt-8 h-40 overflow-hidden rounded-md border border-line bg-bg-elevated sm:h-52">
-            <CaseStudyVisual study={study} banner className="h-full w-full" />
+          <div className="mt-8 w-full overflow-hidden rounded-md border border-line bg-bg-elevated">
+            <CaseStudyVisual study={study} banner fit="contain" />
           </div>
         ) : null}
 

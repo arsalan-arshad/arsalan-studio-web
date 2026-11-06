@@ -20,7 +20,7 @@ Open source PRs are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 | Framework | Next.js 16 (App Router) + TypeScript + Tailwind v4 |
 | API | Route Handlers under `src/app/api/*` |
 | DB | PostgreSQL + Prisma 6 |
-| Auth | Auth.js (NextAuth v5) credentials + JWT; mobile Bearer JWTs signed with `AUTH_SECRET` |
+| Auth | Auth.js (NextAuth v5) credentials + JWT cookie (web); mobile Bearer access JWTs + rotatable refresh tokens |
 | Email | Resend (`RESEND_API_KEY`) from `noreply@arsalandev.studio` — verification + inquiry notify; inquiries always persist |
 | Analytics | Free **GA4** via `NEXT_PUBLIC_GA_MEASUREMENT_ID` (script omitted when unset) |
 | Host | Railway (`railway.toml`) |
@@ -29,8 +29,26 @@ Open source PRs are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 - **User** — `CLIENT` \| `ADMIN`, bcrypt `passwordHash`, optional `emailVerified`
 - **EmailVerificationToken** — signup verify links (24h)
+- **RefreshToken** — opaque mobile/API refresh tokens (sha256 at rest, 30d, rotatable)
 - **Inquiry** — public contact submissions
 - **Thread** / **Message** — client chat (+ optional attachments); gated until email verified
+
+### Auth model (web vs Bearer)
+
+| Surface | Mechanism | Lifetime |
+|---|---|---|
+| **Web (browser)** | Auth.js JWT **session cookie** | Unchanged Auth.js defaults (~30d) — kept for UX; no refresh-token dance in the browser |
+| **Mobile / API** | Bearer **access** JWT (`Authorization: Bearer …`) | **1 hour** (`expiresIn: 3600`) |
+| **Mobile / API** | Opaque **refresh** token (POST body only; never in URLs) | **30 days**; stored hashed; **rotated** on each `/api/auth/refresh` |
+
+Bearer endpoints:
+
+- `POST /api/auth/token` — login → `{ accessToken, refreshToken, expiresIn }` (also `token` alias = access)
+- `POST /api/auth/register` — same token shape
+- `POST /api/auth/refresh` — `{ refreshToken }` → new access + refresh; old refresh revoked
+- `POST /api/auth/logout` — `{ refreshToken }` or `{ all: true }` with session/Bearer
+
+Access verification stays in `auth-helpers` via `verifyMobileToken` (expired access → 401). Refresh tokens are not JWTs; an access JWT submitted as `refreshToken` is rejected.
 
 ---
 
@@ -71,7 +89,7 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | Var | Purpose |
 |---|---|
 | `DATABASE_URL` | Postgres connection |
-| `AUTH_SECRET` | Auth.js + mobile JWT HMAC |
+| `AUTH_SECRET` | Auth.js + mobile access-JWT HMAC (refresh tokens are opaque DB rows, not signed with this) |
 | `AUTH_URL` | Public site origin |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed admin (`npm run db:seed`) |
 | `RESEND_API_KEY` | Send verification + contact notify |

@@ -37,6 +37,23 @@ model User {
   messages      Message[]
   inquiries     Inquiry[]
   emailTokens   EmailVerificationToken[]
+  refreshTokens RefreshToken[]
+}
+
+/** Opaque Bearer refresh tokens (sha256 at rest). Mobile / API clients only — not Auth.js cookies. */
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  userAgent String?
+  ip        String?
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model EmailVerificationToken {

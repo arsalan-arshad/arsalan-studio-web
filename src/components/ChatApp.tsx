@@ -40,6 +40,8 @@ export function ChatApp() {
   const [activeId, setActiveId] = useState<string | null>(params.get("thread"));
   const [thread, setThread] = useState<ThreadDetail | null>(null);
   const [replyBody, setReplyBody] = useState("");
+  const [replyFile, setReplyFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [newSubject, setNewSubject] = useState("");
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState("");
@@ -92,11 +94,40 @@ export function ChatApp() {
 
   async function sendMessage(e: FormEvent) {
     e.preventDefault();
-    if (!activeId || !replyBody.trim()) return;
+    if (!activeId || (!replyBody.trim() && !replyFile)) return;
+    setError("");
+    let attachmentKey: string | undefined;
+    let attachmentName: string | undefined;
+    let attachmentSize: number | undefined;
+
+    if (replyFile) {
+      setUploading(true);
+      try {
+        const form = new FormData();
+        form.append("file", replyFile);
+        const up = await fetch("/api/uploads", { method: "POST", body: form });
+        const upData = await up.json();
+        if (!up.ok) {
+          setError(upData.error || "Upload failed");
+          return;
+        }
+        attachmentKey = upData.key;
+        attachmentName = upData.name;
+        attachmentSize = upData.size;
+      } finally {
+        setUploading(false);
+      }
+    }
+
     const res = await fetch(`/api/threads/${activeId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: replyBody }),
+      body: JSON.stringify({
+        body: replyBody.trim() || (attachmentName ? `Attached ${attachmentName}` : ""),
+        attachmentKey,
+        attachmentName,
+        attachmentSize,
+      }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -104,6 +135,7 @@ export function ChatApp() {
       return;
     }
     setReplyBody("");
+    setReplyFile(null);
     await loadThread(activeId);
     await loadThreads();
   }
@@ -269,16 +301,48 @@ export function ChatApp() {
                 </div>
               ))}
             </div>
-            <form onSubmit={sendMessage} className="border-t border-line pt-3 flex gap-2">
-              <input
-                className="input-field flex-1"
-                placeholder="Write a message…"
-                value={replyBody}
-                onChange={(e) => setReplyBody(e.target.value)}
-              />
-              <button type="submit" className="btn-primary !px-4">
-                Send
-              </button>
+            <form onSubmit={sendMessage} className="border-t border-line pt-3 space-y-2">
+              <div className="flex flex-wrap gap-2">
+                <input
+                  className="input-field flex-1 min-w-[12rem]"
+                  placeholder="Write a message…"
+                  value={replyBody}
+                  onChange={(e) => setReplyBody(e.target.value)}
+                  disabled={uploading}
+                />
+                <label className="btn-ghost !px-3 cursor-pointer text-sm">
+                  Attach
+                  <input
+                    type="file"
+                    className="sr-only"
+                    onChange={(e) => setReplyFile(e.target.files?.[0] ?? null)}
+                    disabled={uploading}
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="btn-primary !px-4"
+                  disabled={uploading || (!replyBody.trim() && !replyFile)}
+                >
+                  {uploading ? "Uploading…" : "Send"}
+                </button>
+              </div>
+              {replyFile ? (
+                <p className="text-xs text-muted">
+                  File: {replyFile.name}{" "}
+                  <button
+                    type="button"
+                    className="text-accent hover:underline"
+                    onClick={() => setReplyFile(null)}
+                  >
+                    remove
+                  </button>
+                </p>
+              ) : (
+                <p className="text-xs text-muted">
+                  Attachments via Cloudflare R2 (max 10 MB) — private, signed links.
+                </p>
+              )}
             </form>
             {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
           </>

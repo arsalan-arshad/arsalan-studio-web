@@ -96,8 +96,15 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | `EMAIL_FROM` | From address (default `noreply@arsalandev.studio`) |
 | `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO` | Inquiry notify recipient |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Free GA4 Measurement ID (`G-…`); omit to disable |
-| `UPLOAD_DIR` | Attachment storage root |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` | Cloudflare R2 private attachments |
 | `NEXT_PUBLIC_SITE_URL` | Public URL for links |
+
+### File storage (Cloudflare R2)
+
+1. Cloudflare → **R2** → create bucket (e.g. `arsalan-studio-uploads`) — keep **private**.
+2. **Manage R2 API Tokens** → create token with Object Read & Write on that bucket.
+3. Set Railway env: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`.
+4. Chat **Attach** → `POST /api/uploads` → object key stored on the message; clients receive **signed URLs** (~1h) when loading the thread (not public forever).
 
 ### Email verification
 
@@ -128,7 +135,8 @@ Do **not** wait on custom DNS. Use Railway’s `*.up.railway.app` URL first; add
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`
    - `EMAIL_FROM=noreply@arsalandev.studio`
    - `RESEND_API_KEY`, `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO`
-   - Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, volume at `/data/uploads` + `UPLOAD_DIR=/data/uploads`
+   - Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+   - R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
 4. Deploy. `railway.toml` runs `prisma generate` on build and `prisma migrate deploy` on start.
 5. After first deploy: open the Railway URL, then seed admin if not auto-run:
    - Locally against prod DB only if needed, or use Railway shell: `npm run db:seed`

@@ -5,6 +5,7 @@ import {
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { withSignedAttachments } from "@/lib/r2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -39,7 +40,11 @@ export async function GET(request: Request, ctx: Ctx) {
   if (!thread) {
     return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json({ ok: true, thread });
+  const messages = await withSignedAttachments(thread.messages);
+  return NextResponse.json({
+    ok: true,
+    thread: { ...thread, messages },
+  });
 }
 
 const patchSchema = z.object({

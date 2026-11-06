@@ -46,8 +46,7 @@ next-env.d.ts
 # Prisma generated client (if present)
 /src/generated/prisma
 
-# Local uploads / DB volumes
+# Local upload files (not the API route src/app/api/uploads)
 /uploads/
-uploads/
 *.db
 *.db-journal

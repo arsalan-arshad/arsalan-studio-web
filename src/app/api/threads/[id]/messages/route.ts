@@ -5,17 +5,28 @@ import {
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { isR2ObjectKey, signedDownloadUrl } from "@/lib/r2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-const schema = z.object({
-  body: z.string().trim().min(1).max(10000),
-  attachmentName: z.string().trim().max(255).optional(),
-  attachmentUrl: z.string().trim().max(500).optional(),
-  attachmentSize: z.number().int().positive().max(10_000_000).optional(),
-});
+const schema = z
+  .object({
+    body: z.string().trim().max(10000).optional().default(""),
+    /** R2 object key from POST /api/uploads (private). */
+    attachmentKey: z
+      .string()
+      .trim()
+      .max(500)
+      .refine((v) => isR2ObjectKey(v), "Invalid attachment key")
+      .optional(),
+    attachmentName: z.string().trim().max(255).optional(),
+    attachmentSize: z.number().int().positive().max(10_000_000).optional(),
+  })
+  .refine((d) => Boolean(d.body?.trim()) || Boolean(d.attachmentKey), {
+    message: "Message body or attachment required",
+  });
 
 export async function POST(request: Request, ctx: Ctx) {
   const user = await getSessionUser(request);
@@ -40,13 +51,27 @@ export async function POST(request: Request, ctx: Ctx) {
 
   try {
     const data = schema.parse(await request.json());
+    if (data.attachmentKey && !data.attachmentKey.includes(`/${user.id}/`)) {
+      // Keys are namespaced by uploader id from /api/uploads
+      if (user.role !== "ADMIN") {
+        return NextResponse.json(
+          { ok: false, error: "Invalid attachment" },
+          { status: 400 },
+        );
+      }
+    }
+
+    const bodyText =
+      data.body.trim() ||
+      (data.attachmentName ? `Attached ${data.attachmentName}` : "Attachment");
+
     const message = await prisma.message.create({
       data: {
         threadId: id,
         senderId: user.id,
-        body: data.body,
+        body: bodyText,
         attachmentName: data.attachmentName,
-        attachmentUrl: data.attachmentUrl,
+        attachmentUrl: data.attachmentKey ?? null,
         attachmentSize: data.attachmentSize,
       },
       include: {
@@ -71,7 +96,19 @@ export async function POST(request: Request, ctx: Ctx) {
       },
     });
 
-    return NextResponse.json({ ok: true, message });
+    let attachmentUrl = message.attachmentUrl;
+    if (attachmentUrl && isR2ObjectKey(attachmentUrl)) {
+      try {
+        attachmentUrl = await signedDownloadUrl(attachmentUrl);
+      } catch {
+        /* keep key if signing fails */
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      message: { ...message, attachmentUrl },
+    });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ ok: false, error: "Invalid input" }, { status: 400 });

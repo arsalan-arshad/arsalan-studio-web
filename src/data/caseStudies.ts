@@ -217,6 +217,8 @@ export const caseStudies: CaseStudy[] = [
       "Stockroom Studio hub for AI influencer characters (Nana Says, Pallet the Robot) — labeled as AI, not human creators.",
     liveHref: "https://influencer-hub-production-23f6.up.railway.app/",
     liveLabel: "Live",
+    iconSrc: "/brands/other/influencer-hub/icon.png",
+    bannerSrc: "/brands/other/influencer-hub/banner.png",
   },
 ];
 

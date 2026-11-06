@@ -175,6 +175,8 @@ export const caseStudies: CaseStudy[] = [
     liveHref: "https://www.npmjs.com/package/urdu-business-nlu",
     liveLabel: "Live",
     githubHref: "https://github.com/arsalan-arshad/urdu-business-nlu",
+    iconSrc: "/brands/other/urdu-business-nlu/icon.png",
+    bannerSrc: "/brands/other/urdu-business-nlu/banner.png",
   },
   {
     id: "sme-automation",
@@ -183,6 +185,8 @@ export const caseStudies: CaseStudy[] = [
     status: "coming-soon",
     blurb:
       "Fixed-scope WhatsApp / ERP / Shopify / Salesforce automation with open-source recipes and honest exclusions.",
+    iconSrc: "/brands/other/sme-automation/icon.png",
+    bannerSrc: "/brands/other/sme-automation/banner.png",
   },
   {
     id: "eu-ai-act-checker",
@@ -191,6 +195,8 @@ export const caseStudies: CaseStudy[] = [
     status: "coming-soon",
     blurb:
       "Open scanner for public-site AI Act transparency basics + paid audit report. Technical check, not legal advice.",
+    iconSrc: "/brands/other/eu-ai-act-checker/icon.png",
+    bannerSrc: "/brands/other/eu-ai-act-checker/banner.png",
   },
   {
     id: "freight-exceptions",
@@ -199,6 +205,8 @@ export const caseStudies: CaseStudy[] = [
     status: "coming-soon",
     blurb:
       "Deterministic exception rules for small brokers/3PLs — AI extracts and drafts; humans approve.",
+    iconSrc: "/brands/other/freight-exceptions/icon.png",
+    bannerSrc: "/brands/other/freight-exceptions/banner.png",
   },
   {
     id: "influencer-hub",

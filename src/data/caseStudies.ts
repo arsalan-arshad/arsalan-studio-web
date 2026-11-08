@@ -8,7 +8,7 @@ export type CaseStudyStatus =
 export type CaseStudy = {
   id: string;
   title: string;
-  category: "shopify" | "salesforce" | "other";
+  category: "ai" | "shopify" | "salesforce" | "other";
   status: CaseStudyStatus;
   blurb: string;
   /** App Store / npm / package install / hosted product */
@@ -23,6 +23,18 @@ export type CaseStudy = {
 };
 
 export const caseStudies: CaseStudy[] = [
+  // AI — listed first on home / work
+  {
+    id: "pathwise",
+    title: "Pathwise",
+    category: "ai",
+    status: "released",
+    blurb:
+      "Query planner for RAG and agent pipelines — declare your quality SLA; Pathwise picks the cheapest plan per request. Open-source TypeScript SDK.",
+    githubHref: "https://github.com/arsalan-arshad/pathwise",
+    iconSrc: "/brands/ai/pathwise/icon.png",
+    bannerSrc: "/brands/ai/pathwise/banner.png",
+  },
   // Shopify
   {
     id: "ai-forecast-agent",

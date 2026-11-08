@@ -10,6 +10,8 @@ datasource db {
 enum Role {
   CLIENT
   ADMIN
+  /** Support desk: inquiries + invite CLIENT/SUB_ADMIN; no client chat decrypt/access. */
+  SUB_ADMIN
 }
 
 enum ThreadStatus {
@@ -164,8 +166,20 @@ model Message {
   thread         Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
   senderId       String
   sender         User     @relation(fields: [senderId], references: [id])
+  /**
+   * Message text. When bodyVersion=1 this is AES-256-GCM ciphertext (base64);
+   * decrypt with CHAT_ENCRYPTION_SECRET + bodyNonce for authorized participants only.
+   */
   body           String
+  /** Base64 12-byte IV for AES-GCM (null when bodyVersion=0 plaintext legacy). */
+  bodyNonce      String?
+  /** 0 = plaintext (legacy / no secret); 1 = AES-256-GCM ciphertext in body. */
+  bodyVersion    Int      @default(0)
   attachmentName String?
+  /** Base64 IV when attachmentNameVersion=1. */
+  attachmentNameNonce   String?
+  /** 0 = plaintext filename; 1 = AES-GCM ciphertext in attachmentName. */
+  attachmentNameVersion Int      @default(0)
   attachmentUrl  String?
   attachmentSize Int?
   createdAt      DateTime @default(now())

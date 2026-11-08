@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { isStaff } from "@/lib/roles";
 import { redirect } from "next/navigation";
 
 export async function AdminGate({ children }: { children: React.ReactNode }) {
@@ -6,7 +7,7 @@ export async function AdminGate({ children }: { children: React.ReactNode }) {
   if (!session?.user) {
     redirect("/login?callbackUrl=/admin");
   }
-  if (session.user.role !== "ADMIN") {
+  if (!isStaff(session.user.role)) {
     redirect("/chat");
   }
   return children;

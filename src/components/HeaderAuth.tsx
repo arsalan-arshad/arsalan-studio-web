@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { canAccessClientChat, isAdmin, isStaff } from "@/lib/roles";
 
 export function HeaderAuth() {
   const { data: session, status } = useSession();
@@ -26,17 +27,32 @@ export function HeaderAuth() {
     );
   }
 
-  const isAdmin = session.user.role === "ADMIN";
+  const role = session.user.role;
+  const showChat = canAccessClientChat(role);
+  const staff = isStaff(role);
 
   return (
     <>
-      <Link href="/chat" className="btn-ghost !px-2.5 !py-1.5 text-sm">
-        Messages
-      </Link>
-      {isAdmin ? (
-        <Link href="/admin" className="btn-ghost !px-2.5 !py-1.5 text-sm">
-          Admin
+      {showChat ? (
+        <Link href="/chat" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+          Messages
         </Link>
+      ) : null}
+      {staff ? (
+        <>
+          <Link href="/admin" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+            {isAdmin(role) ? "Admin" : "Support"}
+          </Link>
+          {isAdmin(role) ? (
+            <Link href="/admin/users" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+              Users
+            </Link>
+          ) : (
+            <Link href="/admin/users" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+              Invite
+            </Link>
+          )}
+        </>
       ) : null}
       <button
         type="button"

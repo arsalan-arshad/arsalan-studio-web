@@ -183,6 +183,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.isEmailVerified =
           user.role === "ADMIN" ||
+          user.role === "SUB_ADMIN" ||
           Boolean((user as { emailVerified?: Date | null }).emailVerified);
       }
 
@@ -204,7 +205,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.name = dbUser.name;
           token.email = dbUser.email;
           token.isEmailVerified =
-            dbUser.role === "ADMIN" || Boolean(dbUser.emailVerified);
+            dbUser.role === "ADMIN" ||
+            dbUser.role === "SUB_ADMIN" ||
+            Boolean(dbUser.emailVerified);
         }
       }
 
@@ -216,7 +219,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (dbUser) {
           token.isEmailVerified =
-            dbUser.role === "ADMIN" || Boolean(dbUser.emailVerified);
+            dbUser.role === "ADMIN" ||
+            dbUser.role === "SUB_ADMIN" ||
+            Boolean(dbUser.emailVerified);
           token.name = dbUser.name;
           token.email = dbUser.email;
           token.role = dbUser.role;

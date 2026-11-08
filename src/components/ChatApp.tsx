@@ -85,8 +85,9 @@ export function ChatApp() {
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState("");
   const isAdmin = session?.user?.role === "ADMIN";
+  const isSubAdmin = session?.user?.role === "SUB_ADMIN";
   const emailVerified =
-    isAdmin || Boolean(session?.user?.isEmailVerified);
+    isAdmin || isSubAdmin || Boolean(session?.user?.isEmailVerified);
 
   const loadThreads = useCallback(async () => {
     const res = await fetch("/api/threads");
@@ -212,6 +213,20 @@ export function ChatApp() {
     );
   }
 
+  if (isSubAdmin) {
+    return (
+      <div className="mx-auto max-w-md py-10 text-center px-[clamp(1.25rem,4vw,3.5rem)]">
+        <p className="text-muted">
+          Support accounts manage contact inquiries and invites — client chat is
+          admin-only.
+        </p>
+        <Link href="/admin" className="btn-primary mt-6 inline-flex">
+          Open inquiries inbox
+        </Link>
+      </div>
+    );
+  }
+
   if (!emailVerified) {
     return (
       <div className="mx-auto max-w-lg px-[clamp(1.25rem,4vw,3.5rem)] py-6">
@@ -289,7 +304,7 @@ export function ChatApp() {
         )}
       </aside>
 
-      <section className="border border-line bg-bg-elevated p-4 min-h-[420px] flex flex-col">
+      <section className="border border-line bg-bg-elevated p-4 min-h-[70vh] flex flex-col">
         {!thread ? (
           <p className="text-muted m-auto text-sm">Select a thread</p>
         ) : (

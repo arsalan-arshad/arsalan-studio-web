@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       });
     }
 
-    if (user.role === "ADMIN" || user.emailVerified) {
+    if (user.role === "ADMIN" || user.role === "SUB_ADMIN" || user.emailVerified) {
       return NextResponse.json({
         ok: true,
         message: "Email already verified.",

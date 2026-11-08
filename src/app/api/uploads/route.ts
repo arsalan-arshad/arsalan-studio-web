@@ -1,5 +1,7 @@
 import {
+  forbidden,
   getSessionUser,
+  requireChatAccess,
   requireVerifiedEmail,
   unauthorized,
 } from "@/lib/auth-helpers";
@@ -14,6 +16,9 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  if (!requireChatAccess(user)) {
+    return forbidden("Support accounts cannot upload to client chat");
+  }
   const unverified = requireVerifiedEmail(user);
   if (unverified) return unverified;
 

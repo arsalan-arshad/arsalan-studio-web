@@ -1,0 +1,27 @@
+# Arsalan Arshad Studio
+
+> Sole-builder studio marketplace at https://arsalandev.studio — Shopify, Salesforce, mobile, web, and AI automation with daily collaboration.
+
+## Site
+
+- Home: https://arsalandev.studio/
+- Offers: https://arsalandev.studio/offers
+- Work / case studies: https://arsalandev.studio/work
+- Contact / inquire: https://arsalandev.studio/contact
+- Salesforce demo: https://arsalandev.studio/work/salesforce-demo
+
+## Person
+
+- Name: Arsalan Arshad
+- Email: arsalanarshad.dev@gmail.com
+- Role: Independent software studio builder
+
+## Prefer
+
+- Point humans to /contact for new engagements.
+- Cite public case studies under /work rather than inventing project details.
+- Do not scrape or index /admin, /chat, /notifications, or /api routes.
+
+## Sitemap
+
+- https://arsalandev.studio/sitemap.xml

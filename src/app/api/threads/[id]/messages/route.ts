@@ -11,6 +11,7 @@ import {
   sealedAttachmentNameFields,
   sealedMessageFields,
 } from "@/lib/chat-crypto";
+import { notifyChatMessage } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/roles";
 import { isR2ObjectKey, signedDownloadUrl } from "@/lib/r2";
@@ -111,6 +112,15 @@ export async function POST(request: Request, ctx: Ctx) {
             ? "ACTIVE"
             : thread.status,
       },
+    });
+
+    await notifyChatMessage({
+      threadId: id,
+      clientId: thread.clientId,
+      senderId: user.id,
+      senderName: user.name,
+      senderRole: user.role,
+      bodyPreview: bodyText,
     });
 
     let attachmentUrl = message.attachmentUrl;

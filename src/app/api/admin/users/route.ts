@@ -23,21 +23,55 @@ export async function GET(request: Request) {
       emailVerified: true,
       createdAt: true,
       passwordHash: true,
+      accounts: {
+        select: { provider: true },
+      },
     },
   });
 
   return NextResponse.json({
     ok: true,
-    users: users.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      role: u.role,
-      emailVerified: u.emailVerified,
-      createdAt: u.createdAt,
-      hasPassword: Boolean(u.passwordHash),
-    })),
+    users: users.map((u) => {
+      const hasPassword = Boolean(u.passwordHash);
+      const hasGoogle = u.accounts.some((a) => a.provider === "google");
+      const accountType = accountTypeFrom(hasPassword, hasGoogle);
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        emailVerified: u.emailVerified,
+        createdAt: u.createdAt,
+        hasPassword,
+        hasGoogle,
+        accountType,
+        accountTypeLabel: accountTypeLabel(accountType),
+      };
+    }),
   });
+}
+
+/** How the user can sign in: local password, Google OAuth, both, or invite-only. */
+type AccountType = "password" | "google" | "both" | "none";
+
+function accountTypeFrom(hasPassword: boolean, hasGoogle: boolean): AccountType {
+  if (hasPassword && hasGoogle) return "both";
+  if (hasPassword) return "password";
+  if (hasGoogle) return "google";
+  return "none";
+}
+
+function accountTypeLabel(type: AccountType): string {
+  switch (type) {
+    case "both":
+      return "Password + Google";
+    case "password":
+      return "Password";
+    case "google":
+      return "Google";
+    case "none":
+      return "Invite pending";
+  }
 }
 
 const inviteSchema = z.object({
@@ -93,6 +127,9 @@ export async function POST(request: Request) {
         emailVerified: user.emailVerified,
         createdAt: user.createdAt,
         hasPassword: false,
+        hasGoogle: false,
+        accountType: "none" as const,
+        accountTypeLabel: "Invite pending",
       },
       inviteSent: invite.sent,
       // Dev-friendly when RESEND_API_KEY is unset

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const router = useRouter();
@@ -64,14 +65,7 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
         </p>
       ) : null}
       {googleEnabled ? (
-        <button
-          type="button"
-          className="btn-ghost w-full"
-          disabled={loading}
-          onClick={() => signIn("google", { callbackUrl })}
-        >
-          Continue with Google
-        </button>
+        <GoogleSignInButton callbackUrl={callbackUrl} disabled={loading} />
       ) : null}
       {googleEnabled ? (
         <p className="text-center text-xs text-muted">or email</p>

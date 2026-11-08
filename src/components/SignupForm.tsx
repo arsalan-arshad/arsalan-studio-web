@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 import { PASSWORD_RULES_HINT } from "@/lib/password";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export function SignupForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const router = useRouter();
@@ -55,14 +56,7 @@ export function SignupForm({ googleEnabled = false }: { googleEnabled?: boolean 
       </p>
       {googleEnabled ? (
         <>
-          <button
-            type="button"
-            className="btn-ghost w-full"
-            disabled={loading}
-            onClick={() => signIn("google", { callbackUrl: "/chat" })}
-          >
-            Continue with Google
-          </button>
+          <GoogleSignInButton callbackUrl="/chat" disabled={loading} />
           <p className="text-center text-xs text-muted">or email</p>
         </>
       ) : null}

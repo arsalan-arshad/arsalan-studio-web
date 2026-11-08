@@ -33,8 +33,6 @@ model User {
   passwordHash  String?
   name          String
   role          Role                     @default(CLIENT)
-  /** When false, credentials / Google / Bearer auth are rejected. */
-  active        Boolean                  @default(true)
   emailVerified DateTime?
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt

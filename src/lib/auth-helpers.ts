@@ -22,15 +22,9 @@ export async function getSessionUser(
     // Prefer live DB flag so verify-email takes effect without re-login
     const db = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: {
-        emailVerified: true,
-        role: true,
-        email: true,
-        name: true,
-        active: true,
-      },
+      select: { emailVerified: true, role: true, email: true, name: true },
     });
-    if (!db || !db.active) return null;
+    if (!db) return null;
     return {
       id: session.user.id,
       email: db.email,
@@ -48,7 +42,7 @@ export async function getSessionUser(
   if (!payload) return null;
 
   const user = await prisma.user.findUnique({ where: { id: payload.sub } });
-  if (!user || !user.active) return null;
+  if (!user) return null;
   return {
     id: user.id,
     email: user.email,

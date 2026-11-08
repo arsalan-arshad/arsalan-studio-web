@@ -33,15 +33,6 @@ export function canDeleteUsers(role: string | null | undefined): boolean {
   return isAdmin(role);
 }
 
-/** ADMIN may activate/deactivate SUB_ADMIN and CLIENT (not other ADMIN). */
-export function canToggleUserActive(role: string | null | undefined): boolean {
-  return isAdmin(role);
-}
-
-export function canDeactivateTarget(targetRole: string): boolean {
-  return targetRole === "SUB_ADMIN" || targetRole === "CLIENT";
-}
-
 /** Roles the actor may assign when inviting. */
 export function inviteableRoles(actorRole: string): AppRole[] {
   if (actorRole === "ADMIN") return ["CLIENT", "SUB_ADMIN", "ADMIN"];

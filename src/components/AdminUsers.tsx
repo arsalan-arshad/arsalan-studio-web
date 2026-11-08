@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { canDeactivateTarget, roleLabel, type AppRole } from "@/lib/roles";
+import { roleLabel, type AppRole } from "@/lib/roles";
 
 type AccountType = "password" | "google" | "both" | "none";
 
@@ -12,7 +12,6 @@ type AdminUserRow = {
   name: string;
   email: string;
   role: AppRole;
-  active: boolean;
   emailVerified: string | null;
   createdAt: string;
   hasPassword: boolean;
@@ -55,13 +54,11 @@ export function AdminUsers() {
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [inviteRoles, setInviteRoles] = useState<AppRole[]>(["CLIENT"]);
   const [canDelete, setCanDelete] = useState(false);
-  const [canToggleActive, setCanToggleActive] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [inviting, setInviting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError("");
@@ -79,7 +76,6 @@ export function AdminUsers() {
         : ["CLIENT"],
     );
     setCanDelete(Boolean(data.canDelete));
-    setCanToggleActive(Boolean(data.canToggleActive));
     setLoading(false);
   }, []);
 
@@ -152,44 +148,6 @@ export function AdminUsers() {
     }
   }
 
-  async function onToggleActive(user: AdminUserRow) {
-    if (!canToggleActive || !canDeactivateTarget(user.role) || user.id === selfId) {
-      return;
-    }
-    const next = !user.active;
-    const ok = window.confirm(
-      next
-        ? `Reactivate ${user.name} (${user.email})? They will be able to sign in again.`
-        : `Deactivate ${user.name} (${user.email})? They will not be able to sign in until reactivated.`,
-    );
-    if (!ok) return;
-    setTogglingId(user.id);
-    setError("");
-    setNotice("");
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: next }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Update failed");
-        return;
-      }
-      setNotice(
-        next
-          ? `Reactivated ${user.email}.`
-          : `Deactivated ${user.email}. Refresh tokens revoked.`,
-      );
-      await load();
-    } catch {
-      setError("Update failed");
-    } finally {
-      setTogglingId(null);
-    }
-  }
-
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -199,8 +157,8 @@ export function AdminUsers() {
           <p className="mt-2 text-sm text-muted">
             Invite by email (7-day set-password link).{" "}
             {!canDelete
-              ? "Support can invite CLIENT or SUB_ADMIN; only Admin can delete or deactivate."
-              : "Admin can invite any role, deactivate Support/Client accounts, and delete users."}{" "}
+              ? "Support can invite CLIENT or SUB_ADMIN; only Admin can delete."
+              : "Admin can invite any role and delete users."}{" "}
             <Link href="/admin" className="text-accent hover:underline">
               ← Studio desk
             </Link>
@@ -276,91 +234,57 @@ export function AdminUsers() {
         <p className="mt-8 text-sm text-muted">Loading users…</p>
       ) : (
         <div className="mt-8 overflow-x-auto border border-line bg-bg-elevated">
-          <table className="w-full min-w-[52rem] text-left text-sm">
+          <table className="w-full min-w-[48rem] text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th className="px-3 py-2 font-semibold">Name</th>
                 <th className="px-3 py-2 font-semibold">Email</th>
                 <th className="px-3 py-2 font-semibold">Sign-in</th>
                 <th className="px-3 py-2 font-semibold">Role</th>
-                <th className="px-3 py-2 font-semibold">Status</th>
                 <th className="px-3 py-2 font-semibold">Verified</th>
                 <th className="px-3 py-2 font-semibold">Created</th>
                 <th className="px-3 py-2 font-semibold"> </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {users.map((u) => {
-                const toggleable =
-                  canToggleActive &&
-                  canDeactivateTarget(u.role) &&
-                  u.id !== selfId;
-                return (
-                  <tr key={u.id} className="hover:bg-bg">
-                    <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
-                    <td className="px-3 py-2.5 text-muted">{u.email}</td>
-                    <td className="px-3 py-2.5">{accountBadge(u)}</td>
-                    <td className="px-3 py-2.5 text-muted">{roleLabel(u.role)}</td>
-                    <td className="px-3 py-2.5">
-                      <span
-                        className={`inline-block rounded-sm border px-1.5 py-0.5 text-[11px] font-medium ${
-                          u.active
-                            ? "border-sage/40 bg-[color-mix(in_oklab,var(--sage)_18%,transparent)] text-ink"
-                            : "border-danger/40 bg-[color-mix(in_oklab,var(--danger)_14%,transparent)] text-danger"
-                        }`}
+              {users.map((u) => (
+                <tr key={u.id} className="hover:bg-bg">
+                  <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
+                  <td className="px-3 py-2.5 text-muted">{u.email}</td>
+                  <td className="px-3 py-2.5">{accountBadge(u)}</td>
+                  <td className="px-3 py-2.5 text-muted">
+                    {roleLabel(u.role)}
+                  </td>
+                  <td className="px-3 py-2.5 text-muted">
+                    {u.emailVerified
+                      ? new Date(u.emailVerified).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-2.5 text-muted">
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-3 py-2.5 text-right">
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        className="btn-ghost !px-2 !py-1 text-xs text-danger disabled:opacity-40"
+                        disabled={u.id === selfId || deletingId === u.id}
+                        title={
+                          u.id === selfId ? "Cannot delete yourself" : "Delete user"
+                        }
+                        onClick={() => onDelete(u)}
                       >
-                        {u.active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-muted">
-                      {u.emailVerified
-                        ? new Date(u.emailVerified).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td className="px-3 py-2.5 text-muted">
-                      {new Date(u.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        {toggleable ? (
-                          <button
-                            type="button"
-                            className="btn-ghost !px-2 !py-1 text-xs disabled:opacity-40"
-                            disabled={togglingId === u.id}
-                            onClick={() => onToggleActive(u)}
-                          >
-                            {togglingId === u.id
-                              ? "Saving…"
-                              : u.active
-                                ? "Deactivate"
-                                : "Activate"}
-                          </button>
-                        ) : null}
-                        {canDelete ? (
-                          <button
-                            type="button"
-                            className="btn-ghost !px-2 !py-1 text-xs text-danger disabled:opacity-40"
-                            disabled={u.id === selfId || deletingId === u.id}
-                            title={
-                              u.id === selfId
-                                ? "Cannot delete yourself"
-                                : "Delete user"
-                            }
-                            onClick={() => onDelete(u)}
-                          >
-                            {deletingId === u.id ? "Deleting…" : "Delete"}
-                          </button>
-                        ) : !toggleable ? (
-                          <span className="text-xs text-muted">—</span>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                        {deletingId === u.id ? "Deleting…" : "Delete"}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
               {!users.length ? (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-muted">
+                  <td colSpan={7} className="px-3 py-8 text-muted">
                     No users yet.
                   </td>
                 </tr>

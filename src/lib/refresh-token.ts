@@ -96,7 +96,6 @@ export async function rotateRefreshToken(
   if (!row) return null;
   if (row.revokedAt) return null;
   if (row.expiresAt.getTime() <= Date.now()) return null;
-  if (!row.user.active) return null;
 
   await prisma.refreshToken.update({
     where: { id: row.id },

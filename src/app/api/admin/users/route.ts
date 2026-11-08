@@ -27,7 +27,6 @@ export async function GET(request: Request) {
       name: true,
       email: true,
       role: true,
-      active: true,
       emailVerified: true,
       createdAt: true,
       passwordHash: true,
@@ -40,7 +39,6 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     canDelete: isAdmin(user.role),
-    canToggleActive: isAdmin(user.role),
     inviteRoles: inviteableRoles(user.role),
     users: users.map((u) => {
       const hasPassword = Boolean(u.passwordHash);
@@ -51,7 +49,6 @@ export async function GET(request: Request) {
         name: u.name,
         email: u.email,
         role: u.role,
-        active: u.active,
         emailVerified: u.emailVerified,
         createdAt: u.createdAt,
         hasPassword,

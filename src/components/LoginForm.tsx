@@ -21,9 +21,6 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
     if (oauthError === "GoogleEmailMissing") {
       return "Google did not provide an email. Try again or use email and password.";
     }
-    if (oauthError === "AccountInactive") {
-      return "This account has been deactivated. Contact the studio admin if you need access restored.";
-    }
     if (oauthError && oauthError !== "CredentialsSignin") {
       return "Google sign-in was cancelled or failed. Try again.";
     }

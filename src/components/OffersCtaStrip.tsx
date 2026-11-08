@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function OffersCtaStrip() {
   return (
-    <section className="border-y border-line bg-[linear-gradient(105deg,var(--accent-wash),transparent_55%)]">
+    <section className="border-y border-line bg-[linear-gradient(115deg,var(--accent-wash)_0%,transparent_42%,rgba(122,158,140,0.08)_100%)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="eyebrow">Clear packages</p>

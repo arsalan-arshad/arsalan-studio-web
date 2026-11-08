@@ -4,7 +4,7 @@ import { brand } from "@/lib/brand";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line bg-bg-elevated">
+    <footer className="border-t border-line bg-bg-elevated/95">
       <div className="mx-auto grid max-w-6xl gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-12 lg:grid-cols-[1.2fr_1fr_1.4fr]">
         <div>
           <p className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight">

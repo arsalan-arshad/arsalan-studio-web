@@ -12,6 +12,7 @@ function sessionUserFromDb(user: {
   name: string;
   role: Role;
   emailVerified: Date | null;
+  active?: boolean;
 }) {
   return {
     id: user.id,
@@ -20,6 +21,10 @@ function sessionUserFromDb(user: {
     role: user.role,
     emailVerified: user.emailVerified,
   };
+}
+
+function isActiveUser(user: { active?: boolean } | null | undefined) {
+  return user?.active !== false;
 }
 
 async function upsertGoogleUser(input: {
@@ -120,7 +125,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const bootstrapToken = String(credentials?.bootstrapToken ?? "").trim();
         if (bootstrapToken) {
           const user = await consumeBootstrapToken(bootstrapToken);
-          if (!user) return null;
+          if (!user || !isActiveUser(user)) return null;
           return sessionUserFromDb(user);
         }
 
@@ -131,7 +136,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !password) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.passwordHash) return null;
+        if (!user?.passwordHash || !isActiveUser(user)) return null;
 
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
@@ -157,6 +162,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return "/login?error=GoogleEmailNotVerified";
       }
 
+      const existing = await prisma.user.findUnique({
+        where: { email: email.trim().toLowerCase() },
+        select: { active: true },
+      });
+      if (existing && !isActiveUser(existing)) {
+        return "/login?error=AccountInactive";
+      }
+
       const dbUser = await upsertGoogleUser({
         email,
         name: user.name,
@@ -168,6 +181,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         scope: account.scope,
         token_type: account.token_type,
       });
+      if (!isActiveUser(dbUser)) {
+        return "/login?error=AccountInactive";
+      }
       user.id = dbUser.id;
       user.role = dbUser.role;
       user.email = dbUser.email;
@@ -197,42 +213,60 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: true,
             email: true,
             emailVerified: true,
+            active: true,
           },
         });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.name = dbUser.name;
-          token.email = dbUser.email;
-          token.isEmailVerified =
-            dbUser.role === "ADMIN" ||
-            dbUser.role === "SUB_ADMIN" ||
-            Boolean(dbUser.emailVerified);
+        if (!dbUser || !isActiveUser(dbUser)) {
+          return { ...token, id: undefined, role: undefined };
         }
+        token.id = dbUser.id;
+        token.role = dbUser.role;
+        token.name = dbUser.name;
+        token.email = dbUser.email;
+        token.isEmailVerified =
+          dbUser.role === "ADMIN" ||
+          dbUser.role === "SUB_ADMIN" ||
+          Boolean(dbUser.emailVerified);
       }
 
-      // Refresh verification flag after verify-email or resend flows
+      // Refresh verification / role after verify-email; drop deactivated accounts.
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: String(token.id) },
-          select: { emailVerified: true, role: true, name: true, email: true },
+          select: {
+            emailVerified: true,
+            role: true,
+            name: true,
+            email: true,
+            active: true,
+          },
         });
-        if (dbUser) {
-          token.isEmailVerified =
-            dbUser.role === "ADMIN" ||
-            dbUser.role === "SUB_ADMIN" ||
-            Boolean(dbUser.emailVerified);
-          token.name = dbUser.name;
-          token.email = dbUser.email;
-          token.role = dbUser.role;
+        if (!dbUser || !isActiveUser(dbUser)) {
+          return { ...token, id: undefined, role: undefined };
         }
+        token.isEmailVerified =
+          dbUser.role === "ADMIN" ||
+          dbUser.role === "SUB_ADMIN" ||
+          Boolean(dbUser.emailVerified);
+        token.name = dbUser.name;
+        token.email = dbUser.email;
+        token.role = dbUser.role;
       }
 
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = String(token.id ?? "");
+        if (!token.id) {
+          // Deactivated / cleared JWT — expose no usable identity
+          session.user.id = "";
+          session.user.role = undefined as unknown as Role;
+          session.user.name = "";
+          session.user.email = "";
+          session.user.isEmailVerified = false;
+          return session;
+        }
+        session.user.id = String(token.id);
         session.user.role = token.role as Role;
         session.user.name = String(token.name ?? "");
         session.user.email = String(token.email ?? "");

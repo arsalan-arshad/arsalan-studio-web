@@ -5,8 +5,9 @@ import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
+import { PASSWORD_RULES_HINT } from "@/lib/password";
 
-export function SignupForm() {
+export function SignupForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,6 +53,19 @@ export function SignupForm() {
       <p className="rounded-sm border border-line bg-bg-elevated px-3 py-2 text-sm text-muted">
         After signup we’ll email a verification link to unlock Messages.
       </p>
+      {googleEnabled ? (
+        <>
+          <button
+            type="button"
+            className="btn-ghost w-full"
+            disabled={loading}
+            onClick={() => signIn("google", { callbackUrl: "/chat" })}
+          >
+            Continue with Google
+          </button>
+          <p className="text-center text-xs text-muted">or email</p>
+        </>
+      ) : null}
       <div>
         <label htmlFor="name" className="mb-1.5 block text-sm text-muted">
           Name
@@ -73,17 +87,18 @@ export function SignupForm() {
       </div>
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm text-muted">
-          Password (min 8)
+          Password
         </label>
         <input
           id="password"
           name="password"
           type="password"
           required
-          minLength={8}
+          minLength={10}
           className="input-field"
           autoComplete="new-password"
         />
+        <p className="mt-1.5 text-xs text-muted">{PASSWORD_RULES_HINT}</p>
       </div>
       {error ? <p className="text-sm text-danger">{error}</p> : null}
       <button type="submit" className="btn-primary w-full" disabled={loading}>

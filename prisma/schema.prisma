@@ -27,7 +27,8 @@ enum InquiryStatus {
 model User {
   id            String                   @id @default(cuid())
   email         String                   @unique
-  passwordHash  String
+  /** Null for Google-only accounts (no local password). */
+  passwordHash  String?
   name          String
   role          Role                     @default(CLIENT)
   emailVerified DateTime?
@@ -37,7 +38,33 @@ model User {
   messages      Message[]
   inquiries     Inquiry[]
   emailTokens   EmailVerificationToken[]
+  resetTokens   PasswordResetToken[]
+  bootstrapTokens AuthBootstrapToken[]
   refreshTokens RefreshToken[]
+  accounts      Account[]
+}
+
+/**
+ * Auth.js OAuth account link (Google). JWT sessions stay cookie-based;
+ * this table records provider subject ↔ User for linking / future providers.
+ */
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 /** Opaque Bearer refresh tokens (sha256 at rest). Mobile / API clients only — not Auth.js cookies. */
@@ -57,6 +84,31 @@ model RefreshToken {
 }
 
 model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  /** Soft consume — kept briefly so double-submit / Strict Mode stays idempotent. */
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/** One-time web sign-in after email verify (no password in the verify link). */
+model AuthBootstrapToken {
   id        String   @id @default(cuid())
   token     String   @unique
   userId    String
@@ -85,6 +137,10 @@ model Inquiry {
   thread    Thread?       @relation(fields: [threadId], references: [id])
 }
 
+/**
+ * Isolation boundary for chat: each client owns Threads; Messages belong to a Thread.
+ * One shared Message table (not per-user tables) — filter by thread membership in every API.
+ */
 model Thread {
   id        String       @id @default(cuid())
   subject   String
@@ -95,6 +151,8 @@ model Thread {
   client    User         @relation("ClientThreads", fields: [clientId], references: [id])
   inquiry   Inquiry?
   messages  Message[]
+
+  @@index([clientId, updatedAt])
 }
 
 model Message {
@@ -110,4 +168,6 @@ model Message {
   createdAt      DateTime @default(now())
 
   @@index([threadId, createdAt])
+  @@index([threadId, id])
+  @@index([senderId])
 }

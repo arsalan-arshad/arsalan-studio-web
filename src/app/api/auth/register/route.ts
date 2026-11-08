@@ -5,6 +5,7 @@ import {
   clientMetaFromRequest,
   issueTokenBundle,
 } from "@/lib/refresh-token";
+import { strongPasswordSchema } from "@/lib/password";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -12,7 +13,7 @@ import { z } from "zod";
 const schema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().email().max(200),
-  password: z.string().min(8).max(128),
+  password: strongPasswordSchema,
 });
 
 export async function POST(request: Request) {
@@ -59,8 +60,9 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
+      const msg = err.issues[0]?.message || "Invalid input";
       return NextResponse.json(
-        { ok: false, error: "Invalid input", details: err.flatten() },
+        { ok: false, error: msg, details: err.flatten() },
         { status: 400 },
       );
     }

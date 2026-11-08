@@ -99,7 +99,14 @@ export async function POST(request: Request, ctx: Ctx) {
     let attachmentUrl = message.attachmentUrl;
     if (attachmentUrl && isR2ObjectKey(attachmentUrl)) {
       try {
-        attachmentUrl = await signedDownloadUrl(attachmentUrl);
+        const name = message.attachmentName || undefined;
+        const lower = (name || "").toLowerCase();
+        const previewable =
+          /\.(png|jpe?g|gif|webp|bmp|svg|pdf)$/.test(lower) || !name;
+        attachmentUrl = await signedDownloadUrl(attachmentUrl, 3600, {
+          disposition: previewable ? "inline" : "attachment",
+          filename: name,
+        });
       } catch {
         /* keep key if signing fails */
       }

@@ -6,20 +6,26 @@ const schema = z.object({
   token: z.string().trim().min(10).max(200),
 });
 
+async function handle(token: string) {
+  const result = await verifyEmailToken(token);
+  if (!result.ok) {
+    return NextResponse.json(
+      { ok: false, error: result.error },
+      { status: 400 },
+    );
+  }
+  return NextResponse.json({
+    ok: true,
+    email: result.user.email,
+    alreadyVerified: result.alreadyVerified,
+    bootstrapToken: result.bootstrapToken,
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const body = schema.parse(await request.json());
-    const result = await verifyEmailToken(body.token);
-    if (!result.ok) {
-      return NextResponse.json(
-        { ok: false, error: result.error },
-        { status: 400 },
-      );
-    }
-    return NextResponse.json({
-      ok: true,
-      email: result.user.email,
-    });
+    return handle(body.token);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ ok: false, error: "Invalid token" }, { status: 400 });
@@ -34,12 +40,10 @@ export async function GET(request: Request) {
   if (!token) {
     return NextResponse.json({ ok: false, error: "Missing token" }, { status: 400 });
   }
-  const result = await verifyEmailToken(token);
-  if (!result.ok) {
-    return NextResponse.json(
-      { ok: false, error: result.error },
-      { status: 400 },
-    );
+  try {
+    return handle(token);
+  } catch (err) {
+    console.error("[verify-email GET]", err);
+    return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, email: result.user.email });
 }

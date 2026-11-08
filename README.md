@@ -20,24 +20,37 @@ Open source PRs are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 | Framework | Next.js 16 (App Router) + TypeScript + Tailwind v4 |
 | API | Route Handlers under `src/app/api/*` |
 | DB | PostgreSQL + Prisma 6 |
-| Auth | Auth.js (NextAuth v5) credentials + JWT cookie (web); mobile Bearer access JWTs + rotatable refresh tokens |
-| Email | Resend (`RESEND_API_KEY`) from `noreply@arsalandev.studio` — verification + inquiry notify; inquiries always persist |
+| Auth | Auth.js (NextAuth v5) credentials + optional Google OAuth; JWT cookie (web); mobile Bearer access JWTs + rotatable refresh tokens |
+| Email | Resend (`RESEND_API_KEY`) from `noreply@arsalandev.studio` — verification, password reset, inquiry notify |
 | Analytics | Free **GA4** via `NEXT_PUBLIC_GA_MEASUREMENT_ID` (script omitted when unset) |
 | Host | Railway (`railway.toml`) |
 
 ### Schema (Prisma)
 
-- **User** — `CLIENT` \| `ADMIN`, bcrypt `passwordHash`, optional `emailVerified`
-- **EmailVerificationToken** — signup verify links (24h)
+- **User** — `CLIENT` \| `ADMIN`, optional bcrypt `passwordHash` (null for Google-only), optional `emailVerified`
+- **Account** — Auth.js OAuth link rows (Google `provider` + `providerAccountId`)
+- **EmailVerificationToken** — signup verify links (24h; soft-consumed via `usedAt` for idempotent retries)
+- **PasswordResetToken** — forgot-password links (1h)
+- **AuthBootstrapToken** — one-time web sign-in after verify (no password in the link)
 - **RefreshToken** — opaque mobile/API refresh tokens (sha256 at rest, 30d, rotatable)
 - **Inquiry** — public contact submissions
 - **Thread** / **Message** — client chat (+ optional attachments); gated until email verified
+
+### Messages architecture (why one table)
+
+Chat is **multi-tenant by thread**, not by physical table:
+
+- **Thread** is the isolation boundary (`clientId`). Clients only load `where: { clientId: user.id }`; admins see all threads.
+- **Message** rows always carry `threadId` (+ `senderId`). Every message API loads the thread first and **rejects** if the caller is not the thread’s client (or ADMIN).
+- Indexes: `(threadId, createdAt)`, `(threadId, id)`, `(senderId)`, and Thread `(clientId, updatedAt)`.
+
+**Do not** create one message table per user — that breaks Prisma models, analytics, admin inbox, migrations, and foreign keys. Schema-per-tenant is for huge SaaS; for this marketplace, a single `Message` table scoped by thread membership is the correct design. Per-user “separation” is a **query/authorization** concern, already enforced in `/api/threads*`.
 
 ### Auth model (web vs Bearer)
 
 | Surface | Mechanism | Lifetime |
 |---|---|---|
-| **Web (browser)** | Auth.js JWT **session cookie** | Unchanged Auth.js defaults (~30d) — kept for UX; no refresh-token dance in the browser |
+| **Web (browser)** | Auth.js JWT **session cookie** (credentials and/or Google) | Unchanged Auth.js defaults (~30d) |
 | **Mobile / API** | Bearer **access** JWT (`Authorization: Bearer …`) | **1 hour** (`expiresIn: 3600`) |
 | **Mobile / API** | Opaque **refresh** token (POST body only; never in URLs) | **30 days**; stored hashed; **rotated** on each `/api/auth/refresh` |
 
@@ -47,8 +60,14 @@ Bearer endpoints:
 - `POST /api/auth/register` — same token shape
 - `POST /api/auth/refresh` — `{ refreshToken }` → new access + refresh; old refresh revoked
 - `POST /api/auth/logout` — `{ refreshToken }` or `{ all: true }` with session/Bearer
+- `POST /api/auth/forgot-password` — email reset link (no enumeration)
+- `POST /api/auth/reset-password` — `{ token, password }` with strong-password rules
 
 Access verification stays in `auth-helpers` via `verifyMobileToken` (expired access → 401). Refresh tokens are not JWTs; an access JWT submitted as `refreshToken` is rejected.
+
+**Passwords** (signup, reset, any future change-password): min **10** chars, upper + lower + number + special — shared Zod helper in `src/lib/password.ts`. Rules are shown in the UI.
+
+**Google (web):** set `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`. Same verified Google email links to an existing User (`allowDangerousEmailAccountLinking`). Google sign-in marks `emailVerified`. Mobile does **not** implement Google OAuth yet (Browser OAuth / Expo AuthSession can be added later); use email/password on mobile, or Google on the web.
 
 ---
 
@@ -90,28 +109,44 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 |---|---|
 | `DATABASE_URL` | Postgres connection |
 | `AUTH_SECRET` | Auth.js + mobile access-JWT HMAC (refresh tokens are opaque DB rows, not signed with this) |
-| `AUTH_URL` | Public site origin |
+| `AUTH_URL` | Public site origin (must match production URL for OAuth + email links) |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | Optional Google OAuth (web) |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed admin (`npm run db:seed`) |
-| `RESEND_API_KEY` | Send verification + contact notify |
+| `RESEND_API_KEY` | Send verification, password reset, contact notify |
 | `EMAIL_FROM` | From address (default `noreply@arsalandev.studio`) |
 | `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO` | Inquiry notify recipient |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Free GA4 Measurement ID (`G-…`); omit to disable |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` | Cloudflare R2 private attachments |
-| `NEXT_PUBLIC_SITE_URL` | Public URL for links |
+| `NEXT_PUBLIC_SITE_URL` | Public URL for links in emails |
+
+### Google OAuth setup (web)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → **Credentials** → Create **OAuth 2.0 Client ID** (Web application).
+2. **Authorized JavaScript origins:** `https://arsalandev.studio` (and Railway URL if still in use).
+3. **Authorized redirect URIs:** `https://arsalandev.studio/api/auth/callback/google` (same host as `AUTH_URL`).
+4. Copy Client ID → Railway `AUTH_GOOGLE_ID`; Client secret → `AUTH_GOOGLE_SECRET`.
+5. Redeploy. Login/signup show **Continue with Google** when both vars are set.
 
 ### File storage (Cloudflare R2)
 
 1. Cloudflare → **R2** → create bucket (e.g. `arsalan-studio-uploads`) — keep **private**.
 2. **Manage R2 API Tokens** → create token with Object Read & Write on that bucket.
 3. Set Railway env: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`.
-4. Chat **Attach** → `POST /api/uploads` → object key stored on the message; clients receive **signed URLs** (~1h) when loading the thread (not public forever).
+4. Chat **Attach** → `POST /api/uploads` → object key stored on the message; clients receive **signed URLs** (~1h) when loading the thread (images/PDFs preview inline; **Download** always available).
 
 ### Email verification
 
 1. Signup creates an unverified client and emails a link from `EMAIL_FROM`.
-2. Open `/verify-email?token=…` (also works without being logged in).
+2. Open `/verify-email?token=…` (works logged out). Successful verify is **idempotent** (soft-consumed token + single client attempt), issues a short bootstrap sign-in token, creates a session, and refreshes JWT so `emailVerified` / `isEmailVerified` is true.
 3. Messages (`/chat` + `/api/threads*`) stay gated until verified. Use **Resend verification** on the chat gate (rate-limited ~60s).
-4. Without `RESEND_API_KEY`, the token is still created and the verify URL is logged (local-friendly).
+4. Keep `AUTH_URL` and `NEXT_PUBLIC_SITE_URL` aligned with the live origin so links and OAuth callbacks match.
+5. Without `RESEND_API_KEY`, the token is still created and the verify URL is logged (local-friendly).
+
+### Forgot password
+
+1. `/forgot-password` → `POST /api/auth/forgot-password` → email from `noreply@arsalandev.studio`.
+2. `/reset-password?token=…` → `POST /api/auth/reset-password` with strong password rules.
+3. Google-only accounts (no `passwordHash`) do not receive a reset email (same generic success response).
 
 ### Analytics (free forever)
 
@@ -136,11 +171,12 @@ Do **not** wait on custom DNS. Use Railway’s `*.up.railway.app` URL first; add
    - `EMAIL_FROM=noreply@arsalandev.studio`
    - `RESEND_API_KEY`, `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO`
    - Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+   - Optional Google: `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`
    - R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
 4. Deploy. `railway.toml` runs `prisma generate` on build and `prisma migrate deploy` on start.
 5. After first deploy: open the Railway URL, then seed admin if not auto-run:
    - Locally against prod DB only if needed, or use Railway shell: `npm run db:seed`
-6. **Later (DNS ready):** Railway → Custom Domain → `arsalandev.studio`, then update `AUTH_URL` and `NEXT_PUBLIC_SITE_URL`.
+6. **Later (DNS ready):** Railway → Custom Domain → `arsalandev.studio`, then update `AUTH_URL` and `NEXT_PUBLIC_SITE_URL`, and Google OAuth redirect URIs.
 
 Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then the custom domain).
 
@@ -151,7 +187,7 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Surface | Path |
 |---|---|
 | Contact | `/contact` → `POST /api/contact` |
-| Auth | `/login`, `/signup`, `/verify-email` |
+| Auth | `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/verify-email` |
 | Chat | `/chat` (email verified) |
 | Admin | `/admin` (server-gated `role === ADMIN`) |
 | SEO | `/sitemap.xml`, `/robots.txt` |

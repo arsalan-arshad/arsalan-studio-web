@@ -3,6 +3,9 @@ import { sendVerificationEmail } from "@/lib/mail";
 import { randomBytes } from "crypto";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+/** Tolerate small clock skew between app servers / email clients. */
+const EXPIRY_SKEW_MS = 5 * 60 * 1000;
+const BOOTSTRAP_TTL_MS = 10 * 60 * 1000;
 /** Min gap between resend requests per user */
 export const RESEND_COOLDOWN_MS = 60_000;
 
@@ -42,15 +45,58 @@ export async function issueAndSendVerification(user: {
   return { token: row.token, ...result };
 }
 
+async function issueBootstrapToken(userId: string) {
+  const token = randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + BOOTSTRAP_TTL_MS);
+  await prisma.authBootstrapToken.deleteMany({ where: { userId } });
+  await prisma.authBootstrapToken.create({
+    data: { token, userId, expires },
+  });
+  return token;
+}
+
+export async function consumeBootstrapToken(token: string) {
+  const row = await prisma.authBootstrapToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+  if (!row) return null;
+  if (row.expires.getTime() + EXPIRY_SKEW_MS < Date.now()) {
+    await prisma.authBootstrapToken.delete({ where: { id: row.id } }).catch(() => undefined);
+    return null;
+  }
+  await prisma.authBootstrapToken.deleteMany({ where: { userId: row.userId } });
+  return row.user;
+}
+
 export async function verifyEmailToken(token: string) {
   const row = await prisma.emailVerificationToken.findUnique({
     where: { token },
     include: { user: true },
   });
-  if (!row) return { ok: false as const, error: "Invalid or expired link" };
-  if (row.expires.getTime() < Date.now()) {
-    await prisma.emailVerificationToken.delete({ where: { id: row.id } });
+
+  if (!row) {
+    return { ok: false as const, error: "Invalid or expired link" };
+  }
+
+  const expired = row.expires.getTime() + EXPIRY_SKEW_MS < Date.now();
+  if (expired && !row.usedAt) {
+    await prisma.emailVerificationToken.delete({ where: { id: row.id } }).catch(() => undefined);
     return { ok: false as const, error: "Link expired — request a new one" };
+  }
+
+  // Already consumed — idempotent success (Strict Mode / effect re-run / double click)
+  if (row.usedAt) {
+    if (!row.user.emailVerified) {
+      return { ok: false as const, error: "Invalid or expired link" };
+    }
+    const bootstrapToken = await issueBootstrapToken(row.userId);
+    return {
+      ok: true as const,
+      user: row.user,
+      alreadyVerified: true as const,
+      bootstrapToken,
+    };
   }
 
   await prisma.$transaction([
@@ -58,10 +104,25 @@ export async function verifyEmailToken(token: string) {
       where: { id: row.userId },
       data: { emailVerified: new Date() },
     }),
-    prisma.emailVerificationToken.deleteMany({ where: { userId: row.userId } }),
+    prisma.emailVerificationToken.update({
+      where: { id: row.id },
+      data: { usedAt: new Date() },
+    }),
+    // Drop other unused tokens for this user; keep this one for idempotent retries
+    prisma.emailVerificationToken.deleteMany({
+      where: { userId: row.userId, usedAt: null, NOT: { id: row.id } },
+    }),
   ]);
 
-  return { ok: true as const, user: row.user };
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: row.userId } });
+  const bootstrapToken = await issueBootstrapToken(user.id);
+
+  return {
+    ok: true as const,
+    user,
+    alreadyVerified: false as const,
+    bootstrapToken,
+  };
 }
 
 export async function canResendVerification(userId: string) {

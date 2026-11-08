@@ -109,14 +109,21 @@ export async function uploadToR2(input: {
 export async function signedDownloadUrl(
   key: string,
   expiresInSeconds = 3600,
+  opts?: { disposition?: "inline" | "attachment"; filename?: string },
 ): Promise<string> {
   const { bucket } = requireR2Env();
   if (!isR2ObjectKey(key)) {
     throw new Error("Invalid object key");
   }
+  const filename = sanitizeFilename(opts?.filename || key.split("/").pop() || "file");
+  const disposition = opts?.disposition === "attachment" ? "attachment" : "inline";
   return getSignedUrl(
     getClient(),
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ResponseContentDisposition: `${disposition}; filename="${filename}"`,
+    }),
     { expiresIn: expiresInSeconds },
   );
 }
@@ -140,7 +147,14 @@ export async function withSignedAttachments<
     messages.map(async (m) => {
       if (!m.attachmentUrl || !isR2ObjectKey(m.attachmentUrl)) return m;
       try {
-        const url = await signedDownloadUrl(m.attachmentUrl);
+        const name = m.attachmentName || undefined;
+        const lower = (name || "").toLowerCase();
+        const previewable =
+          /\.(png|jpe?g|gif|webp|bmp|svg|pdf)$/.test(lower) || !name;
+        const url = await signedDownloadUrl(m.attachmentUrl, 3600, {
+          disposition: previewable ? "inline" : "attachment",
+          filename: name,
+        });
         return { ...m, attachmentUrl: url };
       } catch {
         return m;

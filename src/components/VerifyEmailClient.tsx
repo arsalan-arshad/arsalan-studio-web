@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function VerifyEmailClient() {
   const params = useSearchParams();
   const token = params.get("token") ?? "";
-  const { update, status } = useSession();
+  const { update } = useSession();
+  const attempted = useRef(false);
   const [state, setState] = useState<"idle" | "loading" | "ok" | "error">(
     token ? "loading" : "idle",
   );
@@ -20,6 +21,9 @@ export function VerifyEmailClient() {
       setMessage("Missing verification token. Check your email for the link.");
       return;
     }
+    // Run once — deps must not re-fire after success (status/update used to cause false "expired")
+    if (attempted.current) return;
+    attempted.current = true;
 
     let cancelled = false;
     (async () => {
@@ -36,11 +40,28 @@ export function VerifyEmailClient() {
           setMessage(data.error || "Could not verify email");
           return;
         }
-        if (status === "authenticated") {
+
+        if (data.bootstrapToken) {
+          const login = await signIn("credentials", {
+            bootstrapToken: data.bootstrapToken,
+            redirect: false,
+          });
+          if (login?.error) {
+            // Verified in DB; user can still log in manually
+            console.warn("[verify-email] bootstrap sign-in failed", login.error);
+          } else {
+            await update();
+          }
+        } else {
           await update();
         }
+
         setState("ok");
-        setMessage("Email verified. You can use Messages now.");
+        setMessage(
+          data.alreadyVerified
+            ? "Email already verified. You’re signed in."
+            : "Email verified. You’re signed in.",
+        );
       } catch {
         if (!cancelled) {
           setState("error");
@@ -52,7 +73,7 @@ export function VerifyEmailClient() {
     return () => {
       cancelled = true;
     };
-  }, [token, status, update]);
+  }, [token, update]);
 
   return (
     <div className="mt-6 space-y-4">
@@ -61,6 +82,11 @@ export function VerifyEmailClient() {
       ) : (
         <p className={state === "ok" ? "text-ink" : "text-danger"}>{message}</p>
       )}
+      {state === "ok" ? (
+        <p className="rounded-sm border border-accent/40 bg-accent-wash px-3 py-2 text-sm text-ink">
+          Email verified — Messages are unlocked.
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-3">
         {state === "ok" ? (
           <Link href="/chat" className="btn-primary">

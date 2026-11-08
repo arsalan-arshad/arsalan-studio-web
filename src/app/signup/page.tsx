@@ -6,6 +6,10 @@ export const metadata: Metadata = {
 };
 
 export default function SignupPage() {
+  const googleEnabled = Boolean(
+    process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
+  );
+
   return (
     <div className="section-pad pt-20">
       <div className="mx-auto max-w-lg text-center">
@@ -16,7 +20,7 @@ export default function SignupPage() {
         </p>
       </div>
       <div className="mt-10">
-        <SignupForm />
+        <SignupForm googleEnabled={googleEnabled} />
       </div>
     </div>
   );

@@ -5,13 +5,20 @@ import {
 } from "@/lib/auth-helpers";
 import { issueAndSendInvite } from "@/lib/password-reset";
 import { prisma } from "@/lib/prisma";
+import {
+  canInviteRole,
+  canListUsers,
+  inviteableRoles,
+  isAdmin,
+} from "@/lib/roles";
+import type { Role } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function GET(request: Request) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
-  if (user.role !== "ADMIN") return forbidden();
+  if (!canListUsers(user.role)) return forbidden();
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -31,6 +38,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     ok: true,
+    canDelete: isAdmin(user.role),
+    inviteRoles: inviteableRoles(user.role),
     users: users.map((u) => {
       const hasPassword = Boolean(u.passwordHash);
       const hasGoogle = u.accounts.some((a) => a.provider === "google");
@@ -77,17 +86,25 @@ function accountTypeLabel(type: AccountType): string {
 const inviteSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().email().max(200),
-  role: z.enum(["CLIENT", "ADMIN"]).optional().default("CLIENT"),
+  role: z.enum(["CLIENT", "ADMIN", "SUB_ADMIN"]).optional().default("CLIENT"),
 });
 
-/** Admin invite: create user without password, email 7d set-password link. */
+/** Staff invite: create user without password, email 7d set-password link. */
 export async function POST(request: Request) {
-  const admin = await getSessionUser(request);
-  if (!admin) return unauthorized();
-  if (admin.role !== "ADMIN") return forbidden();
+  const actor = await getSessionUser(request);
+  if (!actor) return unauthorized();
+  if (!canListUsers(actor.role)) return forbidden();
 
   try {
     const body = inviteSchema.parse(await request.json());
+    if (!canInviteRole(actor.role, body.role)) {
+      return forbidden(
+        isAdmin(actor.role)
+          ? "Cannot assign that role"
+          : "Support can invite CLIENT or SUB_ADMIN only",
+      );
+    }
+
     const email = body.email.toLowerCase();
 
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -102,7 +119,7 @@ export async function POST(request: Request) {
       data: {
         email,
         name: body.name,
-        role: body.role,
+        role: body.role as Role,
         passwordHash: null,
         emailVerified: null,
       },

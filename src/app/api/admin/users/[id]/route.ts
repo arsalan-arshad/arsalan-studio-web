@@ -4,19 +4,20 @@ import {
   unauthorized,
 } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { canDeleteUsers } from "@/lib/roles";
 import { NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 /**
- * Delete a user and related chat data.
+ * Delete a user and related chat data. ADMIN only (SUB_ADMIN cannot delete).
  * Cascades tokens/accounts via Prisma; threads/messages cleaned explicitly
  * (Message.senderId and Thread.clientId are not onDelete: Cascade).
  */
 export async function DELETE(request: Request, ctx: Ctx) {
   const admin = await getSessionUser(request);
   if (!admin) return unauthorized();
-  if (admin.role !== "ADMIN") return forbidden();
+  if (!canDeleteUsers(admin.role)) return forbidden();
 
   const { id } = await ctx.params;
   if (id === admin.id) {

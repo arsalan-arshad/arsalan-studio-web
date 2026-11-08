@@ -1,10 +1,18 @@
 import {
   forbidden,
   getSessionUser,
+  requireChatAccess,
   requireVerifiedEmail,
   unauthorized,
 } from "@/lib/auth-helpers";
+import {
+  safeDecryptAttachmentName,
+  safeDecryptBody,
+  sealedAttachmentNameFields,
+  sealedMessageFields,
+} from "@/lib/chat-crypto";
 import { prisma } from "@/lib/prisma";
+import { isAdmin } from "@/lib/roles";
 import { isR2ObjectKey, signedDownloadUrl } from "@/lib/r2";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -31,6 +39,9 @@ const schema = z
 export async function POST(request: Request, ctx: Ctx) {
   const user = await getSessionUser(request);
   if (!user) return unauthorized();
+  if (!requireChatAccess(user)) {
+    return forbidden("Support accounts cannot access client chat");
+  }
   const unverified = requireVerifiedEmail(user);
   if (unverified) return unverified;
   const { id } = await ctx.params;
@@ -39,10 +50,10 @@ export async function POST(request: Request, ctx: Ctx) {
   if (!thread) {
     return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
   }
-  if (user.role !== "ADMIN" && thread.clientId !== user.id) {
+  if (!isAdmin(user.role) && thread.clientId !== user.id) {
     return forbidden();
   }
-  if (thread.status === "CLOSED" && user.role !== "ADMIN") {
+  if (thread.status === "CLOSED" && !isAdmin(user.role)) {
     return NextResponse.json(
       { ok: false, error: "Thread is closed" },
       { status: 400 },
@@ -53,7 +64,7 @@ export async function POST(request: Request, ctx: Ctx) {
     const data = schema.parse(await request.json());
     if (data.attachmentKey && !data.attachmentKey.includes(`/${user.id}/`)) {
       // Keys are namespaced by uploader id from /api/uploads
-      if (user.role !== "ADMIN") {
+      if (!isAdmin(user.role)) {
         return NextResponse.json(
           { ok: false, error: "Invalid attachment" },
           { status: 400 },
@@ -65,12 +76,19 @@ export async function POST(request: Request, ctx: Ctx) {
       data.body.trim() ||
       (data.attachmentName ? `Attached ${data.attachmentName}` : "Attachment");
 
+    const sealed = sealedMessageFields(bodyText);
+    const sealedName = sealedAttachmentNameFields(data.attachmentName);
+
     const message = await prisma.message.create({
       data: {
         threadId: id,
         senderId: user.id,
-        body: bodyText,
-        attachmentName: data.attachmentName,
+        body: sealed.body,
+        bodyNonce: sealed.bodyNonce,
+        bodyVersion: sealed.bodyVersion,
+        attachmentName: sealedName.attachmentName,
+        attachmentNameNonce: sealedName.attachmentNameNonce,
+        attachmentNameVersion: sealedName.attachmentNameVersion,
         attachmentUrl: data.attachmentKey ?? null,
         attachmentSize: data.attachmentSize,
       },
@@ -83,23 +101,23 @@ export async function POST(request: Request, ctx: Ctx) {
       where: { id },
       data: {
         updatedAt: new Date(),
-        status:
-          user.role === "ADMIN"
-            ? thread.status === "CLOSED"
+        status: isAdmin(user.role)
+          ? thread.status === "CLOSED"
+            ? "ACTIVE"
+            : thread.status === "NEW"
               ? "ACTIVE"
-              : thread.status === "NEW"
-                ? "ACTIVE"
-                : thread.status
-            : thread.status === "CLOSED"
-              ? "ACTIVE"
-              : thread.status,
+              : thread.status
+          : thread.status === "CLOSED"
+            ? "ACTIVE"
+            : thread.status,
       },
     });
 
     let attachmentUrl = message.attachmentUrl;
     if (attachmentUrl && isR2ObjectKey(attachmentUrl)) {
       try {
-        const name = message.attachmentName || undefined;
+        const name =
+          safeDecryptAttachmentName(message) || undefined;
         const lower = (name || "").toLowerCase();
         const previewable =
           /\.(png|jpe?g|gif|webp|bmp|svg|pdf)$/.test(lower) || !name;
@@ -114,7 +132,16 @@ export async function POST(request: Request, ctx: Ctx) {
 
     return NextResponse.json({
       ok: true,
-      message: { ...message, attachmentUrl },
+      message: {
+        ...message,
+        body: safeDecryptBody(message),
+        attachmentName: safeDecryptAttachmentName(message),
+        attachmentUrl,
+        bodyNonce: undefined,
+        bodyVersion: undefined,
+        attachmentNameNonce: undefined,
+        attachmentNameVersion: undefined,
+      },
     });
   } catch (err) {
     if (err instanceof z.ZodError) {

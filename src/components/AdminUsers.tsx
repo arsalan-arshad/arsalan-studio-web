@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { roleLabel, type AppRole } from "@/lib/roles";
 
 type AccountType = "password" | "google" | "both" | "none";
 
@@ -10,7 +11,7 @@ type AdminUserRow = {
   id: string;
   name: string;
   email: string;
-  role: "CLIENT" | "ADMIN";
+  role: AppRole;
   emailVerified: string | null;
   createdAt: string;
   hasPassword: boolean;
@@ -51,6 +52,8 @@ export function AdminUsers() {
   const { data: session } = useSession();
   const selfId = session?.user?.id;
   const [users, setUsers] = useState<AdminUserRow[]>([]);
+  const [inviteRoles, setInviteRoles] = useState<AppRole[]>(["CLIENT"]);
+  const [canDelete, setCanDelete] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,6 +70,12 @@ export function AdminUsers() {
       return;
     }
     setUsers(data.users);
+    setInviteRoles(
+      Array.isArray(data.inviteRoles) && data.inviteRoles.length
+        ? data.inviteRoles
+        : ["CLIENT"],
+    );
+    setCanDelete(Boolean(data.canDelete));
     setLoading(false);
   }, []);
 
@@ -115,7 +124,7 @@ export function AdminUsers() {
   }
 
   async function onDelete(user: AdminUserRow) {
-    if (user.id === selfId) return;
+    if (!canDelete || user.id === selfId) return;
     const ok = window.confirm(
       `Delete ${user.name} (${user.email})?\n\nThis removes their threads, messages, and tokens. This cannot be undone.`,
     );
@@ -143,13 +152,19 @@ export function AdminUsers() {
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Admin only</p>
+          <p className="eyebrow">Staff</p>
           <h1 className="section-title mt-2">Users</h1>
           <p className="mt-2 text-sm text-muted">
-            Invite clients (or admins) by email. They get a 7-day link to set a
-            password.{" "}
+            Invite by email (7-day set-password link).{" "}
+            {!canDelete
+              ? "Support can invite CLIENT or SUB_ADMIN; only Admin can delete."
+              : "Admin can invite any role and delete users."}{" "}
             <Link href="/admin" className="text-accent hover:underline">
               ← Studio desk
+            </Link>
+            {" · "}
+            <Link href="/admin/settings" className="text-accent hover:underline">
+              Password
             </Link>
           </p>
         </div>
@@ -194,8 +209,11 @@ export function AdminUsers() {
             Role
           </label>
           <select id="invite-role" name="role" className="input-field" defaultValue="CLIENT">
-            <option value="CLIENT">CLIENT</option>
-            <option value="ADMIN">ADMIN</option>
+            {inviteRoles.map((r) => (
+              <option key={r} value={r}>
+                {roleLabel(r)} ({r})
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex items-end">
@@ -234,7 +252,9 @@ export function AdminUsers() {
                   <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
                   <td className="px-3 py-2.5 text-muted">{u.email}</td>
                   <td className="px-3 py-2.5">{accountBadge(u)}</td>
-                  <td className="px-3 py-2.5 text-muted">{u.role}</td>
+                  <td className="px-3 py-2.5 text-muted">
+                    {roleLabel(u.role)}
+                  </td>
                   <td className="px-3 py-2.5 text-muted">
                     {u.emailVerified
                       ? new Date(u.emailVerified).toLocaleDateString()
@@ -244,17 +264,21 @@ export function AdminUsers() {
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <button
-                      type="button"
-                      className="btn-ghost !px-2 !py-1 text-xs text-danger disabled:opacity-40"
-                      disabled={u.id === selfId || deletingId === u.id}
-                      title={
-                        u.id === selfId ? "Cannot delete yourself" : "Delete user"
-                      }
-                      onClick={() => onDelete(u)}
-                    >
-                      {deletingId === u.id ? "Deleting…" : "Delete"}
-                    </button>
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        className="btn-ghost !px-2 !py-1 text-xs text-danger disabled:opacity-40"
+                        disabled={u.id === selfId || deletingId === u.id}
+                        title={
+                          u.id === selfId ? "Cannot delete yourself" : "Delete user"
+                        }
+                        onClick={() => onDelete(u)}
+                      >
+                        {deletingId === u.id ? "Deleting…" : "Delete"}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

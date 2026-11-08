@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { isEmailVerified } from "@/lib/email-verification";
 import { prisma } from "@/lib/prisma";
 import { verifyMobileToken } from "@/lib/mobile-token";
+import { canAccessClientChat, isAdmin, isStaff } from "@/lib/roles";
 import type { Role, User } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -70,15 +71,24 @@ export function emailUnverified() {
   );
 }
 
-/** Gate client chat mutations/reads until email is verified. Admins pass. */
+/** Gate client chat mutations/reads until email is verified. Staff pass. */
 export function requireVerifiedEmail(user: SessionUser) {
-  if (user.role === "ADMIN") return null;
+  if (isStaff(user.role)) return null;
   if (user.emailVerified) return null;
   return emailUnverified();
 }
 
 export function requireAdmin(user: SessionUser | null) {
-  return Boolean(user && user.role === "ADMIN");
+  return Boolean(user && isAdmin(user.role));
+}
+
+export function requireStaff(user: SessionUser | null) {
+  return Boolean(user && isStaff(user.role));
+}
+
+/** CLIENT (own threads) or ADMIN. SUB_ADMIN must never pass. */
+export function requireChatAccess(user: SessionUser | null) {
+  return Boolean(user && canAccessClientChat(user.role));
 }
 
 export function toPublicUser(user: User) {
@@ -87,6 +97,6 @@ export function toPublicUser(user: User) {
     email: user.email,
     name: user.name,
     role: user.role,
-    emailVerified: Boolean(user.emailVerified) || user.role === "ADMIN",
+    emailVerified: Boolean(user.emailVerified) || isStaff(user.role),
   };
 }

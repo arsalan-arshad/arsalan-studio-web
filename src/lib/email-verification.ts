@@ -13,8 +13,8 @@ export function isEmailVerified(user: {
   emailVerified: Date | null;
   role: string;
 }) {
-  // Admins are never blocked by verification gate
-  if (user.role === "ADMIN") return true;
+  // Staff (ADMIN / SUB_ADMIN) are never blocked by verification gate
+  if (user.role === "ADMIN" || user.role === "SUB_ADMIN") return true;
   return Boolean(user.emailVerified);
 }
 

@@ -8,8 +8,9 @@
    */
   --bg: #0b0d12;
   --bg-elevated: #141820;
-  --ink: #eceef3;
-  --muted: #939aa8;
+  /* Higher contrast on night ground — brighter body/headings, clearer secondary. */
+  --ink: #f5f6f9;
+  --muted: #b0b7c5;
   --accent: #d4a45a;
   --accent-soft: #e0b56e;
   --accent-wash: rgba(212, 164, 90, 0.14);

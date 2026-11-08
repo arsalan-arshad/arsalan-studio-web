@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
+import { isAdmin, roleLabel } from "@/lib/roles";
 
 type Inquiry = {
   id: string;
@@ -25,30 +27,50 @@ type ThreadListItem = {
 };
 
 export function AdminDesk() {
-  const [tab, setTab] = useState<"threads" | "inquiries">("threads");
+  const { data: session } = useSession();
+  const admin = isAdmin(session?.user?.role);
+  const [tab, setTab] = useState<"threads" | "inquiries">(
+    admin ? "threads" : "inquiries",
+  );
   const [threads, setThreads] = useState<ThreadListItem[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     setError("");
-    const [tRes, iRes] = await Promise.all([
-      fetch("/api/threads"),
-      fetch("/api/admin/inquiries"),
-    ]);
-    const tData = await tRes.json();
-    const iData = await iRes.json();
-    if (!tRes.ok) {
-      setError(tData.error || "Could not load threads");
+    if (admin) {
+      const [tRes, iRes] = await Promise.all([
+        fetch("/api/threads"),
+        fetch("/api/admin/inquiries"),
+      ]);
+      const tData = await tRes.json();
+      const iData = await iRes.json();
+      if (!tRes.ok) {
+        setError(tData.error || "Could not load threads");
+        return;
+      }
+      if (!iRes.ok) {
+        setError(iData.error || "Could not load inquiries");
+        return;
+      }
+      setThreads(tData.threads);
+      setInquiries(iData.inquiries);
       return;
     }
+
+    const iRes = await fetch("/api/admin/inquiries");
+    const iData = await iRes.json();
     if (!iRes.ok) {
       setError(iData.error || "Could not load inquiries");
       return;
     }
-    setThreads(tData.threads);
     setInquiries(iData.inquiries);
-  }, []);
+  }, [admin]);
+
+  useEffect(() => {
+    // Default tab once session role is known
+    if (!admin) setTab("inquiries");
+  }, [admin]);
 
   useEffect(() => {
     load();
@@ -60,22 +82,42 @@ export function AdminDesk() {
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Admin only</p>
-          <h1 className="section-title mt-2">Studio desk</h1>
-          <p className="mt-2 text-sm text-muted">
-            Inbox is scoped by <span className="text-ink">thread</span> (each
-            client’s conversations). Messages live in one table, filtered by
-            thread membership — not mixed across clients in the UI.{" "}
-            <Link href="/chat" className="text-accent hover:underline">
-              Open chat view
-            </Link>
-            {" · "}
-            <Link href="/admin/users" className="text-accent hover:underline">
-              Manage users
-            </Link>
+          <p className="eyebrow">
+            {admin ? "Admin only" : `${roleLabel("SUB_ADMIN")} desk`}
+          </p>
+          <h1 className="section-title mt-2">
+            {admin ? "Studio desk" : "Inquiries inbox"}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-muted">
+            {admin ? (
+              <>
+                Inbox is scoped by <span className="text-ink">thread</span> (each
+                client’s conversations). Messages are encrypted at rest for
+                authorized participants.{" "}
+                <Link href="/chat" className="text-accent hover:underline">
+                  Open chat view
+                </Link>
+              </>
+            ) : (
+              <>
+                Contact-form submissions only. Support accounts cannot open
+                client chat threads or decrypt messages.
+              </>
+            )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/users" className="btn-primary !py-2 text-sm">
+            Manage users
+          </Link>
+          <Link href="/admin/settings" className="btn-ghost !py-2 text-sm">
+            Password
+          </Link>
+        </div>
+      </div>
+
+      {admin ? (
+        <div className="mt-6 flex gap-2">
           <button
             type="button"
             className={tab === "threads" ? "btn-primary !py-2 text-sm" : "btn-ghost !py-2 text-sm"}
@@ -93,11 +135,11 @@ export function AdminDesk() {
             Inquiries ({inquiries.length})
           </button>
         </div>
-      </div>
+      ) : null}
 
       {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
 
-      {tab === "threads" ? (
+      {admin && tab === "threads" ? (
         <ul className="mt-8 divide-y divide-line border border-line bg-bg-elevated">
           {threads.map((t) => (
             <li key={t.id}>
@@ -136,7 +178,7 @@ export function AdminDesk() {
                     {inq.company ? ` · ${inq.company}` : ""}
                   </p>
                 </div>
-                {inq.threadId ? (
+                {admin && inq.threadId ? (
                   <Link
                     href={`/chat?thread=${inq.threadId}`}
                     className="text-xs text-accent hover:underline"

@@ -29,6 +29,7 @@ async function main() {
 
   console.log("Admin ready:", { id: admin.id, email: admin.email, role: admin.role });
   console.log("Login password:", password === "ChangeMeAdmin123!" ? "(default — change it)" : "(from ADMIN_PASSWORD)");
+  console.log("Invite SUB_ADMIN (support) from /admin/users — inquiries + invites only, no client chat.");
 }
 
 main()

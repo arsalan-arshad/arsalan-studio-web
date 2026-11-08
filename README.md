@@ -27,24 +27,48 @@ Open source PRs are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Schema (Prisma)
 
-- **User** — `CLIENT` \| `ADMIN`, optional bcrypt `passwordHash` (null for Google-only), optional `emailVerified`
+- **User** — `CLIENT` \| `ADMIN` \| `SUB_ADMIN`, optional bcrypt `passwordHash` (null for Google-only), optional `emailVerified`
 - **Account** — Auth.js OAuth link rows (Google `provider` + `providerAccountId`)
 - **EmailVerificationToken** — signup verify links (24h; soft-consumed via `usedAt` for idempotent retries)
-- **PasswordResetToken** — forgot-password links (1h)
+- **PasswordResetToken** — forgot-password / invite set-password links
 - **AuthBootstrapToken** — one-time web sign-in after verify (no password in the link)
 - **RefreshToken** — opaque mobile/API refresh tokens (sha256 at rest, 30d, rotatable)
 - **Inquiry** — public contact submissions
-- **Thread** / **Message** — client chat (+ optional attachments); gated until email verified
+- **Thread** / **Message** — client chat (+ optional attachments); bodies encrypted at rest when `CHAT_ENCRYPTION_SECRET` is set
+
+### Role matrix
+
+| Capability | CLIENT | SUB_ADMIN (Support) | ADMIN |
+|---|---|---|---|
+| Own client chat threads / messages | ✅ | ❌ | ✅ (all clients) |
+| Decrypt chat message bodies (API) | ✅ (own) | ❌ | ✅ |
+| Contact inquiries inbox (`/admin`) | ❌ | ✅ | ✅ |
+| Invite users | ❌ | CLIENT + SUB_ADMIN | CLIENT + SUB_ADMIN + ADMIN |
+| Delete users | ❌ | ❌ | ✅ |
+| Change own password (`/admin/settings`) | ❌ | ✅ | ✅ |
+| `/admin` desk | ❌ | Inquiries home | Threads + inquiries |
 
 ### Messages architecture (why one table)
 
 Chat is **multi-tenant by thread**, not by physical table:
 
-- **Thread** is the isolation boundary (`clientId`). Clients only load `where: { clientId: user.id }`; admins see all threads.
+- **Thread** is the isolation boundary (`clientId`). Clients only load `where: { clientId: user.id }`; **ADMIN** sees all threads; **SUB_ADMIN** is denied all `/api/threads*` and `/api/uploads`.
 - **Message** rows always carry `threadId` (+ `senderId`). Every message API loads the thread first and **rejects** if the caller is not the thread’s client (or ADMIN).
 - Indexes: `(threadId, createdAt)`, `(threadId, id)`, `(senderId)`, and Thread `(clientId, updatedAt)`.
 
 **Do not** create one message table per user — that breaks Prisma models, analytics, admin inbox, migrations, and foreign keys. Schema-per-tenant is for huge SaaS; for this marketplace, a single `Message` table scoped by thread membership is the correct design. Per-user “separation” is a **query/authorization** concern, already enforced in `/api/threads*`.
+
+### Chat encryption (at rest — honesty)
+
+This is **encrypted at rest for authorized participants**, not true zero-knowledge E2E:
+
+- On write, message `body` (and optionally `attachmentName`) are sealed with **AES-256-GCM** using a key derived from `CHAT_ENCRYPTION_SECRET`, a random 12-byte IV per field (`bodyNonce` / `attachmentNameNonce`), and `bodyVersion` / `attachmentNameVersion` = `1`.
+- Ciphertext lives in Postgres. A DB dump without the secret does not yield plaintext.
+- On read, only **authorized** thread APIs decrypt (thread client or **ADMIN**). **SUB_ADMIN never decrypts or lists client chat.**
+- The **server can read** messages whenever it holds `CHAT_ENCRYPTION_SECRET` — required so ADMIN can support clients in `/chat`. True client-only E2E would block that.
+- Attachments remain **private R2 objects** with short-lived signed URLs; filenames may be encrypted the same way as bodies.
+- Legacy plaintext rows (`bodyVersion = 0`) are **lazy-migrated** on thread GET when the secret is set. Batch migrate anytime with `npm run db:encrypt-messages`.
+- Without `CHAT_ENCRYPTION_SECRET`, new messages stay plaintext (`bodyVersion = 0`) for local convenience — **set it on Railway before production chat**.
 
 ### Auth model (web vs Bearer)
 
@@ -84,12 +108,14 @@ docker compose up -d
 
 ```bash
 cp .env.example .env
-# set AUTH_SECRET: openssl rand -base64 32
+# set AUTH_SECRET and CHAT_ENCRYPTION_SECRET: openssl rand -base64 32
 npm install
 npx prisma migrate deploy
 npm run db:seed          # ADMIN from ADMIN_EMAIL / ADMIN_PASSWORD
+# optional: npm run db:encrypt-messages  # seal legacy plaintext after setting CHAT_ENCRYPTION_SECRET
 npm run dev              # http://localhost:3000
 ```
+
 
 Checks:
 
@@ -117,6 +143,7 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO` | Inquiry notify recipient |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Free GA4 Measurement ID (`G-…`); omit to disable |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` | Cloudflare R2 private attachments |
+| `CHAT_ENCRYPTION_SECRET` | AES-256-GCM key material for message bodies at rest (`openssl rand -base64 32`) |
 | `NEXT_PUBLIC_SITE_URL` | Public URL for links in emails |
 
 ### Google OAuth setup (web)
@@ -149,12 +176,13 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 2. `/reset-password?token=…` → `POST /api/auth/reset-password` with strong password rules.
 3. Google-only accounts (no `passwordHash`) do not receive a reset email (same generic success response).
 
-### Admin users & invites
+### Admin / support desk
 
-1. `/admin/users` (ADMIN only) lists name, email, role, `emailVerified`, createdAt.
-2. **Invite:** admin enters name + email (+ optional role, default `CLIENT`) → `POST /api/admin/users` creates a user with **no password**, issues a **7-day** `PasswordResetToken` (`purpose=INVITE`), emails `/set-password?token=…` from `noreply@arsalandev.studio`.
-3. Invitee sets a strong password → `emailVerified` is set (token proves inbox ownership) → log in.
-4. **Delete:** `DELETE /api/admin/users/:id` with confirm UI. Cleans threads/messages and cascades tokens/accounts. Blocks deleting yourself or the last admin.
+1. `/admin` — **ADMIN**: threads + inquiries. **SUB_ADMIN**: inquiries inbox only (no chat).
+2. `/admin/users` — staff can list users. **Invite** roles: ADMIN → any; SUB_ADMIN → `CLIENT` | `SUB_ADMIN` only. **Delete** is ADMIN-only.
+3. Invite creates a user with **no password**, 7-day `PasswordResetToken` (`purpose=INVITE`), email `/set-password?token=…`.
+4. `/admin/settings` — staff change **own** password (`PATCH /api/admin/password`, strong rules + current password).
+5. Header: Admin/Support + Users/Invite shortcuts when signed in as staff.
 
 ### Analytics (free forever)
 
@@ -181,10 +209,12 @@ Do **not** wait on custom DNS. Use Railway’s `*.up.railway.app` URL first; add
    - Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
    - Optional Google: `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`
    - R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
+   - **`CHAT_ENCRYPTION_SECRET`** (`openssl rand -base64 32`) — required for encrypted chat at rest
 4. Deploy. `railway.toml` runs `prisma generate` on build and `prisma migrate deploy` on start.
-5. After first deploy: open the Railway URL, then seed admin if not auto-run:
+5. Optional after deploy: `npm run db:encrypt-messages` against prod DB to seal any legacy plaintext rows (lazy migrate also runs on thread open).
+6. After first deploy: open the Railway URL, then seed admin if not auto-run:
    - Locally against prod DB only if needed, or use Railway shell: `npm run db:seed`
-6. **Later (DNS ready):** Railway → Custom Domain → `arsalandev.studio`, then update `AUTH_URL` and `NEXT_PUBLIC_SITE_URL`, and Google OAuth redirect URIs.
+7. **Later (DNS ready):** Railway → Custom Domain → `arsalandev.studio`, then update `AUTH_URL` and `NEXT_PUBLIC_SITE_URL`, and Google OAuth redirect URIs.
 
 Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then the custom domain).
 
@@ -197,7 +227,7 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Contact | `/contact` → `POST /api/contact` |
 | Auth | `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/set-password`, `/verify-email` |
 | Chat | `/chat` (email verified) |
-| Admin | `/admin`, `/admin/users` (server-gated `role === ADMIN`) |
+| Admin / Support | `/admin`, `/admin/users`, `/admin/settings` (gated `ADMIN` \| `SUB_ADMIN`) |
 | SEO | `/sitemap.xml`, `/robots.txt` |
 
 ---

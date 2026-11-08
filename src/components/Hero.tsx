@@ -8,8 +8,9 @@ export function Hero() {
         aria-hidden
         className="motion-drift pointer-events-none absolute inset-0 -z-0"
       >
-        <div className="absolute right-[-6%] top-[6%] h-[28vmin] w-[28vmin] rounded-full bg-[radial-gradient(circle,var(--glow),transparent_65%)]" />
-        <div className="absolute bottom-[12%] left-[-5%] h-[22vmin] w-[22vmin] rounded-full bg-[radial-gradient(circle,rgba(63,106,92,0.12),transparent_70%)]" />
+        <div className="absolute right-[-6%] top-[6%] h-[32vmin] w-[32vmin] rounded-full bg-[radial-gradient(circle,var(--glow),transparent_65%)]" />
+        <div className="absolute bottom-[10%] left-[-8%] h-[26vmin] w-[26vmin] rounded-full bg-[radial-gradient(circle,rgba(122,158,140,0.16),transparent_70%)]" />
+        <div className="absolute left-[42%] top-[38%] h-[18vmin] w-[18vmin] rounded-full bg-[radial-gradient(circle,rgba(60,78,120,0.22),transparent_70%)]" />
       </div>
 
       <div className="relative z-[2] mx-auto w-full max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] pt-6 sm:pt-8">
@@ -33,7 +34,7 @@ export function Hero() {
           </Link>
         </div>
         <div
-          className="motion-pulse mt-8 h-px w-20 bg-gradient-to-r from-accent to-transparent"
+          className="motion-pulse mt-8 h-px w-24 bg-gradient-to-r from-accent via-accent/50 to-transparent"
           aria-hidden
         />
       </div>

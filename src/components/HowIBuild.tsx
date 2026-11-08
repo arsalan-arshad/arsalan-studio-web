@@ -21,7 +21,7 @@ export function HowIBuild() {
           {buildTools.map((tool) => (
             <li
               key={tool.id}
-              className="border border-line bg-bg-elevated px-5 py-6"
+              className="panel-lume rounded-sm px-5 py-6"
             >
               <p className="font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight text-ink">
                 {tool.name}

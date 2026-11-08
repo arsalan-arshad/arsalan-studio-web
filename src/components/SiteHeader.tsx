@@ -13,7 +13,7 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
+    <header className="absolute inset-x-0 top-0 z-20 border-b border-line/60 bg-[color-mix(in_oklab,var(--bg)_55%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-3 sm:py-3.5">
         <Link
           href="/"
@@ -26,7 +26,7 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-muted transition-colors hover:text-ink"
+              className="text-sm text-muted transition-colors hover:text-accent"
             >
               {link.label}
             </Link>

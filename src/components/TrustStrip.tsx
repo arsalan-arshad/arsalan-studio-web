@@ -18,7 +18,7 @@ export function TrustStrip() {
   return (
     <section
       aria-label="Where you can find Arsalan"
-      className="border-y border-line bg-bg-elevated"
+      className="border-y border-line bg-bg-elevated/80"
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-[clamp(1.25rem,4vw,3.5rem)] py-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">

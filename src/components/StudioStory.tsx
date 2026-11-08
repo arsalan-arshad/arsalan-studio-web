@@ -11,7 +11,7 @@ export function StudioStory() {
   return (
     <section
       id="studio"
-      className="border-y border-line bg-bg-elevated"
+      className="border-y border-line bg-bg-elevated/90"
       aria-label="About the studio"
     >
       <div className="mx-auto max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] py-12">
@@ -43,7 +43,7 @@ export function StudioStory() {
                 alt="Digitize Turf (past company)"
                 width={120}
                 height={40}
-                className="h-8 w-auto opacity-80"
+                className="h-8 w-auto opacity-90 brightness-110"
               />
               <a
                 href={brand.pastCompany.clutch}
@@ -57,14 +57,14 @@ export function StudioStory() {
               <img
                 src="/brands/digitize-turf/techbehemoths-trusted.svg"
                 alt="As trusted on TechBehemoths"
-                className="h-7 w-auto opacity-70"
+                className="h-7 w-auto opacity-80 brightness-125"
               />
             </div>
           </div>
 
           <ul className="grid max-w-md grid-cols-1 gap-3 sm:grid-cols-3 lg:max-w-sm lg:grid-cols-1">
             {pastServices.map((service) => (
-              <li key={service.title} className="border-l border-line pl-4">
+              <li key={service.title} className="border-l border-accent/35 pl-4">
                 <p className="text-sm font-semibold text-ink">{service.title}</p>
                 <p className="mt-1 text-xs leading-relaxed text-muted">
                   {service.body}
@@ -78,10 +78,10 @@ export function StudioStory() {
           {studioPrinciples.map((item) => (
             <li
               key={item.id}
-              className="flex items-center gap-2 border border-line bg-bg px-3 py-3"
+              className="panel-lume flex items-center gap-2 rounded-sm px-3 py-3"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.icon} alt="" className="h-5 w-5 opacity-80" />
+              <img src={item.icon} alt="" className="h-5 w-5 opacity-90 brightness-110" />
               <span className="text-xs font-medium text-ink">{item.name}</span>
             </li>
           ))}
@@ -95,14 +95,14 @@ export function StudioStory() {
             {studioSkills.map((skill) => (
               <li
                 key={skill.id}
-                className="flex items-center gap-2 rounded-sm border border-line bg-bg px-3 py-2"
+                className="panel-lume flex items-center gap-2 rounded-sm px-3 py-2"
                 title={skill.name}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={skill.src}
                   alt=""
-                  className="h-6 w-6 object-contain"
+                  className="h-6 w-6 object-contain brightness-110"
                 />
                 <span className="text-xs text-muted">{skill.name}</span>
               </li>

@@ -45,7 +45,8 @@ export async function issueAndSendVerification(user: {
   return { token: row.token, ...result };
 }
 
-async function issueBootstrapToken(userId: string) {
+/** Short-lived one-time web sign-in (verify / set-password flows). */
+export async function issueBootstrapToken(userId: string) {
   const token = randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + BOOTSTRAP_TTL_MS);
   await prisma.authBootstrapToken.deleteMany({ where: { userId } });

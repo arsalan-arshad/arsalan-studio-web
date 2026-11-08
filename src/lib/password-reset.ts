@@ -1,3 +1,4 @@
+import { issueBootstrapToken } from "@/lib/email-verification";
 import { prisma } from "@/lib/prisma";
 import { sendInviteSetPasswordEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { randomBytes } from "crypto";
@@ -67,6 +68,28 @@ export async function canRequestPasswordReset(userId: string) {
   return { ok: true as const };
 }
 
+/** Peek without consuming — for set/reset UI session guards. */
+export async function peekPasswordResetToken(token: string) {
+  const row = await prisma.passwordResetToken.findUnique({
+    where: { token },
+    include: {
+      user: { select: { id: true, email: true, name: true } },
+    },
+  });
+  if (!row) return { ok: false as const, error: "Invalid or expired link" };
+  if (row.expires.getTime() + EXPIRY_SKEW_MS < Date.now()) {
+    return { ok: false as const, error: "Link expired — request a new one" };
+  }
+  return {
+    ok: true as const,
+    userId: row.userId,
+    email: row.user.email,
+    name: row.user.name,
+    purpose: row.purpose as PasswordTokenPurpose,
+    expires: row.expires,
+  };
+}
+
 export async function consumePasswordResetToken(token: string) {
   const row = await prisma.passwordResetToken.findUnique({
     where: { token },
@@ -96,9 +119,12 @@ export async function completePasswordReset(token: string, passwordHash: string)
     prisma.passwordResetToken.deleteMany({ where: { userId: result.row.userId } }),
   ]);
 
+  const bootstrapToken = await issueBootstrapToken(result.row.userId);
+
   return {
     ok: true as const,
     user: result.row.user,
     purpose: result.row.purpose as PasswordTokenPurpose,
+    bootstrapToken,
   };
 }

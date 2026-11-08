@@ -5,11 +5,12 @@ import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export function LoginForm() {
+export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") || "/chat";
   const showVerifyHint = params.get("verify") === "1";
+  const resetOk = params.get("reset") === "1";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +40,24 @@ export function LoginForm() {
           Check your inbox for a verification link before using Messages.
         </p>
       ) : null}
+      {resetOk ? (
+        <p className="rounded-sm border border-accent/40 bg-accent-wash px-3 py-2 text-sm text-ink">
+          Password updated. Log in with your new password.
+        </p>
+      ) : null}
+      {googleEnabled ? (
+        <button
+          type="button"
+          className="btn-ghost w-full"
+          disabled={loading}
+          onClick={() => signIn("google", { callbackUrl })}
+        >
+          Continue with Google
+        </button>
+      ) : null}
+      {googleEnabled ? (
+        <p className="text-center text-xs text-muted">or email</p>
+      ) : null}
       <div>
         <label htmlFor="email" className="mb-1.5 block text-sm text-muted">
           Email
@@ -53,15 +72,23 @@ export function LoginForm() {
         />
       </div>
       <div>
-        <label htmlFor="password" className="mb-1.5 block text-sm text-muted">
-          Password
-        </label>
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <label htmlFor="password" className="block text-sm text-muted">
+            Password
+          </label>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-accent hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <input
           id="password"
           name="password"
           type="password"
           required
-          minLength={8}
+          minLength={1}
           className="input-field"
           autoComplete="current-password"
         />

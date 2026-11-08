@@ -33,6 +33,45 @@ type ThreadDetail = {
   messages: Message[];
 };
 
+function attachmentKind(name: string): "image" | "pdf" | "other" {
+  const lower = name.toLowerCase();
+  if (/\.(png|jpe?g|gif|webp|bmp|svg)$/.test(lower)) return "image";
+  if (lower.endsWith(".pdf")) return "pdf";
+  return "other";
+}
+
+function AttachmentBlock({ url, name }: { url: string; name: string }) {
+  const kind = attachmentKind(name);
+  return (
+    <div className="mt-2 space-y-2">
+      {kind === "image" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt={name}
+          className="max-h-64 max-w-full rounded-sm border border-line object-contain bg-bg"
+        />
+      ) : null}
+      {kind === "pdf" ? (
+        <iframe
+          title={name}
+          src={url}
+          className="h-64 w-full max-w-md rounded-sm border border-line bg-bg"
+        />
+      ) : null}
+      <a
+        href={url}
+        download={name}
+        className="inline-flex items-center text-xs text-accent hover:underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Download {name}
+      </a>
+    </div>
+  );
+}
+
 export function ChatApp() {
   const { data: session, status } = useSession();
   const params = useSearchParams();
@@ -188,7 +227,12 @@ export function ChatApp() {
     <div className="mx-auto grid max-w-6xl gap-6 px-[clamp(1.25rem,4vw,3.5rem)] lg:grid-cols-[280px_1fr]">
       <aside className="border border-line bg-bg-elevated p-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-          {isAdmin ? "Admin inbox" : "Your threads"}
+          {isAdmin ? "All client threads" : "Your threads"}
+        </p>
+        <p className="mt-1 text-[11px] leading-snug text-muted">
+          {isAdmin
+            ? "Each thread belongs to one client. You see every thread; clients only see theirs."
+            : "Only conversations you started — scoped to your account."}
         </p>
         <ul className="mt-3 space-y-2">
           {threads.map((t) => (
@@ -289,14 +333,10 @@ export function ChatApp() {
                   </p>
                   <p className="mt-1 whitespace-pre-wrap text-ink">{m.body}</p>
                   {m.attachmentUrl ? (
-                    <a
-                      href={m.attachmentUrl}
-                      className="mt-1 inline-block text-xs text-accent hover:underline"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {m.attachmentName || "Attachment"}
-                    </a>
+                    <AttachmentBlock
+                      url={m.attachmentUrl}
+                      name={m.attachmentName || "Attachment"}
+                    />
                   ) : null}
                 </div>
               ))}

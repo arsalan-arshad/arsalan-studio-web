@@ -7,6 +7,10 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
+  const googleEnabled = Boolean(
+    process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
+  );
+
   return (
     <div className="section-pad pt-20">
       <div className="mx-auto max-w-lg text-center">
@@ -18,7 +22,7 @@ export default function LoginPage() {
       </div>
       <div className="mt-10">
         <Suspense fallback={<p className="text-center text-muted">Loading…</p>}>
-          <LoginForm />
+          <LoginForm googleEnabled={googleEnabled} />
         </Suspense>
       </div>
     </div>

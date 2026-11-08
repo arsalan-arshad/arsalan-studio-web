@@ -63,7 +63,9 @@ export function AdminDesk() {
           <p className="eyebrow">Admin only</p>
           <h1 className="section-title mt-2">Studio desk</h1>
           <p className="mt-2 text-sm text-muted">
-            All client threads and public inquiries.{" "}
+            Inbox is scoped by <span className="text-ink">thread</span> (each
+            client’s conversations). Messages live in one table, filtered by
+            thread membership — not mixed across clients in the UI.{" "}
             <Link href="/chat" className="text-accent hover:underline">
               Open chat view
             </Link>

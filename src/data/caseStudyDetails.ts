@@ -17,6 +17,46 @@ export type CaseStudyDetail = CaseStudy & {
 };
 
 const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
+  pathwise: {
+    summary:
+      "Open-source TypeScript query planner for RAG and agent pipelines: declare the quality (and latency) you need; Pathwise picks the cheapest execution plan per request and keeps learning from scored production runs.",
+    problem:
+      "Databases have had query optimizers for 50 years. AI pipelines don’t — teams hard-code one model, one topK, one reranker for every request and pay frontier prices for trivial questions. Plain model routers are crowded; whole-pipeline planning has research papers but almost no drop-in developer SDK.",
+    solution:
+      "Mark your knobs (model, retrieval depth, reranker, agent step budget). Calibrate on real sample queries — cheapest plans first, with dominance pruning (~9% of exhaustive calibration cost). At request time, find similar past queries, predict quality/cost/latency, and run the cheapest plan that meets the SLA. Optional confidence-calibrated SLA guarantee (Wilson lower bound) and noisy-judge correction. Feedback rate closes the loop as models and prices change.",
+    audience:
+      "Senior software and AI engineers wiring RAG or agent stacks in TypeScript who need cost control without sacrificing a declared quality bar.",
+    usage: [
+      "npm install pathwise (or clone the MIT repo) and wrap your existing pipeline so knobs are parameters.",
+      "createPlanner({ space, pipeline, scorer, sla }) — set minQuality / maxLatencyMs / optional confidence.",
+      "await planner.calibrate(sampleQueries) — inspect CalibrationReport / slaCertified.",
+      "await planner.run(userQuery) — cheapest plan that meets the SLA; score a fraction of production for online learning.",
+    ],
+    stack: [
+      "TypeScript (zero runtime dependencies)",
+      "Node ≥ 22",
+      "Hashed bag-of-words featurizer + cosine similarity",
+      "MIT open source",
+    ],
+    architecture: [
+      "enumeratePlans — cartesian product of KnobSpace",
+      "Adaptive calibration — cheapest-first search, early stop, dominance pruning, monotonicity audits",
+      "estimate / decide — k-NN similarity² weighting with per-plan priors; non-dominated cheapest plan ≥ threshold",
+      "SLA guarantee — leave-one-out replay + Wilson lower bound; safe fallback when uncertified",
+      "Noisy judge path — bias-corrected scores, majority / confirm votes",
+    ],
+    features: [
+      "Per-request cheapest plan under a quality SLA",
+      "Confidence-calibrated SLA mode (synthetic: 0/320 misses vs 45 for average-based)",
+      "Adaptive calibration far cheaper than exhaustive",
+      "Online learning from scored production fraction",
+      "Demo workload: same 100% accuracy at ~$4.93 vs $33 always-max (synthetic; real savings vary)",
+    ],
+    openSource: {
+      license: "MIT",
+      note: "Public GitHub — github.com/arsalan-arshad/pathwise. Issues and PRs welcome; synthetic benchmarks are labeled honestly.",
+    },
+  },
   "ai-forecast-agent": {
     summary:
       "Embedded Shopify app that forecasts inventory with auditable math, then lets a BYOK AI co-pilot explain those numbers — never invent them.",

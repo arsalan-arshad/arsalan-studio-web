@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 
 const categories = [
+  { key: "ai" as const, label: "AI" },
   { key: "shopify" as const, label: "Shopify" },
   { key: "salesforce" as const, label: "Salesforce" },
   { key: "other" as const, label: "Other" },

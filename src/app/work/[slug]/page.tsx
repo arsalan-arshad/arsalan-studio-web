@@ -38,7 +38,9 @@ export default async function CaseStudyPage({ params }: Props) {
             Work
           </Link>
           <span className="mx-2">/</span>
-          <span className="capitalize">{study.category}</span>
+          <span className="capitalize">
+            {study.category === "ai" ? "AI" : study.category}
+          </span>
         </p>
 
         <div className="mt-6 flex flex-wrap items-start gap-4">

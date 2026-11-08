@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Figtree, Fraunces } from "next/font/google";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoscript,
+} from "@/components/GoogleTagManager";
 import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -108,10 +112,12 @@ export default function RootLayout({
       className={`${fraunces.variable} ${figtree.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-bg font-[family-name:var(--font-body)] text-ink antialiased">
+        <GoogleTagManagerNoscript />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <GoogleTagManager />
         <GoogleAnalytics />
         <Providers>
           <SiteHeader />

@@ -146,6 +146,52 @@ export async function sendPasswordResetEmail(input: {
   return { sent: true as const, resetUrl };
 }
 
+export async function sendInviteSetPasswordEmail(input: {
+  to: string;
+  name: string;
+  token: string;
+}) {
+  const site =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.AUTH_URL ||
+    `https://${brand.domain}`;
+  const setUrl = `${site.replace(/\/$/, "")}/set-password?token=${encodeURIComponent(input.token)}`;
+  const resend = resendClient();
+
+  if (!resend) {
+    console.info("[mail] RESEND_API_KEY unset — invite email skipped (dev)", {
+      to: input.to,
+      setUrl,
+    });
+    return { sent: false as const, reason: "no_api_key" as const, setUrl };
+  }
+
+  await resend.emails.send({
+    from: emailFrom(),
+    to: input.to,
+    subject: "You’re invited — set your password — Arsalan Studio",
+    text: [
+      `Hi ${input.name},`,
+      "",
+      "An admin invited you to Arsalan Studio. Set your password to sign in:",
+      setUrl,
+      "",
+      "This link expires in 7 days. If you were not expecting this, ignore this email.",
+      "",
+      `— ${brand.name}`,
+    ].join("\n"),
+    html: `
+      <p>Hi ${escapeHtml(input.name)},</p>
+      <p>An admin invited you to Arsalan Studio. Set your password to sign in:</p>
+      <p><a href="${setUrl}">Set password</a></p>
+      <p style="color:#666;font-size:14px">Or paste this link:<br/>${setUrl}</p>
+      <p style="color:#666;font-size:14px">This link expires in 7 days.</p>
+      <p>— ${escapeHtml(brand.name)}</p>
+    `,
+  });
+  return { sent: true as const, setUrl };
+}
+
 function escapeHtml(s: string) {
   return s
     .replace(/&/g, "&amp;")

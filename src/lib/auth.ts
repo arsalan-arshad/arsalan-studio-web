@@ -96,6 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   providers: [
     ...(googleConfigured
@@ -144,11 +145,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider !== "google") return true;
       const email =
         (profile as { email?: string } | undefined)?.email || user.email;
-      if (!email) return false;
-      const emailVerified =
-        (profile as { email_verified?: boolean } | undefined)?.email_verified !==
-        false;
-      if (!emailVerified) return false;
+      if (!email) {
+        return "/login?error=GoogleEmailMissing";
+      }
+      // Only trust Google when profile.email_verified is explicitly true.
+      // Do not create/login as verified when Google says the email is unverified.
+      const googleEmailVerified =
+        (profile as { email_verified?: boolean } | undefined)?.email_verified ===
+        true;
+      if (!googleEmailVerified) {
+        return "/login?error=GoogleEmailNotVerified";
+      }
 
       const dbUser = await upsertGoogleUser({
         email,
@@ -176,8 +183,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.isEmailVerified =
           user.role === "ADMIN" ||
-          Boolean((user as { emailVerified?: Date | null }).emailVerified) ||
-          account?.provider === "google";
+          Boolean((user as { emailVerified?: Date | null }).emailVerified);
       }
 
       // Ensure Google sessions always map to our Prisma User id (not provider sub)

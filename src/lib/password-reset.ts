@@ -1,18 +1,27 @@
 import { prisma } from "@/lib/prisma";
-import { sendPasswordResetEmail } from "@/lib/mail";
+import { sendInviteSetPasswordEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { randomBytes } from "crypto";
 
-const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+const RESET_TTL_MS = 60 * 60 * 1000; // 1 hour
+const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const EXPIRY_SKEW_MS = 5 * 60 * 1000;
 /** Min gap between reset emails per user */
 export const RESET_COOLDOWN_MS = 60_000;
 
-export async function createPasswordResetToken(userId: string) {
+export type PasswordTokenPurpose = "RESET" | "INVITE";
+
+export async function createPasswordResetToken(
+  userId: string,
+  opts?: { purpose?: PasswordTokenPurpose; ttlMs?: number },
+) {
+  const purpose = opts?.purpose ?? "RESET";
+  const ttlMs =
+    opts?.ttlMs ?? (purpose === "INVITE" ? INVITE_TTL_MS : RESET_TTL_MS);
   const token = randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + TOKEN_TTL_MS);
+  const expires = new Date(Date.now() + ttlMs);
   await prisma.passwordResetToken.deleteMany({ where: { userId } });
   return prisma.passwordResetToken.create({
-    data: { token, userId, expires },
+    data: { token, userId, expires, purpose },
   });
 }
 
@@ -21,8 +30,22 @@ export async function issueAndSendPasswordReset(user: {
   email: string;
   name: string;
 }) {
-  const row = await createPasswordResetToken(user.id);
+  const row = await createPasswordResetToken(user.id, { purpose: "RESET" });
   const result = await sendPasswordResetEmail({
+    to: user.email,
+    name: user.name,
+    token: row.token,
+  });
+  return { token: row.token, ...result };
+}
+
+export async function issueAndSendInvite(user: {
+  id: string;
+  email: string;
+  name: string;
+}) {
+  const row = await createPasswordResetToken(user.id, { purpose: "INVITE" });
+  const result = await sendInviteSetPasswordEmail({
     to: user.email,
     name: user.name,
     token: row.token,
@@ -32,7 +55,7 @@ export async function issueAndSendPasswordReset(user: {
 
 export async function canRequestPasswordReset(userId: string) {
   const latest = await prisma.passwordResetToken.findFirst({
-    where: { userId },
+    where: { userId, purpose: "RESET" },
     orderBy: { createdAt: "desc" },
   });
   if (!latest) return { ok: true as const };
@@ -66,12 +89,16 @@ export async function completePasswordReset(token: string, passwordHash: string)
       where: { id: result.row.userId },
       data: {
         passwordHash,
-        // Resetting via email proves ownership
+        // Setting password via emailed token proves ownership
         emailVerified: result.row.user.emailVerified ?? new Date(),
       },
     }),
     prisma.passwordResetToken.deleteMany({ where: { userId: result.row.userId } }),
   ]);
 
-  return { ok: true as const, user: result.row.user };
+  return {
+    ok: true as const,
+    user: result.row.user,
+    purpose: result.row.purpose as PasswordTokenPurpose,
+  };
 }

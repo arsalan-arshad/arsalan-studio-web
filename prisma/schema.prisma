@@ -96,11 +96,14 @@ model EmailVerificationToken {
   @@index([userId])
 }
 
+/** Password reset (1h) or admin invite set-password (7d). */
 model PasswordResetToken {
   id        String   @id @default(cuid())
   token     String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /** RESET | INVITE */
+  purpose   String   @default("RESET")
   expires   DateTime
   createdAt DateTime @default(now())
 

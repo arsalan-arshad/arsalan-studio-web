@@ -5,17 +5,26 @@ import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PASSWORD_RULES_HINT } from "@/lib/password";
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({
+  mode = "reset",
+}: {
+  mode?: "reset" | "invite";
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const token = params.get("token") ?? "";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const isInvite = mode === "invite";
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!token) {
-      setError("Missing reset token. Use the link from your email.");
+      setError(
+        isInvite
+          ? "Missing invite token. Ask an admin to resend your invite."
+          : "Missing reset token. Use the link from your email.",
+      );
       return;
     }
     setLoading(true);
@@ -40,7 +49,7 @@ export function ResetPasswordForm() {
         setError(data.error || "Could not reset password");
         return;
       }
-      router.push("/login?reset=1");
+      router.push(isInvite ? "/login?invited=1" : "/login?reset=1");
       router.refresh();
     } catch {
       setLoading(false);
@@ -52,10 +61,15 @@ export function ResetPasswordForm() {
     return (
       <div className="mx-auto max-w-md space-y-4 text-center">
         <p className="text-danger text-sm">
-          Missing reset token. Request a new link from the login page.
+          {isInvite
+            ? "Missing invite token. Ask an admin to send a new invite."
+            : "Missing reset token. Request a new link from the login page."}
         </p>
-        <Link href="/forgot-password" className="btn-primary inline-flex">
-          Forgot password
+        <Link
+          href={isInvite ? "/login" : "/forgot-password"}
+          className="btn-primary inline-flex"
+        >
+          {isInvite ? "Log in" : "Forgot password"}
         </Link>
       </div>
     );
@@ -65,7 +79,7 @@ export function ResetPasswordForm() {
     <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm text-muted">
-          New password
+          {isInvite ? "Password" : "New password"}
         </label>
         <input
           id="password"
@@ -94,7 +108,7 @@ export function ResetPasswordForm() {
       </div>
       {error ? <p className="text-sm text-danger">{error}</p> : null}
       <button type="submit" className="btn-primary w-full" disabled={loading}>
-        {loading ? "Saving…" : "Set new password"}
+        {loading ? "Saving…" : isInvite ? "Set password & continue" : "Set new password"}
       </button>
       <p className="text-center text-sm text-muted">
         <Link href="/login" className="text-accent hover:underline">

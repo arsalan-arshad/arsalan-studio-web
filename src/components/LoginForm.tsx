@@ -11,7 +11,20 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
   const callbackUrl = params.get("callbackUrl") || "/chat";
   const showVerifyHint = params.get("verify") === "1";
   const resetOk = params.get("reset") === "1";
-  const [error, setError] = useState("");
+  const invitedOk = params.get("invited") === "1";
+  const oauthError = params.get("error");
+  const [error, setError] = useState(() => {
+    if (oauthError === "GoogleEmailNotVerified") {
+      return "Google sign-in requires a verified Google email. Verify it in your Google account, or use email and password.";
+    }
+    if (oauthError === "GoogleEmailMissing") {
+      return "Google did not provide an email. Try again or use email and password.";
+    }
+    if (oauthError && oauthError !== "CredentialsSignin") {
+      return "Google sign-in was cancelled or failed. Try again.";
+    }
+    return "";
+  });
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -43,6 +56,11 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
       {resetOk ? (
         <p className="rounded-sm border border-accent/40 bg-accent-wash px-3 py-2 text-sm text-ink">
           Password updated. Log in with your new password.
+        </p>
+      ) : null}
+      {invitedOk ? (
+        <p className="rounded-sm border border-accent/40 bg-accent-wash px-3 py-2 text-sm text-ink">
+          Password set. Log in with your email and new password.
         </p>
       ) : null}
       {googleEnabled ? (

@@ -67,7 +67,7 @@ Access verification stays in `auth-helpers` via `verifyMobileToken` (expired acc
 
 **Passwords** (signup, reset, any future change-password): min **10** chars, upper + lower + number + special — shared Zod helper in `src/lib/password.ts`. Rules are shown in the UI.
 
-**Google (web):** set `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`. Same verified Google email links to an existing User (`allowDangerousEmailAccountLinking`). Google sign-in marks `emailVerified`. Mobile does **not** implement Google OAuth yet (Browser OAuth / Expo AuthSession can be added later); use email/password on mobile, or Google on the web.
+**Google (web):** set `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`. Same Google email links to an existing User (`allowDangerousEmailAccountLinking`) **only when Google’s profile `email_verified` is `true`**. Unverified Google emails are rejected (redirect to `/login?error=GoogleEmailNotVerified`) — we do not create or sign in that user as verified. When verified, we set `User.emailVerified` and allow access. Mobile does **not** implement Google OAuth yet; use email/password on mobile, or Google on the web.
 
 ---
 
@@ -126,6 +126,7 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 3. **Authorized redirect URIs:** `https://arsalandev.studio/api/auth/callback/google` (same host as `AUTH_URL`).
 4. Copy Client ID → Railway `AUTH_GOOGLE_ID`; Client secret → `AUTH_GOOGLE_SECRET`.
 5. Redeploy. Login/signup show **Continue with Google** when both vars are set.
+6. Sign-in is allowed only if Google reports `email_verified: true` on the profile; otherwise the user sees a clear error on `/login`.
 
 ### File storage (Cloudflare R2)
 
@@ -147,6 +148,13 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 1. `/forgot-password` → `POST /api/auth/forgot-password` → email from `noreply@arsalandev.studio`.
 2. `/reset-password?token=…` → `POST /api/auth/reset-password` with strong password rules.
 3. Google-only accounts (no `passwordHash`) do not receive a reset email (same generic success response).
+
+### Admin users & invites
+
+1. `/admin/users` (ADMIN only) lists name, email, role, `emailVerified`, createdAt.
+2. **Invite:** admin enters name + email (+ optional role, default `CLIENT`) → `POST /api/admin/users` creates a user with **no password**, issues a **7-day** `PasswordResetToken` (`purpose=INVITE`), emails `/set-password?token=…` from `noreply@arsalandev.studio`.
+3. Invitee sets a strong password → `emailVerified` is set (token proves inbox ownership) → log in.
+4. **Delete:** `DELETE /api/admin/users/:id` with confirm UI. Cleans threads/messages and cascades tokens/accounts. Blocks deleting yourself or the last admin.
 
 ### Analytics (free forever)
 
@@ -187,9 +195,9 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Surface | Path |
 |---|---|
 | Contact | `/contact` → `POST /api/contact` |
-| Auth | `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/verify-email` |
+| Auth | `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/set-password`, `/verify-email` |
 | Chat | `/chat` (email verified) |
-| Admin | `/admin` (server-gated `role === ADMIN`) |
+| Admin | `/admin`, `/admin/users` (server-gated `role === ADMIN`) |
 | SEO | `/sitemap.xml`, `/robots.txt` |
 
 ---

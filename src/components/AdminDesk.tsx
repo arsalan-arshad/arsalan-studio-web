@@ -69,6 +69,10 @@ export function AdminDesk() {
             <Link href="/chat" className="text-accent hover:underline">
               Open chat view
             </Link>
+            {" · "}
+            <Link href="/admin/users" className="text-accent hover:underline">
+              Manage users
+            </Link>
           </p>
         </div>
         <div className="flex gap-2">

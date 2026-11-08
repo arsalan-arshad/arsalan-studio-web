@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
+type AccountType = "password" | "google" | "both" | "none";
+
 type AdminUserRow = {
   id: string;
   name: string;
@@ -12,7 +14,38 @@ type AdminUserRow = {
   emailVerified: string | null;
   createdAt: string;
   hasPassword: boolean;
+  hasGoogle?: boolean;
+  accountType?: AccountType;
+  accountTypeLabel?: string;
 };
+
+function accountBadge(u: AdminUserRow) {
+  const type = u.accountType ?? (u.hasPassword ? "password" : "none");
+  const label =
+    u.accountTypeLabel ??
+    (type === "both"
+      ? "Password + Google"
+      : type === "google"
+        ? "Google"
+        : type === "password"
+          ? "Password"
+          : "Invite pending");
+  return (
+    <span
+      className={`inline-block rounded-sm border px-1.5 py-0.5 text-[11px] font-medium ${
+        type === "both"
+          ? "border-accent/40 bg-accent-wash text-ink"
+          : type === "google"
+            ? "border-line bg-bg text-ink"
+            : type === "password"
+              ? "border-line bg-bg-elevated text-muted"
+              : "border-line bg-bg text-muted"
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
 
 export function AdminUsers() {
   const { data: session } = useSession();
@@ -183,11 +216,12 @@ export function AdminUsers() {
         <p className="mt-8 text-sm text-muted">Loading users…</p>
       ) : (
         <div className="mt-8 overflow-x-auto border border-line bg-bg-elevated">
-          <table className="w-full min-w-[40rem] text-left text-sm">
+          <table className="w-full min-w-[48rem] text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th className="px-3 py-2 font-semibold">Name</th>
                 <th className="px-3 py-2 font-semibold">Email</th>
+                <th className="px-3 py-2 font-semibold">Sign-in</th>
                 <th className="px-3 py-2 font-semibold">Role</th>
                 <th className="px-3 py-2 font-semibold">Verified</th>
                 <th className="px-3 py-2 font-semibold">Created</th>
@@ -198,12 +232,8 @@ export function AdminUsers() {
               {users.map((u) => (
                 <tr key={u.id} className="hover:bg-bg">
                   <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
-                  <td className="px-3 py-2.5 text-muted">
-                    {u.email}
-                    {!u.hasPassword ? (
-                      <span className="ml-1 text-[11px] text-muted">(no password yet)</span>
-                    ) : null}
-                  </td>
+                  <td className="px-3 py-2.5 text-muted">{u.email}</td>
+                  <td className="px-3 py-2.5">{accountBadge(u)}</td>
                   <td className="px-3 py-2.5 text-muted">{u.role}</td>
                   <td className="px-3 py-2.5 text-muted">
                     {u.emailVerified
@@ -230,7 +260,7 @@ export function AdminUsers() {
               ))}
               {!users.length ? (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-muted">
+                  <td colSpan={7} className="px-3 py-8 text-muted">
                     No users yet.
                   </td>
                 </tr>

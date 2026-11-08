@@ -2,24 +2,23 @@
 
 :root {
   /*
-   * Night atelier — deep ink ground, luminous slate panels, brass accent.
-   * Premium studio marketplace; not paper/print, not purple, not cream-terracotta,
-   * not Bootstrap teal/SaaS blue.
+   * Mid atelier — soft charcoal/slate ground (not near-black night, not paper/ink).
+   * Warm brass accent; elevated panels a step lighter than page bg.
+   * Avoid purple AI cliché and cream+terracotta broadsheet.
    */
-  --bg: #0b0d12;
-  --bg-elevated: #141820;
-  /* Higher contrast on night ground — brighter body/headings, clearer secondary. */
-  --ink: #f5f6f9;
-  --muted: #b0b7c5;
-  --accent: #d4a45a;
-  --accent-soft: #e0b56e;
-  --accent-wash: rgba(212, 164, 90, 0.14);
-  --sage: #7a9e8c;
-  --line: rgba(236, 238, 243, 0.1);
-  --glow: rgba(212, 164, 90, 0.2);
+  --bg: #3a4150;
+  --bg-elevated: #4a5262;
+  --ink: #f3f5f8;
+  --muted: #c0c7d3;
+  --accent: #c9a05a;
+  --accent-soft: #d4b06e;
+  --accent-wash: rgba(201, 160, 90, 0.16);
+  --sage: #7e9f90;
+  --line: rgba(243, 245, 248, 0.14);
+  --glow: rgba(201, 160, 90, 0.22);
   --danger: #e07a7a;
-  --on-accent: #0c0e12;
-  --panel-shine: rgba(236, 238, 243, 0.04);
+  --on-accent: #1e232b;
+  --panel-shine: rgba(243, 245, 248, 0.07);
   --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
   --font-body: var(--font-figtree), "Figtree", sans-serif;
 }
@@ -54,10 +53,10 @@ body {
   min-height: 100%;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 90% 55% at 12% -10%, rgba(212, 164, 90, 0.09), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 95% 8%, rgba(122, 158, 140, 0.08), transparent 50%),
-    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(20, 28, 48, 0.55), transparent 60%),
-    linear-gradient(180deg, #0d1016 0%, var(--bg) 38%, #090b0f 100%);
+    radial-gradient(ellipse 90% 55% at 12% -10%, rgba(201, 160, 90, 0.1), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 95% 8%, rgba(126, 159, 144, 0.1), transparent 50%),
+    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(58, 72, 96, 0.35), transparent 60%),
+    linear-gradient(180deg, #414959 0%, var(--bg) 40%, #343a48 100%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-body);
@@ -70,7 +69,7 @@ body::before {
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.028;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
@@ -98,16 +97,16 @@ summary,
   cursor: pointer;
 }
 
-/* Atmospheric hero — luminous night plane */
+/* Atmospheric hero — airy mid-slate plane */
 .hero-atmosphere {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 85% 65% at 88% -5%, rgba(212, 164, 90, 0.16), transparent 55%),
-    radial-gradient(ellipse 55% 50% at 5% 95%, rgba(122, 158, 140, 0.12), transparent 50%),
-    radial-gradient(ellipse 40% 35% at 55% 40%, rgba(40, 52, 78, 0.35), transparent 70%),
-    linear-gradient(165deg, #12161f 0%, #0b0d12 52%, #090b10 100%);
+    radial-gradient(ellipse 85% 65% at 88% -5%, rgba(201, 160, 90, 0.18), transparent 55%),
+    radial-gradient(ellipse 55% 50% at 5% 95%, rgba(126, 159, 144, 0.14), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 55% 40%, rgba(72, 90, 118, 0.28), transparent 70%),
+    linear-gradient(165deg, #464e5e 0%, #3a4150 52%, #343a48 100%);
 }
 
 .hero-atmosphere::before {
@@ -115,7 +114,7 @@ summary,
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.28;
+  opacity: 0.22;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: soft-light;
   pointer-events: none;
@@ -137,7 +136,7 @@ summary,
     linear-gradient(165deg, var(--panel-shine), transparent 42%),
     var(--bg-elevated);
   border: 1px solid var(--line);
-  box-shadow: 0 1px 0 rgba(236, 238, 243, 0.04) inset;
+  box-shadow: 0 1px 0 rgba(243, 245, 248, 0.05) inset;
 }
 
 @keyframes rise-in {
@@ -261,7 +260,7 @@ summary,
 .btn-primary:hover {
   background: var(--accent-soft);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(212, 164, 90, 0.18);
+  box-shadow: 0 8px 24px rgba(201, 160, 90, 0.2);
 }
 
 .btn-primary:disabled {
@@ -296,7 +295,7 @@ summary,
 .input-field {
   width: 100%;
   padding: 0.85rem 1rem;
-  background: color-mix(in oklab, var(--bg-elevated) 88%, #000);
+  background: color-mix(in oklab, var(--bg) 55%, var(--bg-elevated));
   border: 1px solid var(--line);
   border-radius: 0.25rem;
   color: var(--ink);
@@ -357,6 +356,6 @@ textarea.input-field {
     width: auto;
     border: 1px solid var(--line);
     border-radius: 0.35rem;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 16px 40px rgba(30, 35, 43, 0.28);
   }
 }

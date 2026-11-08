@@ -9,8 +9,8 @@ export function Hero() {
         className="motion-drift pointer-events-none absolute inset-0 -z-0"
       >
         <div className="absolute right-[-6%] top-[6%] h-[32vmin] w-[32vmin] rounded-full bg-[radial-gradient(circle,var(--glow),transparent_65%)]" />
-        <div className="absolute bottom-[10%] left-[-8%] h-[26vmin] w-[26vmin] rounded-full bg-[radial-gradient(circle,rgba(122,158,140,0.16),transparent_70%)]" />
-        <div className="absolute left-[42%] top-[38%] h-[18vmin] w-[18vmin] rounded-full bg-[radial-gradient(circle,rgba(60,78,120,0.22),transparent_70%)]" />
+        <div className="absolute bottom-[10%] left-[-8%] h-[26vmin] w-[26vmin] rounded-full bg-[radial-gradient(circle,rgba(126,159,144,0.16),transparent_70%)]" />
+        <div className="absolute left-[42%] top-[38%] h-[18vmin] w-[18vmin] rounded-full bg-[radial-gradient(circle,rgba(90,110,145,0.2),transparent_70%)]" />
       </div>
 
       <div className="relative z-[2] mx-auto w-full max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] pt-6 sm:pt-8">

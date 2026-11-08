@@ -141,7 +141,7 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | `RESEND_API_KEY` | Send verification, password reset, contact notify |
 | `EMAIL_FROM` | From address (default `noreply@arsalandev.studio`) |
 | `CONTACT_TO_EMAIL` / `CONTACT_NOTIFY_TO` | Inquiry notify recipient |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Free GA4 Measurement ID (`G-…`); omit to disable |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 Measurement ID (`G-…`). **Omit / leave empty** until you create a real ID — do not invent one; gtag is not loaded when unset |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` | Cloudflare R2 private attachments |
 | `CHAT_ENCRYPTION_SECRET` | AES-256-GCM key material for message bodies at rest (`openssl rand -base64 32`) |
 | `NEXT_PUBLIC_SITE_URL` | Public URL for links in emails |
@@ -184,11 +184,15 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 4. `/admin/settings` — staff change **own** password (`PATCH /api/admin/password`, strong rules + current password).
 5. Header: Admin/Support + Users/Invite shortcuts when signed in as staff.
 
-### Analytics (free forever)
+### Analytics (GA4 — optional, env-gated)
 
-1. [Google Analytics](https://analytics.google.com) → create a **GA4** property → Web data stream for `arsalandev.studio`.
-2. Copy the Measurement ID (`G-XXXXXXXX`) into Railway / `.env` as `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
-3. Redeploy. The site loads gtag only when the env is set; events include `page_view`, `signup`, `contact_submit`.
+**Default:** leave `NEXT_PUBLIC_GA_MEASUREMENT_ID` unset. No Measurement ID is baked into the repo; inventing a placeholder ID would send traffic nowhere and is not supported.
+
+When you want visit/source reporting:
+
+1. [Google Analytics](https://analytics.google.com) → create a **GA4** property → **Admin → Data streams → Web** for `arsalandev.studio`.
+2. Copy the real Measurement ID (`G-…`) into Railway / `.env.local` as `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+3. Redeploy. `GoogleAnalytics` + `lib/analytics` load gtag **only** when that env is non-empty; events include `page_view`, `signup`, `contact_submit`.
 4. Later: [Google Search Console](https://search.google.com/search-console) for queries/indexing. Optional: PostHog free tier if you want product analytics + mobile later — not required for visit/source reporting.
 
 ---
@@ -228,7 +232,8 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Auth | `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/set-password`, `/verify-email` |
 | Chat | `/chat` (email verified) |
 | Admin / Support | `/admin`, `/admin/users`, `/admin/settings` (gated `ADMIN` \| `SUB_ADMIN`) |
-| SEO | `/sitemap.xml`, `/robots.txt` |
+| SEO | `/sitemap.xml`, `/robots.txt`, JSON-LD Person/Organization, `/llms.txt` |
+| Notifications | Header bell + `/notifications` (signed-in CLIENT / ADMIN / SUB_ADMIN) |
 
 ---
 

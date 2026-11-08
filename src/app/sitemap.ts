@@ -1,12 +1,9 @@
 import type { MetadataRoute } from "next";
 import { allCaseStudyIds } from "@/data/caseStudyDetails";
-import { brand } from "@/lib/brand";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? `https://${brand.domain}`;
+import { getSiteUrl } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteUrl.replace(/\/$/, "");
+  const base = getSiteUrl();
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -26,13 +23,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         ? 1
         : path === "/offers" || path === "/contact"
           ? 0.9
-          : 0.7,
+          : path === "/work"
+            ? 0.85
+            : 0.7,
   }));
 
   const workRoutes: MetadataRoute.Sitemap = allCaseStudyIds().map((id) => ({
     url: `${base}/work/${id}`,
     lastModified: now,
-    changeFrequency: "monthly",
+    changeFrequency: "monthly" as const,
     priority: 0.8,
   }));
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeaderAuth } from "@/components/HeaderAuth";
+import { NotificationBell } from "@/components/NotificationBell";
 import { brand } from "@/lib/brand";
 
 const links = [
@@ -33,6 +34,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <HeaderAuth />
         </div>
       </div>

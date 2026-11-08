@@ -1,4 +1,5 @@
 import { notifyContactInquiry } from "@/lib/mail";
+import { notifyContactInquiryStaff } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -82,6 +83,12 @@ export async function POST(request: Request) {
     } catch (err) {
       console.error("[contact] email failed", err);
     }
+
+    await notifyContactInquiryStaff({
+      inquiryId: inquiry.id,
+      name,
+      message,
+    });
 
     return NextResponse.json({ ok: true, inquiryId: inquiry.id, threadId });
   } catch (err) {

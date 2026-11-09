@@ -27,7 +27,9 @@ export function ContactForm() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("sending");
-    const form = new FormData(e.currentTarget);
+    // Capture before await — React nulls synthetic event.currentTarget afterward.
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -43,12 +45,17 @@ export function ContactForm() {
           message: form.get("message"),
         }),
       });
-      if (!res.ok) throw new Error("failed");
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || "failed");
+      }
       trackEvent("contact_submit");
-      setStatus("sent");
-      e.currentTarget.reset();
+      formEl.reset();
       setNeeds([]);
       setOtherText("");
+      setStatus("sent");
     } catch {
       setStatus("error");
     }

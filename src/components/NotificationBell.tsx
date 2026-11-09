@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useEventSource } from "@/hooks/useEventSource";
 
 type NotificationItem = {
   id: string;
@@ -14,6 +15,12 @@ type NotificationItem = {
   createdAt: string;
 };
 
+type StreamPayload = {
+  ok?: boolean;
+  notifications?: NotificationItem[];
+  unreadCount?: number;
+};
+
 export function NotificationBell() {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
@@ -21,30 +28,29 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const authenticated = status === "authenticated" && Boolean(session?.user);
 
-  const load = useCallback(async () => {
-    if (!session?.user) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/notifications?limit=12");
-      const data = await res.json();
-      if (data.ok) {
-        setItems(data.notifications ?? []);
-        setUnreadCount(data.unreadCount ?? 0);
-      }
-    } catch {
-      /* ignore transient errors */
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user]);
+  const applySnapshot = useCallback((data: StreamPayload) => {
+    if (!data?.ok) return;
+    setItems(data.notifications ?? []);
+    setUnreadCount(data.unreadCount ?? 0);
+    setLoading(false);
+  }, []);
+
+  useEventSource(
+    authenticated ? "/api/notifications/stream" : null,
+    "notifications",
+    (raw) => applySnapshot(raw as StreamPayload),
+  );
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-    void load();
-    const id = window.setInterval(() => void load(), 45_000);
-    return () => window.clearInterval(id);
-  }, [status, load]);
+    if (!authenticated) return;
+    setLoading(true);
+    void fetch("/api/notifications?limit=12")
+      .then((res) => res.json())
+      .then((data) => applySnapshot(data))
+      .catch(() => setLoading(false));
+  }, [authenticated, applySnapshot]);
 
   useEffect(() => {
     if (!open) return;
@@ -62,7 +68,7 @@ export function NotificationBell() {
     };
   }, [open]);
 
-  if (status !== "authenticated" || !session?.user) return null;
+  if (!authenticated || !session?.user) return null;
 
   async function markRead(id: string) {
     try {
@@ -106,10 +112,7 @@ export function NotificationBell() {
         }
         aria-expanded={open}
         aria-haspopup="menu"
-        onClick={() => {
-          setOpen((v) => !v);
-          if (!open) void load();
-        }}
+        onClick={() => setOpen((v) => !v)}
       >
         <BellIcon />
         {badge ? (
@@ -122,7 +125,7 @@ export function NotificationBell() {
       {open ? (
         <div
           role="menu"
-          className="panel-lume absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden shadow-[0_16px_40px_rgba(30,35,43,0.35)]"
+          className="panel-lume absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden shadow-[0_16px_40px_rgba(15,20,25,0.12)]"
         >
           <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2.5">
             <p className="text-sm font-semibold text-ink">Notifications</p>

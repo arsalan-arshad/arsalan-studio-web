@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
+import { useEventSource } from "@/hooks/useEventSource";
 
 type NotificationItem = {
   id: string;
@@ -14,32 +15,41 @@ type NotificationItem = {
   createdAt: string;
 };
 
+type StreamPayload = {
+  ok?: boolean;
+  notifications?: NotificationItem[];
+  unreadCount?: number;
+};
+
 export function NotificationsPageClient() {
   const { data: session, status } = useSession();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const authenticated = status === "authenticated" && Boolean(session?.user);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/notifications?limit=80");
-      const data = await res.json();
-      if (data.ok) {
-        setItems(data.notifications ?? []);
-        setUnreadCount(data.unreadCount ?? 0);
-      }
-    } catch {
-      /* ignore */
-    } finally {
-      setLoading(false);
-    }
+  const applySnapshot = useCallback((data: StreamPayload) => {
+    if (!data?.ok) return;
+    setItems(data.notifications ?? []);
+    setUnreadCount(data.unreadCount ?? 0);
+    setLoading(false);
   }, []);
 
+  useEventSource(
+    authenticated ? "/api/notifications/stream?limit=80" : null,
+    "notifications",
+    (raw) => applySnapshot(raw as StreamPayload),
+  );
+
   useEffect(() => {
-    if (status === "authenticated") void load();
+    if (status === "authenticated") {
+      void fetch("/api/notifications?limit=80")
+        .then((res) => res.json())
+        .then((data) => applySnapshot(data))
+        .catch(() => setLoading(false));
+    }
     if (status === "unauthenticated") setLoading(false);
-  }, [status, load]);
+  }, [status, applySnapshot]);
 
   if (status === "loading" || loading) {
     return (
@@ -85,9 +95,7 @@ export function NotificationsPageClient() {
     <div className="mx-auto max-w-3xl px-[clamp(1.25rem,4vw,3.5rem)]">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm text-muted">
-          {unreadCount > 0
-            ? `${unreadCount} unread`
-            : "All caught up"}
+          {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
         </p>
         {unreadCount > 0 ? (
           <button

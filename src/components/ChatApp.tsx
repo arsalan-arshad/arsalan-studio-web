@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
+import { useEventSource } from "@/hooks/useEventSource";
 
 type ThreadListItem = {
   id: string;
@@ -108,10 +109,20 @@ export function ChatApp() {
 
   useEffect(() => {
     if (!activeId || !emailVerified) return;
-    loadThread(activeId);
-    const t = setInterval(() => loadThread(activeId), 4000);
-    return () => clearInterval(t);
+    void loadThread(activeId);
   }, [activeId, emailVerified, loadThread]);
+
+  useEventSource(
+    activeId && emailVerified && !isSubAdmin
+      ? `/api/threads/${activeId}/stream`
+      : null,
+    "refresh",
+    () => {
+      if (!activeId) return;
+      void loadThread(activeId);
+      void loadThreads();
+    },
+  );
 
   async function createThread(e: FormEvent) {
     e.preventDefault();

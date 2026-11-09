@@ -233,7 +233,8 @@ Mobile production should point `EXPO_PUBLIC_API_URL` at the Railway URL (then th
 | Chat | `/chat` (email verified) |
 | Admin / Support | `/admin`, `/admin/users`, `/admin/settings` (gated `ADMIN` \| `SUB_ADMIN`) |
 | SEO | `/sitemap.xml`, `/robots.txt`, JSON-LD Person/Organization, `/llms.txt` |
-| Notifications | Header bell + `/notifications` (signed-in CLIENT / ADMIN / SUB_ADMIN) |
+| Notifications | Header bell + `/notifications` (SSE `/api/notifications/stream`) |
+| Chat live | Thread SSE `/api/threads/[id]/stream` (CLIENT / ADMIN; not SUB_ADMIN) |
 
 ---
 

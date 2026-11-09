@@ -5,7 +5,17 @@ import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Inquire about Shopify, Salesforce, mobile, or retainer work.",
+  description:
+    "Inquire about Shopify, Salesforce, React Native mobile, web, or retainer work with Arsalan Arshad.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    url: "/contact",
+    title: "Contact · Start a conversation",
+    description:
+      "Send a marketplace brief — sole-builder studio at arsalandev.studio.",
+  },
 };
 
 export default function ContactPage() {

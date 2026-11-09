@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Salesforce interactive demos",
   description:
     "Try hosted interactive Salesforce package demos — Smart Record Cloner and the full suite.",
+  alternates: {
+    canonical: "/work/salesforce-demo",
+  },
 };
 
 const demos = [

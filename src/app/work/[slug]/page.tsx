@@ -5,6 +5,7 @@ import {
   statusLabelLong,
 } from "@/data/caseStudyDetails";
 import { statusLabel } from "@/data/caseStudies";
+import { absoluteUrl, buildCaseStudyJsonLd, defaultOgImage } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,9 +20,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const study = getCaseStudyDetail(slug);
   if (!study) return { title: "Case study" };
+
+  const canonical = `/work/${study.id}`;
+  const fallback = defaultOgImage();
+  const imageUrl = study.bannerSrc ?? study.iconSrc ?? fallback.url;
+  const imageAlt = study.bannerSrc
+    ? `${study.title} — case study banner`
+    : study.iconSrc
+      ? `${study.title} icon`
+      : fallback.alt;
+
   return {
     title: study.title,
     description: study.summary,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "article",
+      url: absoluteUrl(canonical),
+      title: `${study.title} · Case study`,
+      description: study.summary,
+      images: [
+        {
+          url: imageUrl,
+          alt: imageAlt,
+          ...(!study.bannerSrc && !study.iconSrc
+            ? { width: fallback.width, height: fallback.height }
+            : {}),
+        },
+      ],
+    },
+    twitter: {
+      card: study.bannerSrc ? "summary_large_image" : "summary",
+      title: `${study.title} · Case study`,
+      description: study.summary,
+      images: {
+        url: imageUrl,
+        alt: imageAlt,
+      },
+    },
   };
 }
 
@@ -30,8 +68,14 @@ export default async function CaseStudyPage({ params }: Props) {
   const study = getCaseStudyDetail(slug);
   if (!study) notFound();
 
+  const jsonLd = buildCaseStudyJsonLd(study);
+
   return (
     <article className="section-pad pt-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-3xl">
         <p className="text-sm text-muted">
           <Link href="/work" className="hover:text-ink">

@@ -22,6 +22,12 @@ export function StudioStory() {
               {brand.name} — personal marketplace
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
+              Independent, remote-friendly studio run by one builder —{" "}
+              {brand.name}. Clients worldwide inquire here for Shopify,
+              Salesforce, React Native mobile, web, and AI automation, then keep
+              a daily thread until acceptance.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
               Previously founded and ran{" "}
               <a
                 href={brand.pastCompany.clutch}
@@ -32,10 +38,11 @@ export function StudioStory() {
                 Digitize Turf
               </a>{" "}
               — mobile and web product work for clients worldwide (see Clutch
-              for that chapter). The craft carries forward; the brand today is
+              for that chapter). Resume history also includes leading mobile
+              apps for startups and education products (React Native, store
+              CI/CD, Firebase). The craft carries forward; the brand today is
               fully under this studio at{" "}
-              <span className="text-ink">{brand.domain}</span>. Inquire, chat
-              daily, ship with me directly.
+              <span className="text-ink">{brand.domain}</span>.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <Image

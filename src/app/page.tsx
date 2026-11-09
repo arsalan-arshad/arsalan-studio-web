@@ -1,6 +1,7 @@
 import { CaseStudiesSection } from "@/components/CaseStudiesSection";
 import { ContactForm } from "@/components/ContactForm";
 import { ExperienceSection } from "@/components/ExperienceSection";
+import { FaqSection } from "@/components/FaqSection";
 import { Hero } from "@/components/Hero";
 import { HowIBuild } from "@/components/HowIBuild";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -11,12 +12,20 @@ import { PresenceSection } from "@/components/PresenceSection";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { StudioStory } from "@/components/StudioStory";
 import { TrustStrip } from "@/components/TrustStrip";
+import { studioFaqs } from "@/data/faqs";
+import { buildFaqJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { Suspense } from "react";
 
 export default function HomePage() {
+  const faqJsonLd = buildFaqJsonLd(studioFaqs);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <Hero />
       <TrustStrip />
       <StudioStory />
@@ -28,6 +37,7 @@ export default function HomePage() {
       <CaseStudiesSection ensureAllSalesforce />
       <ReviewsSection />
       <HowItWorks />
+      <FaqSection />
       <PresenceSection />
       <ExperienceSection />
       <section

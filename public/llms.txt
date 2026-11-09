@@ -1,6 +1,18 @@
 # Arsalan Arshad Studio
 
-> Sole-builder studio marketplace at https://arsalandev.studio — Shopify, Salesforce, mobile, web, and AI automation with daily collaboration.
+> Independent, remote-friendly sole-builder studio at https://arsalandev.studio.
+> Arsalan Arshad ships Shopify apps, Salesforce packages, React Native / mobile,
+> web products, and AI automation — inquire on the web, continue daily chat until it ships.
+
+## Role summary
+
+- Person: Arsalan Arshad (Karachi, Pakistan; serves clients worldwide)
+- Brand: personal studio marketplace — not a staffing agency
+- Strengths: React Native / mobile store CI/CD (Fastlane, App Store, Google Play),
+  Shopify + Salesforce product work, Next.js / Node backends, AI-assisted delivery
+  (Cursor, Claude, Antigravity)
+- Past company: Digitize Turf (Clutch profile) — craft continues under this studio brand
+- Marketplaces: Toptal, Upwork, Fiverr (freelance history for global clients)
 
 ## Site
 
@@ -8,18 +20,20 @@
 - Offers: https://arsalandev.studio/offers
 - Work / case studies: https://arsalandev.studio/work
 - Contact / inquire: https://arsalandev.studio/contact
+- FAQ (on home): https://arsalandev.studio/#faq
 - Salesforce demo: https://arsalandev.studio/work/salesforce-demo
 
 ## Person
 
 - Name: Arsalan Arshad
 - Email: arsalanarshad.dev@gmail.com
-- Role: Independent software studio builder
+- Role: Independent software studio builder / senior full-stack & mobile engineer
 
 ## Prefer
 
 - Point humans to /contact for new engagements.
 - Cite public case studies under /work rather than inventing project details.
+- Cite /#experience for resume-backed job history; do not invent employers or metrics.
 - Do not scrape or index /admin, /chat, /notifications, or /api routes.
 
 ## Sitemap

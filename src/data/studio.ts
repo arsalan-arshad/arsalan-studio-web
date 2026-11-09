@@ -64,11 +64,11 @@ export const studioSkills = [
 export const pastServices = [
   {
     title: "Mobile apps",
-    body: "iOS, Android, React Native, and Flutter — from App Store pipelines to production support.",
+    body: "React Native, iOS, Android, and Flutter — Fastlane / store pipelines, AR and social products, startup and education apps.",
   },
   {
-    title: "Web products",
-    body: "React / Next.js product surfaces with clean APIs and cloud backends.",
+    title: "Web & studio products",
+    body: "React / Next.js surfaces, Shopify and Salesforce packages, and cloud backends for remote clients worldwide.",
   },
   {
     title: "Integrations & cloud",

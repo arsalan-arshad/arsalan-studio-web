@@ -79,8 +79,10 @@ export const footerNav = [
   { href: "/#offers", label: "Offers" },
   { href: "/work", label: "Work" },
   { href: "/#reviews", label: "Reviews" },
+  { href: "/#faq", label: "FAQ" },
   { href: "/work/salesforce-demo", label: "SF demo" },
   { href: "/#presence", label: "Presence" },
+  { href: "/#experience", label: "Experience" },
   { href: "/contact", label: "Contact" },
   { href: "/chat", label: "Messages" },
 ] as const;

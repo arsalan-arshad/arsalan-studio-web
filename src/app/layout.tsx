@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StickyCta } from "@/components/StickyCta";
 import { brand } from "@/lib/brand";
-import { buildStudioJsonLd, getSiteUrl } from "@/lib/seo";
+import { buildStudioJsonLd, defaultOgImage, getSiteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -28,7 +28,9 @@ const figtree = Figtree({
 const siteUrl = getSiteUrl();
 
 const description =
-  "Polite, conversion-led marketplace for Shopify, Salesforce, mobile, web, AI automation, and daily collaboration with Arsalan Arshad.";
+  "Independent sole-builder studio for Shopify, Salesforce, React Native mobile, web, and AI automation — remote-friendly collaboration with Arsalan Arshad.";
+
+const ogImage = defaultOgImage();
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -50,10 +52,13 @@ export const metadata: Metadata = {
     "Arsalan Arshad",
     "Shopify developer",
     "Salesforce developer",
+    "React Native developer",
+    "independent software studio",
+    "remote software engineer",
     "studio marketplace",
-    "React Native",
     "Next.js",
     "AI automation",
+    "Digitize Turf",
     brand.domain,
   ],
   alternates: {
@@ -73,24 +78,28 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: `${brand.name} Studio`,
-    title: `${brand.name} — Studio marketplace`,
+    title: `${brand.name} — Independent studio marketplace`,
     description:
-      "Inquire, chat daily, ship. Shopify apps, Salesforce packages, mobile & web — sole builder marketplace.",
+      "Sole builder for Shopify, Salesforce, React Native, web, and AI. Inquire, chat daily, ship — arsalandev.studio.",
     images: [
       {
-        url: "/icon-512.png",
-        width: 512,
-        height: 512,
-        alt: `${brand.name} Studio`,
+        url: ogImage.url,
+        width: ogImage.width,
+        height: ogImage.height,
+        alt: ogImage.alt,
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: `${brand.name} — Studio marketplace`,
+    // Square brand mark — summary fits better than a fabricated wide OG art.
+    card: "summary",
+    title: `${brand.name} — Independent studio marketplace`,
     description:
-      "Conversion-led studio marketplace at arsalandev.studio — inquire and ship with Arsalan Arshad.",
-    images: ["/icon-512.png"],
+      "Remote-friendly sole-builder studio at arsalandev.studio — Shopify, Salesforce, mobile, web, AI.",
+    images: {
+      url: ogImage.url,
+      alt: ogImage.alt,
+    },
   },
   robots: {
     index: true,

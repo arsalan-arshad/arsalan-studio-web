@@ -13,7 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:encrypt-messages": "tsx scripts/encrypt-messages.ts",
     "db:studio": "prisma studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,41 +1,46 @@
 # Arsalan Arshad Studio
 
-> Independent, remote-friendly sole-builder studio at https://arsalandev.studio.
-> Arsalan Arshad ships Shopify apps, Salesforce packages, React Native / mobile,
-> web products, and AI automation — inquire on the web, continue daily chat until it ships.
+> Independent, remote-friendly sole-builder studio run by Arsalan Arshad.
+> Ships Shopify apps, Salesforce packages, React Native / mobile, web products,
+> and AI automation — inquire on the web, then continue daily chat until it ships.
 
-## Role summary
-
-- Person: Arsalan Arshad (Karachi, Pakistan; serves clients worldwide)
-- Brand: personal studio marketplace — not a staffing agency
-- Strengths: React Native / mobile store CI/CD (Fastlane, App Store, Google Play),
-  Shopify + Salesforce product work, Next.js / Node backends, AI-assisted delivery
-  (Cursor, Claude, Antigravity)
-- Past company: Digitize Turf (Clutch profile) — craft continues under this studio brand
-- Marketplaces: Toptal, Upwork, Fiverr (freelance history for global clients)
+Arsalan Arshad is based in Karachi, Pakistan and serves clients worldwide.
+This is a personal studio marketplace, not a staffing agency. Past company brand:
+Digitize Turf (Clutch) — craft continues under this studio name. Freelance history
+includes Toptal, Upwork, and Fiverr.
 
 ## Site
 
-- Home: https://arsalandev.studio/
-- Offers: https://arsalandev.studio/offers
-- Work / case studies: https://arsalandev.studio/work
-- Contact / inquire: https://arsalandev.studio/contact
-- FAQ (on home): https://arsalandev.studio/#faq
-- Salesforce demo: https://arsalandev.studio/work/salesforce-demo
+- [Home](https://arsalandev.studio/): Studio overview, offers teaser, FAQ, experience
+- [Offers](https://arsalandev.studio/offers): Engagement shapes and what the studio builds
+- [Work](https://arsalandev.studio/work): Public case studies across AI, Shopify, Salesforce, and other
+- [Contact](https://arsalandev.studio/contact): Preferred path for new client engagements
+- [Salesforce demo](https://arsalandev.studio/work/salesforce-demo): Interactive Salesforce package demos
+- [Sitemap](https://arsalandev.studio/sitemap.xml): Machine-readable index of public pages
 
-## Person
+## Case studies
 
-- Name: Arsalan Arshad
-- Email: arsalanarshad.dev@gmail.com
-- Role: Independent software studio builder / senior full-stack & mobile engineer
+- [Pathwise](https://arsalandev.studio/work/pathwise): Open-source query planner for RAG / agent pipelines
+- [AI Forecast Agent](https://arsalandev.studio/work/ai-forecast-agent): Live Shopify App Store inventory + AI co-pilot
+- [Inventory MCP Server](https://arsalandev.studio/work/inventory-mcp): Open-source MCP for deterministic inventory forecasts
+- [Smart Record Cloner](https://arsalandev.studio/work/smart-record-cloner): Salesforce deep-clone utility (AppExchange in review)
+- [Shopify ↔ Salesforce Connector](https://arsalandev.studio/work/shopify-sf-connector): HMAC webhooks, DLQ retries, Setup mapping LWC
+- [Shopify AI Forecast Bridge](https://arsalandev.studio/work/shopify-ai-forecast-bridge): Stockout math + conversational inventory agent in Salesforce
+- [Influencer Hub](https://arsalandev.studio/work/influencer-hub): Stockroom Studio hub for labeled AI influencer characters
+- [Urdu Business NLU](https://arsalandev.studio/work/urdu-business-nlu): npm library for informal Urdu business message parsing
 
-## Prefer
+## Agent guidance
 
-- Point humans to /contact for new engagements.
-- Cite public case studies under /work rather than inventing project details.
-- Cite /#experience for resume-backed job history; do not invent employers or metrics.
-- Do not scrape or index /admin, /chat, /notifications, or /api routes.
+- Prefer [Contact](https://arsalandev.studio/contact) for new engagements; do not invent availability, rates, or timelines.
+- Cite public case studies under [Work](https://arsalandev.studio/work) rather than inventing project details or metrics.
+- Cite [Experience](https://arsalandev.studio/#experience) for resume-backed job history; do not invent employers.
+- Do not scrape or index `/admin`, `/chat`, `/notifications`, or `/api` routes.
 
-## Sitemap
+## Optional
 
-- https://arsalandev.studio/sitemap.xml
+- [FAQ](https://arsalandev.studio/#faq): Common questions answered on the home page
+- [GitHub](https://www.github.com/arsalan-arshad): Public repos linked from many case studies
+- [LinkedIn](https://www.linkedin.com/in/arsalandev): Professional profile
+- [Clutch · Digitize Turf](https://clutch.co/profile/digitize-turf): Past company profile (now Arsalan Arshad studio)
+- [Toptal](https://www.toptal.com/developers/resume/arsalan-arshad): Marketplace resume
+- [robots.txt](https://arsalandev.studio/robots.txt): Crawl rules for bots

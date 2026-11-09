@@ -2,9 +2,6 @@ import { getSessionUser, unauthorized } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { sleep, sseResponse } from "@/lib/sse";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 const POLL_MS = 3_000;
 
 async function snapshot(userId: string, limit: number) {

@@ -10,9 +10,6 @@ import { isAdmin } from "@/lib/roles";
 import { sleep, sseResponse } from "@/lib/sse";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 type Ctx = { params: Promise<{ id: string }> };
 
 const POLL_MS = 2_500;

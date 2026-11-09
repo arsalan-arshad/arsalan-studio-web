@@ -2,23 +2,22 @@
 
 :root {
   /*
-   * Mid atelier — soft charcoal/slate ground (not near-black night, not paper/ink).
-   * Warm brass accent; elevated panels a step lighter than page bg.
-   * Avoid purple AI cliché and cream+terracotta broadsheet.
+   * Clean white studio — bright surfaces, sharp ink, ocean accent.
+   * Not flat gray SaaS; not dark/mid charcoal; not purple or cream+terracotta.
    */
-  --bg: #3a4150;
-  --bg-elevated: #4a5262;
-  --ink: #f3f5f8;
-  --muted: #c0c7d3;
-  --accent: #c9a05a;
-  --accent-soft: #d4b06e;
-  --accent-wash: rgba(201, 160, 90, 0.16);
-  --sage: #7e9f90;
-  --line: rgba(243, 245, 248, 0.14);
-  --glow: rgba(201, 160, 90, 0.22);
-  --danger: #e07a7a;
-  --on-accent: #1e232b;
-  --panel-shine: rgba(243, 245, 248, 0.07);
+  --bg: #ffffff;
+  --bg-elevated: #f4f6f8;
+  --ink: #0f1419;
+  --muted: #5a6573;
+  --accent: #0f5c6e;
+  --accent-soft: #147a90;
+  --accent-wash: rgba(15, 92, 110, 0.08);
+  --sage: #3d7a62;
+  --line: rgba(15, 20, 25, 0.1);
+  --glow: rgba(15, 92, 110, 0.12);
+  --danger: #c43c3c;
+  --on-accent: #ffffff;
+  --panel-shine: rgba(255, 255, 255, 0.9);
   --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
   --font-body: var(--font-figtree), "Figtree", sans-serif;
 }
@@ -45,7 +44,7 @@
 
 html {
   scroll-behavior: smooth;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -53,10 +52,9 @@ body {
   min-height: 100%;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 90% 55% at 12% -10%, rgba(201, 160, 90, 0.1), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 95% 8%, rgba(126, 159, 144, 0.1), transparent 50%),
-    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(58, 72, 96, 0.35), transparent 60%),
-    linear-gradient(180deg, #414959 0%, var(--bg) 40%, #343a48 100%);
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(15, 92, 110, 0.06), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 10%, rgba(61, 122, 98, 0.05), transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, #fafbfc 55%, #f3f5f7 100%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-body);
@@ -69,13 +67,13 @@ body::before {
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.028;
+  opacity: 0.018;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
+  mix-blend-mode: multiply;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 38%, transparent);
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
   color: var(--ink);
 }
 
@@ -97,16 +95,15 @@ summary,
   cursor: pointer;
 }
 
-/* Atmospheric hero — airy mid-slate plane */
+/* Atmospheric hero — bright white plane with soft accent wash */
 .hero-atmosphere {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 85% 65% at 88% -5%, rgba(201, 160, 90, 0.18), transparent 55%),
-    radial-gradient(ellipse 55% 50% at 5% 95%, rgba(126, 159, 144, 0.14), transparent 50%),
-    radial-gradient(ellipse 40% 35% at 55% 40%, rgba(72, 90, 118, 0.28), transparent 70%),
-    linear-gradient(165deg, #464e5e 0%, #3a4150 52%, #343a48 100%);
+    radial-gradient(ellipse 85% 65% at 90% -8%, rgba(15, 92, 110, 0.1), transparent 55%),
+    radial-gradient(ellipse 55% 50% at 0% 100%, rgba(61, 122, 98, 0.07), transparent 50%),
+    linear-gradient(165deg, #ffffff 0%, #f7f9fb 55%, #eef2f5 100%);
 }
 
 .hero-atmosphere::before {
@@ -114,7 +111,7 @@ summary,
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.22;
+  opacity: 0.35;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: soft-light;
   pointer-events: none;
@@ -130,13 +127,11 @@ summary,
   z-index: 1;
 }
 
-/* Soft luminous panel for elevated surfaces */
+/* Soft elevated panel on white */
 .panel-lume {
-  background:
-    linear-gradient(165deg, var(--panel-shine), transparent 42%),
-    var(--bg-elevated);
+  background: #ffffff;
   border: 1px solid var(--line);
-  box-shadow: 0 1px 0 rgba(243, 245, 248, 0.05) inset;
+  box-shadow: 0 1px 2px rgba(15, 20, 25, 0.04);
 }
 
 @keyframes rise-in {
@@ -260,7 +255,7 @@ summary,
 .btn-primary:hover {
   background: var(--accent-soft);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(201, 160, 90, 0.2);
+  box-shadow: 0 8px 24px rgba(15, 92, 110, 0.18);
 }
 
 .btn-primary:disabled {
@@ -295,7 +290,7 @@ summary,
 .input-field {
   width: 100%;
   padding: 0.85rem 1rem;
-  background: color-mix(in oklab, var(--bg) 55%, var(--bg-elevated));
+  background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 0.25rem;
   color: var(--ink);
@@ -345,7 +340,7 @@ textarea.input-field {
   inset: auto 0 0 0;
   z-index: 40;
   padding: 0.75rem clamp(1rem, 4vw, 2rem);
-  background: color-mix(in oklab, var(--bg-elevated) 88%, transparent);
+  background: color-mix(in oklab, #ffffff 92%, transparent);
   border-top: 1px solid var(--line);
   backdrop-filter: blur(14px);
 }
@@ -356,6 +351,6 @@ textarea.input-field {
     width: auto;
     border: 1px solid var(--line);
     border-radius: 0.35rem;
-    box-shadow: 0 16px 40px rgba(30, 35, 43, 0.28);
+    box-shadow: 0 12px 32px rgba(15, 20, 25, 0.1);
   }
 }

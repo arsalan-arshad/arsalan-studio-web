@@ -30,7 +30,7 @@ export function CaseStudyVisual({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={study.bannerSrc}
-          alt=""
+          alt={study.title}
           className={`${fitClass} ${className}`}
         />
       );
@@ -40,7 +40,7 @@ export function CaseStudyVisual({
       return (
         <Image
           src={study.bannerSrc}
-          alt=""
+          alt={study.title}
           fill
           className={`object-cover object-center ${className}`}
           sizes="(max-width: 768px) 100vw, 768px"
@@ -51,7 +51,7 @@ export function CaseStudyVisual({
     return (
       <Image
         src={study.bannerSrc}
-        alt=""
+        alt={study.title}
         width={1600}
         height={900}
         className={`h-auto w-full object-contain object-center ${className}`}
@@ -71,13 +71,13 @@ export function CaseStudyVisual({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={study.iconSrc}
-            alt=""
+            alt={study.title}
             className="h-full w-full object-contain p-1"
           />
         ) : (
           <Image
             src={study.iconSrc}
-            alt=""
+            alt={study.title}
             width={dim}
             height={dim}
             className="h-full w-full object-cover"

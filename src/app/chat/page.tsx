@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Messages",
+  robots: { index: false, follow: false },
 };
 
 export default function ChatPage() {

@@ -88,7 +88,7 @@ export function StudioStory() {
               className="panel-lume flex items-center gap-2 rounded-sm px-3 py-3"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.icon} alt="" className="h-5 w-5 opacity-90 brightness-110" />
+              <img src={item.icon} alt={item.name} className="h-5 w-5 opacity-90 brightness-110" />
               <span className="text-xs font-medium text-ink">{item.name}</span>
             </li>
           ))}
@@ -108,7 +108,7 @@ export function StudioStory() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={skill.src}
-                  alt=""
+                  alt={skill.name}
                   className="h-6 w-6 object-contain brightness-110"
                 />
                 <span className="text-xs text-muted">{skill.name}</span>

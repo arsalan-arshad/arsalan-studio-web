@@ -8,6 +8,7 @@ import { OffersCtaStrip } from "@/components/OffersCtaStrip";
 import { OffersSection } from "@/components/OffersSection";
 import { OpenSourceNote } from "@/components/OpenSourceNote";
 import { PresenceSection } from "@/components/PresenceSection";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { StudioStory } from "@/components/StudioStory";
 import { TrustStrip } from "@/components/TrustStrip";
 import Link from "next/link";
@@ -25,6 +26,7 @@ export default function HomePage() {
       <OpenSourceNote />
       {/* Full Salesforce suite; icons only on home (banners on /work/[slug]) */}
       <CaseStudiesSection ensureAllSalesforce />
+      <ReviewsSection />
       <HowItWorks />
       <PresenceSection />
       <ExperienceSection />

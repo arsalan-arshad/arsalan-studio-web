@@ -78,6 +78,7 @@ export const presenceLinks: PresenceLink[] = [
 export const footerNav = [
   { href: "/#offers", label: "Offers" },
   { href: "/work", label: "Work" },
+  { href: "/#reviews", label: "Reviews" },
   { href: "/work/salesforce-demo", label: "SF demo" },
   { href: "/#presence", label: "Presence" },
   { href: "/contact", label: "Contact" },

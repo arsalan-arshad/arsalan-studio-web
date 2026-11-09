@@ -84,11 +84,15 @@ export async function POST(request: Request) {
       console.error("[contact] email failed", err);
     }
 
-    await notifyContactInquiryStaff({
-      inquiryId: inquiry.id,
-      name,
-      message,
-    });
+    try {
+      await notifyContactInquiryStaff({
+        inquiryId: inquiry.id,
+        name,
+        message,
+      });
+    } catch (err) {
+      console.error("[contact] staff notification failed", err);
+    }
 
     return NextResponse.json({ ok: true, inquiryId: inquiry.id, threadId });
   } catch (err) {

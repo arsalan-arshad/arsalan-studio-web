@@ -1,6 +1,7 @@
 import { CaseStudyVisual } from "@/components/CaseStudyVisual";
 import {
   caseStudies,
+  sortCaseStudiesByStatus,
   statusLabel,
   type CaseStudy,
 } from "@/data/caseStudies";
@@ -98,7 +99,9 @@ export function CaseStudiesSection({
 
         <div className="mt-12 space-y-14">
           {categories.map((cat) => {
-            const group = items.filter((c) => c.category === cat.key);
+            const group = sortCaseStudiesByStatus(
+              items.filter((c) => c.category === cat.key),
+            );
             if (!group.length) return null;
             return (
               <div

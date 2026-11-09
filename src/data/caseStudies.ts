@@ -201,12 +201,26 @@ export const caseStudies: CaseStudy[] = [
     bannerSrc: "/brands/other/sme-automation/banner.png",
   },
   {
+    id: "influencer-hub",
+    title: "Influencer Hub",
+    category: "other",
+    status: "live",
+    blurb:
+      "Stockroom Studio hub for AI influencer characters (Nana Says, Pallet the Robot) — labeled as AI, not human creators.",
+    liveHref: "https://influencer-hub-production-23f6.up.railway.app/",
+    liveLabel: "Live",
+    githubHref: "https://github.com/arsalan-arshad/Influencer-hub",
+    iconSrc: "/brands/other/influencer-hub/icon.png",
+    bannerSrc: "/brands/other/influencer-hub/banner.png",
+  },
+  {
     id: "eu-ai-act-checker",
     title: "EU AI Act Checker",
     category: "other",
     status: "coming-soon",
     blurb:
       "Open scanner for public-site AI Act transparency basics + paid audit report. Technical check, not legal advice.",
+    githubHref: "https://github.com/arsalan-arshad/ai-act-check",
     iconSrc: "/brands/other/eu-ai-act-checker/icon.png",
     bannerSrc: "/brands/other/eu-ai-act-checker/banner.png",
   },
@@ -217,20 +231,9 @@ export const caseStudies: CaseStudy[] = [
     status: "coming-soon",
     blurb:
       "Deterministic exception rules for small brokers/3PLs — AI extracts and drafts; humans approve.",
+    githubHref: "https://github.com/arsalan-arshad/freight-exceptions",
     iconSrc: "/brands/other/freight-exceptions/icon.png",
     bannerSrc: "/brands/other/freight-exceptions/banner.png",
-  },
-  {
-    id: "influencer-hub",
-    title: "Influencer Hub",
-    category: "other",
-    status: "live",
-    blurb:
-      "Stockroom Studio hub for AI influencer characters (Nana Says, Pallet the Robot) — labeled as AI, not human creators.",
-    liveHref: "https://influencer-hub-production-23f6.up.railway.app/",
-    liveLabel: "Live",
-    iconSrc: "/brands/other/influencer-hub/icon.png",
-    bannerSrc: "/brands/other/influencer-hub/banner.png",
   },
 ];
 
@@ -242,6 +245,23 @@ export const statusLabel: Record<CaseStudyStatus, string> = {
   "coming-soon": "Coming soon",
 };
 
+/** Live → released/completed → pending Shopify → coming soon. */
+const statusRank: Record<CaseStudyStatus, number> = {
+  live: 0,
+  released: 1,
+  completed: 1,
+  "pending-shopify": 2,
+  "coming-soon": 3,
+};
+
+export function sortCaseStudiesByStatus(studies: CaseStudy[]): CaseStudy[] {
+  return [...studies].sort(
+    (a, b) => statusRank[a.status] - statusRank[b.status],
+  );
+}
+
 export function studiesByCategory(category: CaseStudy["category"]) {
-  return caseStudies.filter((c) => c.category === category);
+  return sortCaseStudiesByStatus(
+    caseStudies.filter((c) => c.category === category),
+  );
 }

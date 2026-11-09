@@ -488,39 +488,45 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
   },
   "eu-ai-act-checker": {
     summary:
-      "Hypothesis: open scanner for public-site AI Act transparency basics plus optional paid audit report.",
+      "Open scanner for public-site AI Act transparency basics (chat widget disclosure, AI-content marking) plus optional paid audit report.",
     problem:
       "Site owners may need a technical check for AI Act transparency patterns — without pretending to be legal advice.",
     solution:
-      "Planned open scanner + paid report path. Law and dates need verification (spike first).",
+      "Public GitHub scanner (`ai-act-check`) for transparency basics; paid audit report path when demand is clear. Technical check, not legal advice.",
     audience: "Site operators and agencies needing a technical transparency checklist.",
-    usage: ["Not shipping yet — spike and conversations first."],
-    stack: ["TBD after spike"],
-    architecture: ["Unvalidated hypothesis — stop if no pull after gates."],
-    features: ["Technical check framing", "Not legal advice"],
+    usage: [
+      "Clone github.com/arsalan-arshad/ai-act-check and run against a public URL.",
+      "Treat results as engineering signals — not legal compliance advice.",
+    ],
+    stack: ["TypeScript", "Node"],
+    architecture: ["Open scanner first; paid report layer only if operators pull."],
+    features: ["Technical check framing", "Not legal advice", "Public GitHub"],
     openSource: {
-      license: "Intended MIT when code exists",
-      note: "Coming soon — open to early design feedback.",
+      license: "MIT (repo)",
+      note: "Public GitHub — github.com/arsalan-arshad/ai-act-check. Issues and PRs welcome.",
     },
-    buildingNote: "Unvalidated. No production scanner claimed.",
+    buildingNote: "Repo is public; marketplace listing / paid report still coming soon.",
   },
   "freight-exceptions": {
     summary:
-      "Hypothesis: deterministic exception rules for small freight brokers/3PLs; AI extracts and drafts, humans approve.",
+      "Deterministic shipment-exception rules for small freight brokers/3PLs; AI extracts and drafts, humans approve.",
     problem:
       "Exception handling is manual and error-prone for small brokers.",
     solution:
-      "Rules first; AI only extracts/drafts; humans approve. Needs broker conversations before code.",
+      "Rules first; AI only extracts/drafts; humans approve. Public repo scaffolds the approach.",
     audience: "Small freight brokers and 3PLs.",
-    usage: ["Not shipping yet — conversation gate first."],
-    stack: ["TBD"],
-    architecture: ["Deterministic rules + human approval loop (planned)."],
-    features: ["Honest “coming soon” status"],
+    usage: [
+      "Follow github.com/arsalan-arshad/freight-exceptions for the rules-first design.",
+      "Not a live production product yet — broker conversations still the gate.",
+    ],
+    stack: ["TypeScript"],
+    architecture: ["Deterministic rules + human approval loop."],
+    features: ["Honest “coming soon” product status", "Public GitHub"],
     openSource: {
-      license: "Intended MIT when code exists",
-      note: "Open design discussion welcome; no fake demos.",
+      license: "MIT (repo)",
+      note: "Public GitHub — github.com/arsalan-arshad/freight-exceptions. Design feedback welcome.",
     },
-    buildingNote: "Sourced from research list; needs ~10 broker conversations before build.",
+    buildingNote: "Repo is public; production broker product still gated on conversations.",
   },
   "influencer-hub": {
     summary:

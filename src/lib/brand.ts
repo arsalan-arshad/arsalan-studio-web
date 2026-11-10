@@ -9,8 +9,8 @@ export const brand = {
   packageId: "studio.arsalan.app",
   expoSlug: "arsalan-studio",
   host: "Railway",
-  /** Past company — credibility only; current brand is the studio name above */
-  pastCompany: {
+  /** Earlier personal brand/vehicle — Clutch profile still hosts those reviews */
+  pastBrand: {
     name: "Digitize Turf",
     clutch: "https://clutch.co/profile/digitize-turf",
   },

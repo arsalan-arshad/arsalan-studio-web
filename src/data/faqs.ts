@@ -5,7 +5,7 @@ export type FaqItem = {
 };
 
 /**
- * Honest FAQs that mirror on-page studio copy (how it works, offers, Digitize Turf).
+ * Honest FAQs that mirror on-page studio copy (how it works, offers, Digitize Turf history).
  * Keep answers aligned with public site claims — no invented metrics.
  */
 export const studioFaqs: FaqItem[] = [
@@ -37,7 +37,7 @@ export const studioFaqs: FaqItem[] = [
     id: "digitize-turf",
     question: "What is Digitize Turf?",
     answer:
-      "Digitize Turf is Arsalan’s past company (see the Clutch profile). Mobile and web craft from that chapter carries forward; the brand today is fully under Arsalan Arshad Studio at arsalandev.studio.",
+      "Digitize Turf was Arsalan’s earlier personal brand — something he built for himself, not an agency. Client reviews still live on that Clutch profile. Mobile and web craft from that chapter carries forward; the studio brand today is fully under Arsalan Arshad at arsalandev.studio.",
   },
   {
     id: "opensource",

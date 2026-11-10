@@ -6,7 +6,7 @@ import {
 import { brand } from "@/lib/brand";
 import Image from "next/image";
 
-/** Digitize Turf = past company credibility; brand is Arsalan Arshad studio. */
+/** Digitize Turf = earlier personal brand; studio is now Arsalan Arshad. */
 export function StudioStory() {
   return (
     <section
@@ -22,43 +22,36 @@ export function StudioStory() {
               {brand.name} — personal marketplace
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-              Independent, remote-friendly studio run by one builder —{" "}
-              {brand.name}. Clients worldwide inquire here for Shopify,
-              Salesforce, React Native mobile, web, and AI automation, then keep
-              a daily thread until acceptance.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-              Previously founded and ran{" "}
+              Earlier I built{" "}
               <a
-                href={brand.pastCompany.clutch}
+                href={brand.pastBrand.clutch}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-accent underline-offset-4 hover:underline"
               >
                 Digitize Turf
               </a>{" "}
-              — mobile and web product work for clients worldwide (see Clutch
-              for that chapter). Resume history also includes leading mobile
-              apps for startups and education products (React Native, store
-              CI/CD, Firebase). The craft carries forward; the brand today is
-              fully under this studio at{" "}
-              <span className="text-ink">{brand.domain}</span>.
+              for myself — a personal brand for remote mobile and web product
+              work (client reviews still live on that Clutch profile). The craft
+              carries forward; the brand today is fully under this studio at{" "}
+              <span className="text-ink">{brand.domain}</span>. Inquire, chat
+              daily, ship with me directly.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <Image
                 src="/brands/digitize-turf/logo.png"
-                alt="Digitize Turf (past company)"
+                alt="Digitize Turf (earlier personal brand)"
                 width={120}
                 height={40}
                 className="h-8 w-auto opacity-90 brightness-110"
               />
               <a
-                href={brand.pastCompany.clutch}
+                href={brand.pastBrand.clutch}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-accent underline-offset-4 hover:underline"
               >
-                Clutch profile →
+                Clutch reviews →
               </a>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -88,7 +81,7 @@ export function StudioStory() {
               className="panel-lume flex items-center gap-2 rounded-sm px-3 py-3"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.icon} alt={item.name} className="h-5 w-5 opacity-90 brightness-110" />
+              <img src={item.icon} alt="" className="h-5 w-5 opacity-90 brightness-110" />
               <span className="text-xs font-medium text-ink">{item.name}</span>
             </li>
           ))}
@@ -96,7 +89,7 @@ export function StudioStory() {
 
         <div className="mt-10">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-            Skills carried from Digitize Turf into the studio
+            Skills carried into this studio
           </p>
           <ul className="mt-4 flex flex-wrap gap-3">
             {studioSkills.map((skill) => (
@@ -108,7 +101,7 @@ export function StudioStory() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={skill.src}
-                  alt={skill.name}
+                  alt=""
                   className="h-6 w-6 object-contain brightness-110"
                 />
                 <span className="text-xs text-muted">{skill.name}</span>

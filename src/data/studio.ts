@@ -1,4 +1,4 @@
-/** Digitize Turf → studio framing + how Arsalan builds. */
+/** Studio framing + how Arsalan builds (earlier Digitize Turf personal brand). */
 
 export const buildTools = [
   {
@@ -18,7 +18,7 @@ export const buildTools = [
   },
 ] as const;
 
-/** Past Digitize Turf value props — reframed for the studio marketplace. */
+/** Studio value props (assets originally shipped under Digitize Turf). */
 export const studioPrinciples = [
   { id: "clean", name: "Clean code", icon: "/brands/digitize-turf/features/code.svg" },
   { id: "oop", name: "Solid architecture", icon: "/brands/digitize-turf/features/oop.svg" },

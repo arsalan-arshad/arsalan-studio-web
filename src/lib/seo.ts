@@ -46,7 +46,7 @@ export function buildStudioJsonLd() {
     email: brand.email,
     jobTitle: "Independent software studio builder",
     description:
-      "Senior full-stack engineer and sole builder — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly studio marketplace for global clients; previously founded Digitize Turf.",
+      "Senior full-stack engineer and sole builder — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly studio marketplace for global clients; earlier personal brand Digitize Turf, now under Arsalan Arshad.",
     knowsAbout: [
       "React Native",
       "Shopify apps",
@@ -89,15 +89,15 @@ export function buildStudioJsonLd() {
     areaServed: "Worldwide",
   };
 
-  const pastCompany = {
+  const pastBrand = {
     "@type": "Organization",
     "@id": `${base}/#digitize-turf`,
-    name: brand.pastCompany.name,
-    url: brand.pastCompany.clutch,
+    name: brand.pastBrand.name,
+    url: brand.pastBrand.clutch,
     description:
-      "Past company founded and run by Arsalan Arshad — mobile and web product work for clients worldwide. Current brand is Arsalan Arshad Studio.",
+      "Earlier personal brand/vehicle built by Arsalan Arshad for client mobile and web work. Studio brand today is Arsalan Arshad; Clutch reviews remain on this profile.",
     founder: { "@id": `${base}/#person` },
-    sameAs: [brand.pastCompany.clutch],
+    sameAs: [brand.pastBrand.clutch],
   };
 
   const professionalService = {
@@ -150,7 +150,7 @@ export function buildStudioJsonLd() {
     "@graph": [
       person,
       organization,
-      pastCompany,
+      pastBrand,
       professionalService,
       website,
       webPage,

@@ -559,6 +559,44 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       note: "Hub is a thin marketing/ops surface; product repos linked from cards remain MIT open source.",
     },
   },
+  "proposal-guard": {
+    summary:
+      "Deterministic, offline scope-creep checker for proposals and SOWs. Quotes the risky sentence, names the rule, suggests a fill-in-the-blanks fix. Not legal advice.",
+    problem:
+      "Freelancer proposals quietly invite extra work with wording like “etc.”, “unlimited revisions”, approvals with no deadline, or cloud bills with no stated payer.",
+    solution:
+      "Fixed TypeScript pattern rules (no model in the loop) scan pasted text, quote matching sentences, name the rule (SCOPE-01, TIME-03, HOST-02, REVISE-04), and offer clauses with blanks such as `[N]` business days. Offline, stores nothing, never edits the document.",
+    audience:
+      "Freelancers and small studios who want a fast wording check before sending a proposal or SOW.",
+    usage: [
+      "Open the live app and paste a draft proposal or SOW.",
+      "Review High/Medium findings with quoted sentences and fill-in-the-blanks suggestions.",
+      "Or clone the MIT repo: CLI (`scan`), library (`scan(text)`), or local MCP tools.",
+    ],
+    stack: [
+      "TypeScript (strict, ESM)",
+      "Node ≥ 20",
+      "Vitest",
+      "Optional MCP server (`@modelcontextprotocol/server`)",
+      "Railway-hosted demo",
+    ],
+    architecture: [
+      "Sentence segmenter with offsets (masks code/URLs/emails/filenames)",
+      "Four fixed rules — no network calls in the scan core",
+      "CLI + library + local MCP entry points",
+      "Published evaluation corpus with known misses",
+    ],
+    features: [
+      "Rule-based findings (not a risk score)",
+      "Quoted sentence + why + blanked suggestion",
+      "CLI, library, and MCP surfaces",
+      "Honest “not legal advice” framing",
+    ],
+    openSource: {
+      license: "MIT",
+      note: "Public GitHub — github.com/arsalan-arshad/proposal-guard. Issues and PRs welcome; evaluation report documents false positives and misses.",
+    },
+  },
 };
 
 export function getCaseStudyDetail(id: string): CaseStudyDetail | undefined {

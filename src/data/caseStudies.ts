@@ -230,6 +230,19 @@ export const caseStudies: CaseStudy[] = [
     bannerSrc: "/brands/other/influencer-hub/banner.png",
   },
   {
+    id: "proposal-guard",
+    title: "Proposal Guard",
+    category: "other",
+    status: "live",
+    blurb:
+      "Deterministic, offline scope-creep checker for proposals and SOWs — quotes the risky sentence, names the rule, suggests a fill-in-the-blanks fix. Not legal advice.",
+    liveHref: "https://proposal-guard-production.up.railway.app/",
+    liveLabel: "Live",
+    githubHref: "https://github.com/arsalan-arshad/proposal-guard",
+    iconSrc: "/brands/other/proposal-guard/icon.png",
+    bannerSrc: "/brands/other/proposal-guard/banner.png",
+  },
+  {
     id: "eu-ai-act-checker",
     title: "EU AI Act Checker",
     category: "other",

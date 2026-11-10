@@ -27,7 +27,8 @@ function isActiveUser(user: { active?: boolean } | null | undefined) {
   return user?.active !== false;
 }
 
-async function upsertGoogleUser(input: {
+/** Shared by Auth.js Google callback and mobile `POST /api/auth/google`. */
+export async function upsertGoogleUser(input: {
   email: string;
   name?: string | null;
   providerAccountId: string;

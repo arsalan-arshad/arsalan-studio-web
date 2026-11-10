@@ -82,6 +82,7 @@ Bearer endpoints:
 
 - `POST /api/auth/token` — login → `{ accessToken, refreshToken, expiresIn }` (also `token` alias = access)
 - `POST /api/auth/register` — same token shape
+- `POST /api/auth/google` — `{ idToken }` (Google ID token) → same Bearer token shape (mobile / Expo)
 - `POST /api/auth/refresh` — `{ refreshToken }` → new access + refresh; old refresh revoked
 - `POST /api/auth/logout` — `{ refreshToken }` or `{ all: true }` with session/Bearer
 - `POST /api/auth/forgot-password` — email reset link (no enumeration)

@@ -11,6 +11,12 @@ export type CaseStudy = {
   category: "ai" | "shopify" | "salesforce" | "other";
   status: CaseStudyStatus;
   blurb: string;
+  /**
+   * Manual pin within a category (lower = earlier).
+   * When set, overrides status-based ranking so featured/coming-soon
+   * items can sit near the top of a section.
+   */
+  listOrder?: number;
   /** App Store / npm / package install / hosted product */
   liveHref?: string;
   liveLabel?: string;
@@ -38,12 +44,13 @@ export const caseStudies: CaseStudy[] = [
     iconSrc: "/brands/ai/pathwise/icon.png",
     bannerSrc: "/brands/ai/pathwise/banner.png",
   },
-  // Shopify
+  // Shopify — listOrder keeps Protocols #2 after the live forecast app
   {
     id: "ai-forecast-agent",
     title: "AI Forecast Agent",
     category: "shopify",
     status: "live",
+    listOrder: 1,
     blurb:
       "Deterministic inventory math + grounded AI co-pilot. Live on the Shopify App Store. BYOK Gemini/Claude.",
     liveHref: "https://apps.shopify.com/ai-forecast-agent",
@@ -51,6 +58,21 @@ export const caseStudies: CaseStudy[] = [
     githubHref: "https://github.com/arsalan-arshad/Ai-Agent-Shopify-App",
     iconSrc: "/brands/shopify/ai-forecast-agent/icon.png",
     bannerSrc: "/brands/shopify/ai-forecast-agent/banner.png",
+  },
+  {
+    id: "practitioner-protocols",
+    title: "Practitioner Protocols",
+    category: "shopify",
+    status: "coming-soon",
+    listOrder: 2,
+    blurb:
+      "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
+    githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
+    demoHref: "https://practitioner-protocols-production.up.railway.app/demo",
+    demoLabel: "Demo",
+    youtubeHref: "https://www.youtube.com/watch?v=m0nlmLj-RKE",
+    iconSrc: "/brands/shopify/practitioner-protocols/icon.png",
+    bannerSrc: "/brands/shopify/practitioner-protocols/banner.png",
   },
   {
     id: "pipeline-aware-forecast",
@@ -75,20 +97,6 @@ export const caseStudies: CaseStudy[] = [
     youtubeHref: "https://www.youtube.com/watch?v=vGMt_7cxuKg",
     iconSrc: "/brands/shopify/bridge-core-recipes/icon.png",
     bannerSrc: "/brands/shopify/bridge-core-recipes/banner.png",
-  },
-  {
-    id: "practitioner-protocols",
-    title: "Practitioner Protocols",
-    category: "shopify",
-    status: "coming-soon",
-    blurb:
-      "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
-    githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
-    demoHref: "https://practitioner-protocols-production.up.railway.app/demo",
-    demoLabel: "Demo",
-    youtubeHref: "https://www.youtube.com/watch?v=m0nlmLj-RKE",
-    iconSrc: "/brands/shopify/practitioner-protocols/icon.png",
-    bannerSrc: "/brands/shopify/practitioner-protocols/banner.png",
   },
   {
     id: "inventory-mcp",
@@ -262,10 +270,15 @@ const statusRank: Record<CaseStudyStatus, number> = {
   "coming-soon": 3,
 };
 
+/** Status ranks sit above 100 so explicit listOrder pins stay first. */
+const STATUS_SORT_BASE = 100;
+
 export function sortCaseStudiesByStatus(studies: CaseStudy[]): CaseStudy[] {
-  return [...studies].sort(
-    (a, b) => statusRank[a.status] - statusRank[b.status],
-  );
+  return [...studies].sort((a, b) => {
+    const aKey = a.listOrder ?? STATUS_SORT_BASE + statusRank[a.status];
+    const bKey = b.listOrder ?? STATUS_SORT_BASE + statusRank[b.status];
+    return aKey - bKey;
+  });
 }
 
 export function studiesByCategory(category: CaseStudy["category"]) {

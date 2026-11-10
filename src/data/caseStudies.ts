@@ -18,6 +18,9 @@ export type CaseStudy = {
   /** Path to hosted interactive demo (public/) */
   demoHref?: string;
   demoLabel?: string;
+  /** Product walkthrough / launch video */
+  youtubeHref?: string;
+  youtubeLabel?: string;
   iconSrc?: string;
   bannerSrc?: string;
 };
@@ -57,6 +60,7 @@ export const caseStudies: CaseStudy[] = [
     blurb:
       "Salesforce pipeline becomes forward demand in Shopify forecasting — the connective tissue most stacks skip. Pending Shopify review / App Store listing.",
     githubHref: "https://github.com/arsalan-arshad/pipeline-aware-forecast",
+    youtubeHref: "https://www.youtube.com/watch?v=DpOLWprYx7g",
     iconSrc: "/brands/shopify/pipeline-aware-forecast/icon.png",
     bannerSrc: "/brands/shopify/pipeline-aware-forecast/banner.png",
   },
@@ -68,6 +72,7 @@ export const caseStudies: CaseStudy[] = [
     blurb:
       "Small shared core + narrow Shopify → Salesforce recipes instead of a bloated horizontal sync. Pending Shopify review / App Store listing.",
     githubHref: "https://github.com/arsalan-arshad/bridge-recipes",
+    youtubeHref: "https://www.youtube.com/watch?v=vGMt_7cxuKg",
     iconSrc: "/brands/shopify/bridge-core-recipes/icon.png",
     bannerSrc: "/brands/shopify/bridge-core-recipes/banner.png",
   },
@@ -79,6 +84,9 @@ export const caseStudies: CaseStudy[] = [
     blurb:
       "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
     githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
+    demoHref: "https://practitioner-protocols-production.up.railway.app/demo",
+    demoLabel: "Demo",
+    youtubeHref: "https://www.youtube.com/watch?v=m0nlmLj-RKE",
     iconSrc: "/brands/shopify/practitioner-protocols/icon.png",
     bannerSrc: "/brands/shopify/practitioner-protocols/banner.png",
   },

@@ -25,6 +25,9 @@ function ProjectLinks({ study }: { study: CaseStudy }) {
     study.demoHref
       ? { href: study.demoHref, label: study.demoLabel ?? "Demo" }
       : null,
+    study.youtubeHref
+      ? { href: study.youtubeHref, label: study.youtubeLabel ?? "YouTube" }
+      : null,
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
@@ -82,7 +85,8 @@ export function CaseStudiesSection({
               Open-source by default —{" "}
               <span className="text-ink">MIT where noted</span>, open for PRs.
               Tap <span className="text-ink">Know more</span> for the full
-              case study; GitHub / Live / Demo stay as separate actions.
+              case study; GitHub / Live / Demo / YouTube stay as separate
+              actions.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

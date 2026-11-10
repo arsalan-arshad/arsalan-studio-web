@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 declare global {
   interface Window {
@@ -35,10 +35,7 @@ function returnToApp(idToken: string) {
 export function MobileGoogleSignIn({ clientId }: { clientId: string }) {
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
-  const buttonId = useMemo(
-    () => `google-btn-${Math.random().toString(36).slice(2, 9)}`,
-    [],
-  );
+  const buttonId = `google-btn-${useId().replace(/:/g, "")}`;
 
   useEffect(() => {
     if (!clientId) {

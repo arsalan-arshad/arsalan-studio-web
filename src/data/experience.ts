@@ -13,8 +13,8 @@ export type ExperienceItem = {
 
 /**
  * Worker history from resume (Arsalan_Arshad_Resume.pdf) — he is the worker, not hiring.
- * Dates, titles, and bullets kept honest to the PDF. Digitize Turf is past-company
- * framing on the studio story, not a dated resume row.
+ * Dates, titles, and bullets kept honest to the PDF. Digitize Turf is earlier
+ * personal-brand framing on the studio story, not a dated resume row.
  */
 export const experience: ExperienceItem[] = [
   {

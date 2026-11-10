@@ -133,6 +133,16 @@ export default async function CaseStudyPage({ params }: Props) {
               {study.demoLabel ?? "Demo"}
             </a>
           ) : null}
+          {study.youtubeHref ? (
+            <a
+              href={study.youtubeHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost !px-3 !py-2 text-sm"
+            >
+              {study.youtubeLabel ?? "YouTube"}
+            </a>
+          ) : null}
         </div>
 
         <Section title="What it does">

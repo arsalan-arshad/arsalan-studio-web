@@ -15,8 +15,9 @@ export type ClientReview = {
 };
 
 /**
- * Public marketplace reviews. Clutch quotes are from Digitize Turf (past company);
- * studio brand is now Arsalan Arshad. Fiverr links to the live profile — open for full reviews.
+ * Public marketplace reviews. Clutch quotes are attributed to the Digitize Turf
+ * Clutch profile (earlier personal brand); studio brand is now Arsalan Arshad.
+ * Fiverr links to the live profile — open for full reviews.
  */
 export const reviews: ClientReview[] = [
   {
@@ -31,7 +32,7 @@ export const reviews: ClientReview[] = [
     project: "Mobile app development & implementation",
     href: "https://clutch.co/profile/digitize-turf",
     verified: true,
-    note: "Clutch · Digitize Turf (past company)",
+    note: "Clutch · Digitize Turf profile",
   },
   {
     id: "clutch-xpit",
@@ -45,7 +46,7 @@ export const reviews: ClientReview[] = [
     project: "React Native mobile views & maps",
     href: "https://clutch.co/profile/digitize-turf",
     verified: true,
-    note: "Clutch · Digitize Turf (past company)",
+    note: "Clutch · Digitize Turf profile",
   },
   {
     id: "clutch-ourcrew",
@@ -59,7 +60,7 @@ export const reviews: ClientReview[] = [
     project: "React Native / Expo rescue",
     href: "https://clutch.co/profile/digitize-turf",
     verified: true,
-    note: "Clutch · Digitize Turf (past company)",
+    note: "Clutch · Digitize Turf profile",
   },
   {
     id: "fiverr-profile",

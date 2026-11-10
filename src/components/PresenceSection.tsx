@@ -14,8 +14,8 @@ const groups = [
   },
   {
     key: "studio" as const,
-    title: "Past company · Clutch",
-    blurb: `Digitize Turf is past company credibility. Current brand: ${brand.name} (${brand.domain}).`,
+    title: "Earlier brand · Clutch",
+    blurb: `Digitize Turf was a personal brand I built earlier — reviews stay on that Clutch profile. Current brand: ${brand.name} (${brand.domain}).`,
   },
   {
     key: "influencer" as const,
@@ -33,8 +33,8 @@ export function PresenceSection() {
         <h2 className="section-title mt-3">Connect — live pages & marketplaces</h2>
         <p className="mt-4 max-w-2xl text-muted">
           Running presence, not placeholders. Same builder across social,
-          freelance marketplaces, Clutch history, and Stockroom Studio AI
-          characters.
+          freelance marketplaces, earlier Clutch reviews, and Stockroom Studio
+          AI characters.
         </p>
 
         <div className="mt-12 space-y-12">

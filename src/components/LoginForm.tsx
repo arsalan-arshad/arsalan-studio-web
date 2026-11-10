@@ -24,6 +24,14 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
     if (oauthError === "AccountInactive") {
       return "This account has been deactivated. Contact the studio admin if you need access restored.";
     }
+    if (
+      oauthError === "AccessDenied" ||
+      oauthError === "access_denied" ||
+      oauthError === "OAuthCallback" ||
+      oauthError === "Configuration"
+    ) {
+      return "Google blocked or failed OAuth. If you see AccessBlocked: add your Google email as a Test user on the OAuth consent screen (Testing), confirm redirect URI {AUTH_URL}/api/auth/callback/google on the Web client, then try again.";
+    }
     if (oauthError && oauthError !== "CredentialsSignin") {
       return "Google sign-in was cancelled or failed. Try again.";
     }

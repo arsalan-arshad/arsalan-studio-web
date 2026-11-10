@@ -33,22 +33,30 @@ function allowedAudiences() {
   return new Set(ids);
 }
 
-async function verifyGoogleIdToken(idToken: string): Promise<GoogleTokenInfo | null> {
+type VerifyResult =
+  | { ok: true; payload: GoogleTokenInfo }
+  | { ok: false; reason: "invalid" | "audience" | "unverified" };
+
+async function verifyGoogleIdToken(idToken: string): Promise<VerifyResult> {
   const res = await fetch(
     `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
   );
-  if (!res.ok) return null;
+  if (!res.ok) return { ok: false, reason: "invalid" };
   const payload = (await res.json()) as GoogleTokenInfo;
   const aud = payload.aud;
-  if (!aud || !allowedAudiences().has(aud)) return null;
+  if (!aud || !allowedAudiences().has(aud)) {
+    return { ok: false, reason: "audience" };
+  }
   const issuerOk =
     payload.iss === "https://accounts.google.com" ||
     payload.iss === "accounts.google.com";
-  if (!issuerOk) return null;
+  if (!issuerOk) return { ok: false, reason: "invalid" };
   const verified =
     payload.email_verified === true || payload.email_verified === "true";
-  if (!verified || !payload.email || !payload.sub) return null;
-  return payload;
+  if (!verified || !payload.email || !payload.sub) {
+    return { ok: false, reason: "unverified" };
+  }
+  return { ok: true, payload };
 }
 
 /**
@@ -65,18 +73,22 @@ export async function POST(request: Request) {
     }
 
     const body = schema.parse(await request.json());
-    const info = await verifyGoogleIdToken(body.idToken);
-    if (!info?.email || !info.sub) {
-      return NextResponse.json(
-        { ok: false, error: "Invalid Google token" },
-        { status: 401 },
-      );
+    const verified = await verifyGoogleIdToken(body.idToken);
+    if (!verified.ok) {
+      const error =
+        verified.reason === "audience"
+          ? "Google token audience mismatch — set AUTH_GOOGLE_ID (or AUTH_GOOGLE_CLIENT_IDS) to the same client ID used by the mobile app"
+          : verified.reason === "unverified"
+            ? "Google email is not verified"
+            : "Invalid Google token";
+      return NextResponse.json({ ok: false, error }, { status: 401 });
     }
 
+    const info = verified.payload;
     const user = await upsertGoogleUser({
-      email: info.email,
+      email: info.email!,
       name: info.name,
-      providerAccountId: info.sub,
+      providerAccountId: info.sub!,
       id_token: body.idToken,
     });
 

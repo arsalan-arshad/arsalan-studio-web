@@ -92,7 +92,9 @@ Access verification stays in `auth-helpers` via `verifyMobileToken` (expired acc
 
 **Passwords** (signup, reset, any future change-password): min **10** chars, upper + lower + number + special — shared Zod helper in `src/lib/password.ts`. Rules are shown in the UI.
 
-**Google (web):** set `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`. Same Google email links to an existing User (`allowDangerousEmailAccountLinking`) **only when Google’s profile `email_verified` is `true`**. Unverified Google emails are rejected (redirect to `/login?error=GoogleEmailNotVerified`) — we do not create or sign in that user as verified. When verified, we set `User.emailVerified` and allow access. Mobile does **not** implement Google OAuth yet; use email/password on mobile, or Google on the web.
+**Google (web):** set `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`. Same Google email links to an existing User (`allowDangerousEmailAccountLinking`) **only when Google’s profile `email_verified` is `true`**. Unverified Google emails are rejected (redirect to `/login?error=GoogleEmailNotVerified`) — we do not create or sign in that user as verified. When verified, we set `User.emailVerified` and allow access.
+
+**Google (mobile / Expo):** the app obtains a Google **ID token** via `expo-auth-session` (`useIdTokenAuthRequest`), then `POST /api/auth/google` with `{ idToken }` for the same Bearer access/refresh bundle as password login. Set `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` (and optional iOS/Android client IDs) in the mobile app; server audience must include that client ID via `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_CLIENT_IDS`.
 
 ---
 
@@ -147,14 +149,20 @@ See [`.env.example`](./.env.example). Never commit `.env`.
 | `CHAT_ENCRYPTION_SECRET` | AES-256-GCM key material for message bodies at rest (`openssl rand -base64 32`) |
 | `NEXT_PUBLIC_SITE_URL` | Public URL for links in emails |
 
-### Google OAuth setup (web)
+### Google OAuth setup (web + mobile)
 
-1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → **Credentials** → Create **OAuth 2.0 Client ID** (Web application).
-2. **Authorized JavaScript origins:** `https://arsalandev.studio` (and Railway URL if still in use).
-3. **Authorized redirect URIs:** `https://arsalandev.studio/api/auth/callback/google` (same host as `AUTH_URL`).
-4. Copy Client ID → Railway `AUTH_GOOGLE_ID`; Client secret → `AUTH_GOOGLE_SECRET`.
-5. Redeploy. Login/signup show **Continue with Google** when both vars are set.
-6. Sign-in is allowed only if Google reports `email_verified: true` on the profile; otherwise the user sees a clear error on `/login`.
+1. [Google Cloud Console](https://console.cloud.google.com/) → **OAuth consent screen**
+   - External app; while **Publishing status = Testing**, add every Google account that should sign in under **Test users**.
+   - **AccessBlocked** almost always means Testing mode without that email listed (or the app is restricted / unverified).
+2. **Credentials** → Create **OAuth 2.0 Client ID** (Web application).
+3. **Authorized JavaScript origins:** `https://arsalandev.studio` (and Railway URL if still in use).
+4. **Authorized redirect URIs** on that Web client (add all that apply):
+   - `https://arsalandev.studio/api/auth/callback/google` (Auth.js web; same host as `AUTH_URL`)
+   - `arsalanstudio://oauthredirect` (Expo native scheme from mobile `app.json`)
+5. Copy Client ID → Railway `AUTH_GOOGLE_ID` **and** mobile `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`; Client secret → `AUTH_GOOGLE_SECRET` (web only).
+6. Optional: create **iOS** / **Android** OAuth clients for package/bundle `studio.arsalan.app` and set `AUTH_GOOGLE_IOS_ID` / `AUTH_GOOGLE_ANDROID_ID` + matching `EXPO_PUBLIC_GOOGLE_*` vars.
+7. Redeploy web so `POST /api/auth/google` is live (branch `feat/mobile-google-auth` until merged). Prefer a **Dev Client / EAS build** over Expo Go for native Google.
+8. Sign-in is allowed only if Google reports `email_verified: true` on the profile; otherwise the user sees a clear error on `/login`.
 
 ### File storage (Cloudflare R2)
 

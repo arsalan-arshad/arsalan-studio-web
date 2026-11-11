@@ -203,6 +203,67 @@ export default async function CaseStudyPage({ params }: Props) {
           </ul>
         </Section>
 
+        {study.results?.map((block) => (
+          <Section key={block.title} title={block.title}>
+            {block.intro ? <p>{block.intro}</p> : null}
+            <div className="mt-4 -mx-1 overflow-x-auto">
+              <table className="w-full min-w-[36rem] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line">
+                    {block.columns.map((col) => (
+                      <th
+                        key={col}
+                        className="whitespace-nowrap px-3 py-2 font-medium text-ink"
+                      >
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row) => (
+                    <tr key={row.join("|")} className="border-b border-line/70">
+                      {row.map((cell, i) => (
+                        <td
+                          key={`${row[0]}-${block.columns[i]}`}
+                          className="px-3 py-2 align-top text-muted"
+                        >
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {block.bullets?.length ? (
+              <ul className="mt-4 space-y-2">
+                {block.bullets.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {block.footnote ? (
+              <p className="mt-3 text-sm text-muted">{block.footnote}</p>
+            ) : null}
+            {block.link ? (
+              <p className="mt-3">
+                <a
+                  href={block.link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-accent underline-offset-4 hover:underline"
+                >
+                  {block.link.label} →
+                </a>
+              </p>
+            ) : null}
+          </Section>
+        ))}
+
         <Section title="Status">
           <p>{statusLabelLong(study.status)}</p>
           {study.buildingNote ? (

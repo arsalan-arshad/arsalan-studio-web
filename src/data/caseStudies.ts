@@ -192,7 +192,7 @@ export const caseStudies: CaseStudy[] = [
     iconSrc: "/brands/salesforce/shopify-ai-forecast-bridge/icon.png",
     bannerSrc: "/brands/salesforce/shopify-ai-forecast-bridge/banner.png",
   },
-  // Other
+  // Libraries & web products (npm packages, hubs, scanners)
   {
     id: "urdu-business-nlu",
     title: "Urdu Business NLU",
@@ -299,3 +299,10 @@ export function studiesByCategory(category: CaseStudy["category"]) {
     caseStudies.filter((c) => c.category === category),
   );
 }
+
+export const categoryLabel: Record<CaseStudy["category"], string> = {
+  ai: "AI",
+  shopify: "Shopify",
+  salesforce: "Salesforce",
+  other: "Libraries & web products",
+};

@@ -1,3 +1,4 @@
+import { AppLaunchSection } from "@/components/AppLaunchSection";
 import { CaseStudiesSection } from "@/components/CaseStudiesSection";
 import { ContactForm } from "@/components/ContactForm";
 import { ExperienceSection } from "@/components/ExperienceSection";
@@ -33,6 +34,7 @@ export default function HomePage() {
       <OffersSection />
       <OffersCtaStrip />
       <OpenSourceNote />
+      <AppLaunchSection />
       {/* Full Salesforce suite; icons only on home (banners on /work/[slug]) */}
       <CaseStudiesSection ensureAllSalesforce />
       <ReviewsSection />

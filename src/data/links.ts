@@ -85,4 +85,5 @@ export const footerNav = [
   { href: "/#experience", label: "Experience" },
   { href: "/contact", label: "Contact" },
   { href: "/chat", label: "Messages" },
+  { href: "/privacy", label: "Privacy" },
 ] as const;

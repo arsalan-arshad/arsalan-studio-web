@@ -32,6 +32,13 @@ export default function ContactPage() {
           >
             Create an account
           </Link>
+          . App support and privacy questions are welcome here too — see the{" "}
+          <Link
+            href="/privacy"
+            className="text-accent underline-offset-4 hover:underline"
+          >
+            Privacy Policy
+          </Link>
           .
         </p>
         <div className="mt-10">

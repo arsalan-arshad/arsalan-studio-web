@@ -69,7 +69,7 @@ export const presenceLinks: PresenceLink[] = [
   {
     id: "influencer-hub",
     label: "Influencer Hub",
-    href: "https://influencer-hub-production-23f6.up.railway.app/",
+    href: "https://influencer.arsalandev.studio/",
     group: "influencer",
     note: "Live app · Stockroom Studio",
   },

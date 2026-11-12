@@ -121,6 +121,16 @@ export default async function CaseStudyPage({ params }: Props) {
               {study.liveLabel ?? "Live"}
             </a>
           ) : null}
+          {study.npmHref ? (
+            <a
+              href={study.npmHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost !px-3 !py-2 text-sm"
+            >
+              npm
+            </a>
+          ) : null}
           {study.demoHref ? (
             <a
               href={study.demoHref}

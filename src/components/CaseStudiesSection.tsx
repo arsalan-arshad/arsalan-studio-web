@@ -20,6 +20,7 @@ function ProjectLinks({ study }: { study: CaseStudy }) {
     study.liveHref
       ? { href: study.liveHref, label: study.liveLabel ?? "Live" }
       : null,
+    study.npmHref ? { href: study.npmHref, label: "npm" } : null,
     study.demoHref
       ? { href: study.demoHref, label: study.demoLabel ?? "Demo" }
       : null,

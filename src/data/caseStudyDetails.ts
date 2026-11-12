@@ -620,16 +620,16 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
     audience:
       "Freelancers and small studios who want a fast wording check before sending a proposal or SOW.",
     usage: [
-      "Open the live app and paste a draft proposal or SOW.",
+      "Open https://proposal-guard.arsalandev.studio and paste a draft proposal or SOW.",
+      "Or install from npm: `npm i proposal-guard` — CLI (`scan`), library (`scan(text)`), or local MCP tools.",
       "Review High/Medium findings with quoted sentences and fill-in-the-blanks suggestions.",
-      "Or clone the MIT repo: CLI (`scan`), library (`scan(text)`), or local MCP tools.",
     ],
     stack: [
       "TypeScript (strict, ESM)",
       "Node ≥ 20",
       "Vitest",
       "Optional MCP server (`@modelcontextprotocol/server`)",
-      "Railway-hosted demo",
+      "npm package + hosted demo",
     ],
     architecture: [
       "Sentence segmenter with offsets (masks code/URLs/emails/filenames)",
@@ -645,7 +645,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
     ],
     openSource: {
       license: "MIT",
-      note: "Public GitHub — github.com/arsalan-arshad/proposal-guard. Issues and PRs welcome; evaluation report documents false positives and misses.",
+      note: "npm + GitHub — github.com/arsalan-arshad/proposal-guard. Issues and PRs welcome; evaluation report documents false positives and misses.",
     },
   },
 };

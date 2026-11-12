@@ -17,9 +17,11 @@ export type CaseStudy = {
    * items can sit near the top of a section.
    */
   listOrder?: number;
-  /** App Store / npm / package install / hosted product */
+  /** App Store / hosted product / primary live URL */
   liveHref?: string;
   liveLabel?: string;
+  /** Published npm package page */
+  npmHref?: string;
   githubHref?: string;
   /** Path to hosted interactive demo (public/) */
   demoHref?: string;
@@ -68,7 +70,7 @@ export const caseStudies: CaseStudy[] = [
     blurb:
       "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
     githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
-    demoHref: "https://practitioner-protocols-production.up.railway.app/demo",
+    demoHref: "https://practationer.arsalandev.studio/demo",
     demoLabel: "Demo",
     youtubeHref: "https://www.youtube.com/watch?v=m0nlmLj-RKE",
     iconSrc: "/brands/shopify/practitioner-protocols/icon.png",
@@ -106,7 +108,7 @@ export const caseStudies: CaseStudy[] = [
     blurb:
       "Open-source MCP (v0.2.3): deterministic inventory forecasts for any AI assistant — local stdio or hosted Streamable HTTP. BYOK Shopify headers; numbers the model can explain, not invent.",
     githubHref: "https://github.com/arsalan-arshad/shopify-inventory-mcp",
-    liveHref: "https://shopify-inventory-mcp-production-e5fd.up.railway.app/",
+    liveHref: "https://shopify-mcp.arsalandev.studio/",
     liveLabel: "Live",
     iconSrc: "/brands/shopify/inventory-mcp/icon.svg",
     bannerSrc: "/brands/shopify/inventory-mcp/banner.svg",
@@ -223,7 +225,7 @@ export const caseStudies: CaseStudy[] = [
     status: "live",
     blurb:
       "Stockroom Studio hub for AI influencer characters (Nana Says, Pallet the Robot) — labeled as AI, not human creators.",
-    liveHref: "https://influencer-hub-production-23f6.up.railway.app/",
+    liveHref: "https://influencer.arsalandev.studio/",
     liveLabel: "Live",
     githubHref: "https://github.com/arsalan-arshad/Influencer-hub",
     iconSrc: "/brands/other/influencer-hub/icon.png",
@@ -236,8 +238,9 @@ export const caseStudies: CaseStudy[] = [
     status: "live",
     blurb:
       "Deterministic, offline scope-creep checker for proposals and SOWs — quotes the risky sentence, names the rule, suggests a fill-in-the-blanks fix. Not legal advice.",
-    liveHref: "https://proposal-guard-production.up.railway.app/",
+    liveHref: "https://proposal-guard.arsalandev.studio/",
     liveLabel: "Live",
+    npmHref: "https://www.npmjs.com/package/proposal-guard",
     githubHref: "https://github.com/arsalan-arshad/proposal-guard",
     iconSrc: "/brands/other/proposal-guard/icon.png",
     bannerSrc: "/brands/other/proposal-guard/banner.png",

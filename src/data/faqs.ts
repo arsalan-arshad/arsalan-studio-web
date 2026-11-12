@@ -5,7 +5,7 @@ export type FaqItem = {
 };
 
 /**
- * Honest FAQs that mirror on-page studio copy (how it works, offers, Digitize Turf history).
+ * Honest FAQs that mirror on-page studio copy (how it works, offers, brand history).
  * Keep answers aligned with public site claims — no invented metrics.
  */
 export const studioFaqs: FaqItem[] = [
@@ -34,10 +34,16 @@ export const studioFaqs: FaqItem[] = [
       "Yes. The studio is remote-friendly and serves clients worldwide. Freelance delivery for global clients has run through Fiverr, Upwork, and Toptal alongside productized studio work.",
   },
   {
+    id: "clutch",
+    question: "Where are Clutch reviews?",
+    answer:
+      "Verified client reviews live on Clutch under Arsalan Arshad (clutch.co/profile/arsalan-arshad). Digitize Turf was an earlier personal brand name for the same sole builder — craft from that chapter carries forward at arsalandev.studio.",
+  },
+  {
     id: "digitize-turf",
     question: "What is Digitize Turf?",
     answer:
-      "Digitize Turf was Arsalan’s earlier personal brand — something he built for himself, not an agency. Client reviews still live on that Clutch profile. Mobile and web craft from that chapter carries forward; the studio brand today is fully under Arsalan Arshad at arsalandev.studio.",
+      "Digitize Turf was Arsalan’s earlier personal brand — something he built for himself, not an agency. Mobile and web craft from that chapter carries forward; the studio brand and Clutch profile today are under Arsalan Arshad at arsalandev.studio.",
   },
   {
     id: "opensource",

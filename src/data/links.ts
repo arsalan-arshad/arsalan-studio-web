@@ -47,10 +47,10 @@ export const presenceLinks: PresenceLink[] = [
   },
   {
     id: "clutch",
-    label: "Clutch · Digitize Turf",
-    href: "https://clutch.co/profile/digitize-turf",
+    label: "Clutch",
+    href: "https://clutch.co/profile/arsalan-arshad",
     group: "studio",
-    note: "Earlier personal brand · reviews on this Clutch profile",
+    note: "Verified client reviews · Arsalan Arshad",
   },
   {
     id: "nana",

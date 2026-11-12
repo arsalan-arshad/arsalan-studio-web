@@ -6,7 +6,7 @@ import {
 import { brand } from "@/lib/brand";
 import Image from "next/image";
 
-/** Digitize Turf = earlier personal brand; studio is now Arsalan Arshad. */
+/** Digitize Turf = earlier personal brand; Clutch + studio are Arsalan Arshad. */
 export function StudioStory() {
   return (
     <section
@@ -22,31 +22,31 @@ export function StudioStory() {
               {brand.name} — personal marketplace
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-              Earlier I built{" "}
+              Earlier I built {brand.pastBrand.name} for myself — a personal
+              brand for remote mobile and web product work. The craft carries
+              forward; the brand today is fully under this studio at{" "}
+              <span className="text-ink">{brand.domain}</span>, with verified
+              client reviews on{" "}
               <a
-                href={brand.pastBrand.clutch}
+                href={brand.clutch}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-accent underline-offset-4 hover:underline"
               >
-                Digitize Turf
-              </a>{" "}
-              for myself — a personal brand for remote mobile and web product
-              work (client reviews still live on that Clutch profile). The craft
-              carries forward; the brand today is fully under this studio at{" "}
-              <span className="text-ink">{brand.domain}</span>. Inquire, chat
-              daily, ship with me directly.
+                Clutch
+              </a>
+              . Inquire, chat daily, ship with me directly.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <Image
                 src="/brands/digitize-turf/logo.png"
-                alt="Digitize Turf (earlier personal brand)"
+                alt={`${brand.pastBrand.name} (earlier personal brand)`}
                 width={120}
                 height={40}
                 className="h-8 w-auto opacity-90 brightness-110"
               />
               <a
-                href={brand.pastBrand.clutch}
+                href={brand.clutch}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-accent underline-offset-4 hover:underline"

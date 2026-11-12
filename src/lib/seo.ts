@@ -29,7 +29,12 @@ export function defaultOgImage() {
 
 function sameAsLinks() {
   return presenceLinks
-    .filter((l) => l.group === "social" || l.group === "marketplace")
+    .filter(
+      (l) =>
+        l.group === "social" ||
+        l.group === "marketplace" ||
+        l.group === "studio",
+    )
     .map((l) => l.href);
 }
 
@@ -46,7 +51,7 @@ export function buildStudioJsonLd() {
     email: brand.email,
     jobTitle: "Independent software studio builder",
     description:
-      "Senior full-stack engineer and sole builder — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly studio marketplace for global clients; earlier personal brand Digitize Turf, now under Arsalan Arshad.",
+      "Senior full-stack engineer and sole builder — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly studio marketplace for global clients; verified reviews on Clutch under Arsalan Arshad.",
     knowsAbout: [
       "React Native",
       "Shopify apps",
@@ -93,11 +98,9 @@ export function buildStudioJsonLd() {
     "@type": "Organization",
     "@id": `${base}/#digitize-turf`,
     name: brand.pastBrand.name,
-    url: brand.pastBrand.clutch,
     description:
-      "Earlier personal brand/vehicle built by Arsalan Arshad for client mobile and web work. Studio brand today is Arsalan Arshad; Clutch reviews remain on this profile.",
+      "Earlier personal brand/vehicle built by Arsalan Arshad for client mobile and web work. Studio brand and Clutch profile today are under Arsalan Arshad.",
     founder: { "@id": `${base}/#person` },
-    sameAs: [brand.pastBrand.clutch],
   };
 
   const professionalService = {

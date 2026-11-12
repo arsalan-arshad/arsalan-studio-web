@@ -12,16 +12,16 @@ export function SiteFooter() {
           </p>
           <p className="mt-2 max-w-sm text-sm text-muted">
             Personal marketplace at {brand.domain} — inquire, chat daily, ship.
-            Sole worker. Earlier personal brand Digitize Turf (
+            Sole worker. Verified reviews on{" "}
             <a
-              href={brand.pastBrand.clutch}
+              href={brand.clutch}
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent underline-offset-4 hover:underline"
             >
-              Clutch reviews
+              Clutch
             </a>
-            ); studio brand is now fully under Arsalan Arshad.
+            . Earlier personal brand: {brand.pastBrand.name}.
           </p>
           <a
             href={`mailto:${brand.email}`}

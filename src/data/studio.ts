@@ -1,4 +1,4 @@
-/** Studio framing + how Arsalan builds (earlier Digitize Turf personal brand). */
+/** Studio framing + how Arsalan builds (Digitize Turf = earlier personal brand name). */
 
 export const buildTools = [
   {

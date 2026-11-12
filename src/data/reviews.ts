@@ -15,9 +15,8 @@ export type ClientReview = {
 };
 
 /**
- * Public marketplace reviews. Clutch quotes are attributed to the Digitize Turf
- * Clutch profile (earlier personal brand); studio brand is now Arsalan Arshad.
- * Fiverr links to the live profile — open for full reviews.
+ * Public marketplace reviews. Clutch quotes link to the live Arsalan Arshad
+ * Clutch profile. Fiverr links to the live profile — open for full reviews.
  */
 export const reviews: ClientReview[] = [
   {
@@ -30,9 +29,9 @@ export const reviews: ClientReview[] = [
     role: "CTO",
     company: "Personality Pool",
     project: "Mobile app development & implementation",
-    href: "https://clutch.co/profile/digitize-turf",
+    href: "https://clutch.co/profile/arsalan-arshad",
     verified: true,
-    note: "Clutch · Digitize Turf profile",
+    note: "Clutch · Arsalan Arshad",
   },
   {
     id: "clutch-xpit",
@@ -44,9 +43,9 @@ export const reviews: ClientReview[] = [
     role: "CTO",
     company: "Xpit SPA",
     project: "React Native mobile views & maps",
-    href: "https://clutch.co/profile/digitize-turf",
+    href: "https://clutch.co/profile/arsalan-arshad",
     verified: true,
-    note: "Clutch · Digitize Turf profile",
+    note: "Clutch · Arsalan Arshad",
   },
   {
     id: "clutch-ourcrew",
@@ -58,9 +57,9 @@ export const reviews: ClientReview[] = [
     role: "Owner",
     company: "OurCrew",
     project: "React Native / Expo rescue",
-    href: "https://clutch.co/profile/digitize-turf",
+    href: "https://clutch.co/profile/arsalan-arshad",
     verified: true,
-    note: "Clutch · Digitize Turf profile",
+    note: "Clutch · Arsalan Arshad",
   },
   {
     id: "fiverr-profile",
@@ -79,6 +78,6 @@ export const reviews: ClientReview[] = [
 export const reviewStats = {
   clutchAverage: 5.0,
   clutchCount: 3,
-  clutchHref: "https://clutch.co/profile/digitize-turf",
+  clutchHref: "https://clutch.co/profile/arsalan-arshad",
   fiverrHref: "https://www.fiverr.com/s/BbbENqW",
 };

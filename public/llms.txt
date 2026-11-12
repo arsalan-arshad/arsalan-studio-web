@@ -5,10 +5,10 @@
 > and AI automation — inquire on the web, then continue daily chat until it ships.
 
 Arsalan Arshad is based in Karachi, Pakistan and serves clients worldwide.
-This is a personal studio marketplace, not a staffing agency. Digitize Turf was an
-earlier personal brand (not an agency); Clutch reviews remain on that profile.
-Craft continues under Arsalan Arshad. Freelance history includes Toptal, Upwork,
-and Fiverr.
+This is a personal studio marketplace, not a staffing agency. Verified client
+reviews live on Clutch under Arsalan Arshad. Digitize Turf was an earlier
+personal brand name (not an agency); craft continues under Arsalan Arshad.
+Freelance history includes Toptal, Upwork, and Fiverr.
 
 ## Site
 
@@ -43,6 +43,6 @@ and Fiverr.
 - [FAQ](https://arsalandev.studio/#faq): Common questions answered on the home page
 - [GitHub](https://www.github.com/arsalan-arshad): Public repos linked from many case studies
 - [LinkedIn](https://www.linkedin.com/in/arsalandev): Professional profile
-- [Clutch · Digitize Turf](https://clutch.co/profile/digitize-turf): Earlier personal brand · reviews on this Clutch profile (studio is Arsalan Arshad)
+- [Clutch](https://clutch.co/profile/arsalan-arshad): Verified client reviews under Arsalan Arshad
 - [Toptal](https://www.toptal.com/developers/resume/arsalan-arshad): Marketplace resume
 - [robots.txt](https://arsalandev.studio/robots.txt): Crawl rules for bots

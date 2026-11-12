@@ -22,10 +22,9 @@ export function ReviewsSection() {
         <p className="eyebrow">Reviews</p>
         <h2 className="section-title mt-3">Clients on Clutch & Fiverr</h2>
         <p className="mt-4 max-w-2xl text-muted">
-          Verified Clutch feedback from engagements under Digitize Turf (earlier
-          personal brand — reviews remain on that Clutch profile; studio brand is
-          now <span className="text-ink">Arsalan Arshad</span>), plus the live
-          Fiverr profile for marketplace reviews.
+          Verified Clutch feedback on the{" "}
+          <span className="text-ink">Arsalan Arshad</span> profile (5.0★ · 3
+          reviews), plus the live Fiverr profile for marketplace reviews.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-4 text-sm">

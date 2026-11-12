@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/work",
     "/work/salesforce-demo",
     "/contact",
+    "/privacy",
     "/login",
     "/signup",
   ].map((path) => ({
@@ -25,7 +26,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
           ? 0.9
           : path === "/work"
             ? 0.85
-            : 0.7,
+            : path === "/privacy"
+              ? 0.5
+              : 0.7,
   }));
 
   const workRoutes: MetadataRoute.Sitemap = allCaseStudyIds().map((id) => ({

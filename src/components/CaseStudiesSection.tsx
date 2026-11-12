@@ -1,18 +1,16 @@
 import { CaseStudyVisual } from "@/components/CaseStudyVisual";
 import {
   caseStudies,
+  categoryLabel,
   sortCaseStudiesByStatus,
   statusLabel,
   type CaseStudy,
 } from "@/data/caseStudies";
 import Link from "next/link";
 
-const categories = [
-  { key: "ai" as const, label: "AI" },
-  { key: "shopify" as const, label: "Shopify" },
-  { key: "salesforce" as const, label: "Salesforce" },
-  { key: "other" as const, label: "Other" },
-];
+const categories = (
+  ["ai", "shopify", "salesforce", "other"] as const
+).map((key) => ({ key, label: categoryLabel[key] }));
 
 function ProjectLinks({ study }: { study: CaseStudy }) {
   const links = [
@@ -117,6 +115,11 @@ export function CaseStudiesSection({
                   {cat.key === "salesforce" ? (
                     <span className="ml-2 font-[family-name:var(--font-body)] text-xs font-medium normal-case tracking-normal text-muted">
                       Full suite · {group.length} packages
+                    </span>
+                  ) : null}
+                  {cat.key === "other" ? (
+                    <span className="ml-2 font-[family-name:var(--font-body)] text-xs font-medium normal-case tracking-normal text-muted">
+                      npm · hosted · open source
                     </span>
                   ) : null}
                 </h3>

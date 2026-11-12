@@ -4,7 +4,7 @@ import {
   getCaseStudyDetail,
   statusLabelLong,
 } from "@/data/caseStudyDetails";
-import { statusLabel } from "@/data/caseStudies";
+import { categoryLabel, statusLabel } from "@/data/caseStudies";
 import { absoluteUrl, buildCaseStudyJsonLd, defaultOgImage } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -82,9 +82,7 @@ export default async function CaseStudyPage({ params }: Props) {
             Work
           </Link>
           <span className="mx-2">/</span>
-          <span className="capitalize">
-            {study.category === "ai" ? "AI" : study.category}
-          </span>
+          <span>{categoryLabel[study.category]}</span>
         </p>
 
         <div className="mt-6 flex flex-wrap items-start gap-4">

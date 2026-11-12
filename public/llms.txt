@@ -12,9 +12,9 @@ and Fiverr.
 
 ## Site
 
-- [Home](https://arsalandev.studio/): Studio overview, offers teaser, FAQ, experience
+- [Home](https://arsalandev.studio/): Studio overview, iOS & Android app launch, offers teaser, FAQ, experience
 - [Offers](https://arsalandev.studio/offers): Engagement shapes and what the studio builds
-- [Work](https://arsalandev.studio/work): Public case studies across AI, Shopify, Salesforce, and other
+- [Work](https://arsalandev.studio/work): Public case studies across AI, Shopify, Salesforce, and libraries & web products
 - [Contact](https://arsalandev.studio/contact): Preferred path for new client engagements
 - [Salesforce demo](https://arsalandev.studio/work/salesforce-demo): Interactive Salesforce package demos
 - [Sitemap](https://arsalandev.studio/sitemap.xml): Machine-readable index of public pages

@@ -39,7 +39,8 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
     audience:
       "Senior software and AI engineers wiring RAG or agent stacks in TypeScript who need cost control without sacrificing a declared quality bar.",
     usage: [
-      "Clone the repo: git clone https://github.com/arsalan-arshad/pathwise && cd pathwise && npm install",
+      "Install from npm: npm i @arsalandev/pathwise",
+      "Or clone the repo: git clone https://github.com/arsalan-arshad/pathwise && cd pathwise && npm install",
       "createPlanner({ space, pipeline, scorer, sla }) — set minQuality / maxLatencyMs / optional confidence.",
       "await planner.calibrate(sampleQueries) — inspect CalibrationReport / slaCertified.",
       "await planner.run(userQuery) — cheapest plan that meets the SLA; score a fraction of production for online learning.",

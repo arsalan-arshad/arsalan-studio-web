@@ -6,7 +6,7 @@ import {
 import { brand } from "@/lib/brand";
 import Image from "next/image";
 
-/** Digitize Turf = earlier personal brand; Clutch + studio are Arsalan Arshad. */
+/** Clutch + studio brand = Arsalan Arshad; Digitize Turf is history only. */
 export function StudioStory() {
   return (
     <section
@@ -22,11 +22,9 @@ export function StudioStory() {
               {brand.name} — personal marketplace
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-              Earlier I built {brand.pastBrand.name} for myself — a personal
-              brand for remote mobile and web product work. The craft carries
-              forward; the brand today is fully under this studio at{" "}
-              <span className="text-ink">{brand.domain}</span>, with verified
-              client reviews on{" "}
+              The craft started under an earlier personal brand name (
+              {brand.pastBrand.name}). Today the studio — and verified client
+              reviews on{" "}
               <a
                 href={brand.clutch}
                 target="_blank"
@@ -34,24 +32,28 @@ export function StudioStory() {
                 className="font-medium text-accent underline-offset-4 hover:underline"
               >
                 Clutch
-              </a>
-              . Inquire, chat daily, ship with me directly.
+              </a>{" "}
+              — are fully under {brand.name} at{" "}
+              <span className="text-ink">{brand.domain}</span>. Inquire, chat
+              daily, ship with me directly.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-4">
-              <Image
-                src="/brands/digitize-turf/logo.png"
-                alt={`${brand.pastBrand.name} (earlier personal brand)`}
-                width={120}
-                height={40}
-                className="h-8 w-auto opacity-90 brightness-110"
-              />
               <a
                 href={brand.clutch}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-accent underline-offset-4 hover:underline"
+                className="inline-flex items-center gap-3 rounded-sm border border-line bg-bg px-3 py-2 transition-colors hover:border-accent/40"
               >
-                Clutch reviews →
+                <Image
+                  src={brand.clutchIcon}
+                  alt={`${brand.name} on Clutch`}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-md"
+                />
+                <span className="text-sm font-medium text-accent">
+                  Clutch · {brand.name} →
+                </span>
               </a>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

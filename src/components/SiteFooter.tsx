@@ -19,9 +19,9 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="text-accent underline-offset-4 hover:underline"
             >
-              Clutch
+              Clutch · {brand.name}
             </a>
-            . Earlier personal brand: {brand.pastBrand.name}.
+            . Earlier brand name only: {brand.pastBrand.name}.
           </p>
           <a
             href={`mailto:${brand.email}`}

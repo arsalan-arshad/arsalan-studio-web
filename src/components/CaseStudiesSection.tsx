@@ -30,24 +30,35 @@ function ProjectLinks({ study }: { study: CaseStudy }) {
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-      <Link
-        href={`/work/${study.id}`}
-        className="font-semibold text-accent underline-offset-4 hover:underline"
-      >
-        Know more
-      </Link>
-      {links.map((link) => (
-        <a
-          key={link.label + link.href}
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-muted underline-offset-4 hover:text-ink hover:underline"
+    <div className="max-w-md space-y-2 text-sm">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Link
+          href={`/work/${study.id}`}
+          className="font-semibold text-accent underline-offset-4 hover:underline"
         >
-          {link.label}
-        </a>
-      ))}
+          Know more
+        </Link>
+        {links.map((link) => (
+          <a
+            key={link.label + link.href}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted underline-offset-4 hover:text-ink hover:underline"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+      {study.installGuide ? (
+        <div className="rounded-sm border border-line bg-bg-elevated/80 px-3 py-2 text-xs leading-relaxed text-muted">
+          <p className="font-semibold text-ink">{study.installGuide.title}</p>
+          <p className="mt-1">{study.installGuide.body}</p>
+          <code className="mt-1.5 block break-all text-[0.7rem] text-accent">
+            {study.installGuide.urlExample}
+          </code>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { reviewStats, reviews } from "@/data/reviews";
+import { brand } from "@/lib/brand";
+import Image from "next/image";
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -23,8 +25,9 @@ export function ReviewsSection() {
         <h2 className="section-title mt-3">Clients on Clutch & Fiverr</h2>
         <p className="mt-4 max-w-2xl text-muted">
           Verified Clutch feedback on the{" "}
-          <span className="text-ink">Arsalan Arshad</span> profile (5.0★ · 3
-          reviews), plus the live Fiverr profile for marketplace reviews.
+          <span className="text-ink">{brand.name}</span> profile (same app mark
+          you see here) — 5.0★ · 3 reviews — plus the live Fiverr profile for
+          marketplace reviews.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-4 text-sm">
@@ -32,10 +35,17 @@ export function ReviewsSection() {
             href={reviewStats.clutchHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="panel-lume inline-flex items-center gap-2 rounded-sm px-4 py-2 font-medium text-ink hover:border-accent"
+            className="panel-lume inline-flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-ink hover:border-accent"
           >
+            <Image
+              src={brand.clutchIcon}
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-md"
+            />
             Clutch {reviewStats.clutchAverage.toFixed(1)}★ · {reviewStats.clutchCount}{" "}
-            reviews
+            reviews · {brand.name}
           </a>
           <a
             href={reviewStats.fiverrHref}

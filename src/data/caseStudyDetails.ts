@@ -235,7 +235,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
   },
   "practitioner-protocols": {
     summary:
-      "Practitioners share product “protocols” by link or QR; clients one-tap add the whole list to a Shopify cart. Zero PII by design.",
+      "Practitioners share product “protocols” by link or QR; clients one-tap add the whole list to a Shopify cart. Zero PII by design. Shopify limited distribution — merchants install via the auth URL (replace [STORE-NAME]), not the public App Store.",
     problem:
       "Professional brands sell through practitioners, but clients forget recommendations and buy elsewhere — brands can’t attribute which practices drive sales.",
     solution:
@@ -243,6 +243,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
     audience:
       "DTC / professional brands (wellness, clinic-adjacent retail) that sell through practitioners on Shopify.",
     usage: [
+      "Install (limited distribution): open https://practitioner.arsalandev.studio/api/auth?shop=[STORE-NAME].myshopify.com — replace [STORE-NAME] with your shop subdomain.",
       "Merchant admin: enrol / approve practitioners.",
       "Practitioner builds a protocol (search products, qty, notes).",
       "Share permanent link or QR with clients.",
@@ -273,7 +274,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       note: "Open for PRs and discussions. Engine verified with extensive unit coverage; some milestones pending live verification.",
     },
     buildingNote:
-      "Strong local/dev-store verification; App Store listing may still be in progress. Status treated as coming soon / launching on this marketplace until publicly listed.",
+      "Live on Railway. Shopify has the app in limited distribution — use the install guide URL (replace [STORE-NAME]) until a public App Store listing is available.",
   },
   "inventory-mcp": {
     summary:

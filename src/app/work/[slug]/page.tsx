@@ -153,6 +153,16 @@ export default async function CaseStudyPage({ params }: Props) {
           ) : null}
         </div>
 
+        {study.installGuide ? (
+          <div className="mt-4 max-w-2xl rounded-sm border border-line bg-bg-elevated/80 px-4 py-3 text-sm leading-relaxed text-muted">
+            <p className="font-semibold text-ink">{study.installGuide.title}</p>
+            <p className="mt-1">{study.installGuide.body}</p>
+            <code className="mt-2 block break-all text-xs text-accent">
+              {study.installGuide.urlExample}
+            </code>
+          </div>
+        ) : null}
+
         <Section title="What it does">
           <p>{study.summary}</p>
         </Section>

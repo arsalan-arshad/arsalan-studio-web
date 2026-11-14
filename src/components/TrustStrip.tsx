@@ -1,5 +1,6 @@
 import { presenceLinks } from "@/data/links";
 import { brand } from "@/lib/brand";
+import Image from "next/image";
 
 const stripIds = [
   "toptal",
@@ -32,10 +33,23 @@ export function TrustStrip() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-ink/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-ink/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
                 title={link.note}
               >
-                {link.id === "clutch" ? "Clutch" : link.label}
+                {link.id === "clutch" ? (
+                  <>
+                    <Image
+                      src={brand.clutchIcon}
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="h-[18px] w-[18px] rounded-sm"
+                    />
+                    Clutch
+                  </>
+                ) : (
+                  link.label
+                )}
               </a>
             ) : null,
           )}

@@ -50,7 +50,7 @@ export const presenceLinks: PresenceLink[] = [
     label: "Clutch",
     href: "https://clutch.co/profile/arsalan-arshad",
     group: "studio",
-    note: "Verified client reviews · Arsalan Arshad",
+    note: "Verified reviews · Arsalan Arshad (same app icon)",
   },
   {
     id: "nana",

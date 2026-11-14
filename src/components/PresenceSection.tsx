@@ -1,5 +1,6 @@
 import { presenceLinks } from "@/data/links";
 import { brand } from "@/lib/brand";
+import Image from "next/image";
 
 const groups = [
   {
@@ -56,7 +57,16 @@ export function PresenceSection() {
                         rel="noopener noreferrer"
                         className="inline-flex flex-col gap-0.5 border border-line bg-bg-elevated px-4 py-3 transition-colors hover:border-accent/40 hover:bg-accent-wash"
                       >
-                        <span className="text-sm font-semibold text-ink">
+                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-ink">
+                          {link.id === "clutch" ? (
+                            <Image
+                              src={brand.clutchIcon}
+                              alt=""
+                              width={22}
+                              height={22}
+                              className="h-[22px] w-[22px] rounded-sm"
+                            />
+                          ) : null}
                           {link.label}
                         </span>
                         {link.note ? (

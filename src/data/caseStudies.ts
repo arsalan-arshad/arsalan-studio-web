@@ -26,6 +26,15 @@ export type CaseStudy = {
   /** Path to hosted interactive demo (public/) */
   demoHref?: string;
   demoLabel?: string;
+  /**
+   * Install / usage guide shown after Demo (e.g. Shopify limited distribution
+   * when the app is not on the public App Store yet).
+   */
+  installGuide?: {
+    title: string;
+    body: string;
+    urlExample: string;
+  };
   /** Product walkthrough / launch video */
   youtubeHref?: string;
   youtubeLabel?: string;
@@ -70,10 +79,16 @@ export const caseStudies: CaseStudy[] = [
     status: "released",
     listOrder: 2,
     blurb:
-      "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution.",
+      "Professionals share product protocols by link/QR with one-tap add-to-cart and attribution. Shopify limited distribution — install via the usage guide (not on the public App Store yet).",
     githubHref: "https://github.com/arsalan-arshad/practitioner-protocols",
     demoHref: "https://practitioner.arsalandev.studio/demo",
     demoLabel: "Demo",
+    installGuide: {
+      title: "Guide: App usage",
+      body: "Shopify has this app in limited distribution (not on the public App Store yet). Open this URL and replace [STORE-NAME] with your shop subdomain:",
+      urlExample:
+        "https://practitioner.arsalandev.studio/api/auth?shop=[STORE-NAME].myshopify.com",
+    },
     liveHref: "https://practitioner.arsalandev.studio/",
     liveLabel: "Live",
     youtubeHref: "https://www.youtube.com/watch?v=m0nlmLj-RKE",

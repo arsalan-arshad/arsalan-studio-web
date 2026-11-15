@@ -16,7 +16,7 @@ export function Hero() {
       <div className="relative z-[2] mx-auto w-full max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] pt-6 sm:pt-8">
         <p className="eyebrow motion-rise">Independent studio, one engineer</p>
         <h1 className="motion-rise-delay-1 mt-3 font-[family-name:var(--font-display)] text-[clamp(2.4rem,7vw,4.75rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">
-          Mobile , Web Apps, Shopify, and Salesforce, with Principle AI built in, by one engineer.
+          Mobile, Web Apps, Shopify, and Salesforce, with Principle AI built in, by one engineer.
         </h1>
         <p className="motion-rise-delay-2 mt-4 max-w-2xl text-base text-muted sm:text-lg">
         Eight years of mobile, web and cloud delivery for startups and teams in the US, UK and Europe. Fixed scope, written exclusions, acceptance tests, and daily progress from me, not a team you never meet.

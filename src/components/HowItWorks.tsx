@@ -11,8 +11,8 @@ const steps = [
   },
   {
     n: "03",
-    title: "Daily chat on the mobile app",
-    body: "Sign up for files, briefs, and status. Continue on Arsalan Studio — same person, progress every day until acceptance.",
+    title: "Talk to me daily while I build",
+    body: "We keep one thread going from brief to launch. Files, changes and status all in the same place, no ticket queue and no account manager.",
   },
 ];
 
@@ -23,7 +23,7 @@ export function HowItWorks() {
         <p className="eyebrow">How it works</p>
         <h2 className="section-title mt-3">Browse → inquire → daily chat</h2>
         <p className="mt-4 max-w-xl text-muted">
-          Web for discovery and briefs. Mobile app for the ongoing thread —
+          Web for discovery and briefs. One ongoing thread for the work —
           not a ticket portal staffed by strangers.
         </p>
         <ol className="mt-12 grid gap-10 md:grid-cols-3">

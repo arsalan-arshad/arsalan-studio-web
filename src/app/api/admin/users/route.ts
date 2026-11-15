@@ -34,6 +34,7 @@ export async function GET(request: Request) {
       accounts: {
         select: { provider: true },
       },
+      _count: { select: { threads: true } },
     },
   });
 
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
     ok: true,
     canDelete: isAdmin(user.role),
     canToggleActive: isAdmin(user.role),
+    canStartConversation: isAdmin(user.role),
     inviteRoles: inviteableRoles(user.role),
     users: users.map((u) => {
       const hasPassword = Boolean(u.passwordHash);
@@ -58,6 +60,7 @@ export async function GET(request: Request) {
         hasGoogle,
         accountType,
         accountTypeLabel: accountTypeLabel(accountType),
+        threadCount: u._count.threads,
       };
     }),
   });

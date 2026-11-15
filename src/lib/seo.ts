@@ -32,7 +32,7 @@ function sameAsLinks() {
     .filter(
       (l) =>
         l.group === "social" ||
-        l.group === "marketplace" ||
+        l.group === "freelance" ||
         l.group === "studio",
     )
     .map((l) => l.href);
@@ -51,7 +51,7 @@ export function buildStudioJsonLd() {
     email: brand.email,
     jobTitle: "Independent software studio builder",
     description:
-      "Senior full-stack engineer and sole builder — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly studio marketplace for global clients; verified reviews on Clutch under Arsalan Arshad.",
+      "Senior full-stack engineer — React Native / mobile, web, Shopify, Salesforce, and AI automation. Remote-friendly independent studio for global clients; verified reviews on Clutch under Arsalan Arshad.",
     knowsAbout: [
       "React Native",
       "Shopify apps",
@@ -81,7 +81,7 @@ export function buildStudioJsonLd() {
     url: base,
     email: brand.email,
     description:
-      "Independent sole-builder studio marketplace for Shopify, Salesforce, React Native mobile, web, and AI automation — inquire and collaborate directly with Arsalan Arshad.",
+      "Independent studio for Shopify, Salesforce, React Native mobile, web, and AI automation — inquire and collaborate directly with Arsalan Arshad.",
     founder: { "@id": `${base}/#person` },
     logo: {
       "@type": "ImageObject",
@@ -126,7 +126,7 @@ export function buildStudioJsonLd() {
     "@type": "WebSite",
     "@id": `${base}/#website`,
     url: base,
-    name: `${brand.name} — Studio marketplace`,
+    name: `${brand.name} — Independent studio`,
     description: brand.tagline,
     publisher: { "@id": `${base}/#organization` },
     inLanguage: "en-US",
@@ -136,9 +136,9 @@ export function buildStudioJsonLd() {
     "@type": "WebPage",
     "@id": `${base}/#webpage`,
     url: base,
-    name: `${brand.name} — Studio marketplace`,
+    name: `${brand.name} — Independent studio`,
     description:
-      "Polite, conversion-led marketplace for Shopify, Salesforce, mobile, web, AI automation, and daily collaboration with Arsalan Arshad.",
+      "Conversion-led studio site for Shopify, Salesforce, mobile, web, AI automation, and daily collaboration with Arsalan Arshad.",
     isPartOf: { "@id": `${base}/#website` },
     about: { "@id": `${base}/#person` },
     primaryImageOfPage: {

@@ -8,76 +8,61 @@ export type Offer = {
   needParam: string;
 };
 
-/**
- * Capability-led offers — what Arsalan can bring, not just product SKUs.
- */
+/** Capability-led offers — what Arsalan builds for client work. */
 export const offers: Offer[] = [
   {
     id: "shopify-app",
-    name: "I can bring a Shopify app to life",
-    forWho:
-      "Merchants and partners who need a real embedded Admin experience — forecasting, inventory, protocols, or a custom extension — not another GPT wrapper.",
+    name: "Shopify apps that make it to the App Store",
+    forWho: "merchants and agencies who need a real embedded admin app.",
     includes: [
-      "I can try to bring deterministic cores where numbers must be auditable",
-      "BYOK AI that explains snapshots — never invents stock figures",
-      "App Store or self-host path; Railway-ready deploy patterns I’ve shipped",
-      "Open-source-friendly handoff when you want MIT recipes",
-      "Written exclusions + acceptance tests before code",
+      "Inventory forecasting, storefront or admin extensions, custom flows",
+      "Shipped apps through Shopify review, including my own live inventory app",
+      "Deterministic numbers with an AI copilot that explains them instead of inventing them",
     ],
-    startingPoint:
-      "Send a problem brief or point at an existing open-source blueprint — we’ll scope what I can actually ship.",
-    cta: "Start conversation",
+    startingPoint: "",
+    cta: "Send your project brief",
     needParam: "shopify-app",
   },
   {
     id: "salesforce-package",
-    name: "I can ship Salesforce packages & bridges",
+    name: "Salesforce packages and Shopify bridges",
     forWho:
-      "Teams that need a 2GP utility, LWC UX, or Shopify ↔ Salesforce signals without per-task sync fees.",
+      "teams that need 2GP utilities, LWC interfaces, or Shopify to Salesforce sync without per-task fees.",
     includes: [
-      "I can try to bring LWC + Apex with strong test coverage and unlocked 2GP",
-      "HMAC-safe webhooks, mapping UI, DLQ-minded integrations",
-      "Interactive demos stakeholders can click before install",
-      "AppExchange readiness dossier when listing matters",
-      "Same sole builder from spike to package promote",
+      "HMAC webhooks, retry queues and mapping UI",
+      "Test coverage and audit trail",
+      "AppExchange-ready where it matters",
     ],
-    startingPoint:
-      "Tell me the object / Flow / commerce signal — I’ll propose a fixed slice.",
-    cta: "Start conversation",
+    startingPoint: "",
+    cta: "Send your project brief",
     needParam: "salesforce",
   },
   {
     id: "mobile-web",
-    name: "I can deliver mobile & web products",
+    name: "Mobile and web products",
     forWho:
-      "Founders who need Expo/RN or Next.js surfaces talking to a real API — messaging, briefs, status — not throwaways.",
+      "founders who need React Native, Expo or Next.js talking to a real backend.",
     includes: [
-      "I can try to bring Expo TypeScript clients and Next.js App Router shells",
-      "Auth-gated messaging patterns (files, briefs, status) on a shared API",
-      "Store-prep / CI habits from years of App Store & Play releases",
-      "Cloud on AWS, GCP, Azure, or Firebase when the product needs it",
-      "Daily progress chat while we build",
+      "Auth, messaging, files, briefs, status",
+      "Store releases and CI from years of practice",
+      "Plain-English progress daily",
     ],
-    startingPoint:
-      "Name the first three screens or routes that matter — we ship those first.",
-    cta: "Start conversation",
+    startingPoint: "",
+    cta: "Send your project brief",
     needParam: "mobile-any",
   },
   {
     id: "retainer",
-    name: "I can stay on as daily collaboration",
+    name: "Ongoing engineering support",
     forWho:
-      "Operators who want a sole engineer for Shopify, Salesforce, AI/automation, or product iterations — weekly cadence, not a hiring funnel.",
+      "teams that need an engineer on call for Shopify, Salesforce, AI or product iterations.",
     includes: [
-      "I can try to bring agreed hours + a living backlog you can see",
-      "Daily check-ins via the studio messaging app",
-      "Fixed-scope slices with acceptance tests",
-      "AI/automation and SME-style recipes where they fit (honest exclusions)",
-      "Open-source leftovers published with client details removed",
+      "A fixed number of hours a week",
+      "A backlog you can see",
+      "A weekly cadence instead of a hiring funnel",
     ],
-    startingPoint:
-      "Book discovery; we lock scope and cadence before any code.",
-    cta: "Start conversation",
+    startingPoint: "",
+    cta: "Send your project brief",
     needParam: "retainer",
   },
 ];

@@ -9,6 +9,7 @@ import { absoluteUrl, buildCaseStudyJsonLd, defaultOgImage } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -63,7 +64,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CaseStudyPage({ params }: Props) {
+export default function CaseStudyPage({ params }: Props) {
+  return (
+    <Suspense fallback={<CaseStudyPageFallback />}>
+      <CaseStudyArticle params={params} />
+    </Suspense>
+  );
+}
+
+function CaseStudyPageFallback() {
+  return (
+    <article className="section-pad pt-20" aria-busy="true">
+      <div className="mx-auto max-w-3xl animate-pulse">
+        <div className="h-4 w-32 rounded bg-bg-elevated" />
+        <div className="mt-6 flex gap-4">
+          <div className="h-16 w-16 shrink-0 rounded-md bg-bg-elevated" />
+          <div className="flex-1 space-y-3">
+            <div className="h-3 w-20 rounded bg-bg-elevated" />
+            <div className="h-8 w-3/4 max-w-md rounded bg-bg-elevated" />
+            <div className="h-4 w-full rounded bg-bg-elevated" />
+          </div>
+        </div>
+        <p className="mt-8 text-sm text-muted">Loading case study…</p>
+      </div>
+    </article>
+  );
+}
+
+async function CaseStudyArticle({ params }: Props) {
   const { slug } = await params;
   const study = getCaseStudyDetail(slug);
   if (!study) notFound();

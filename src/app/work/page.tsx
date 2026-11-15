@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function WorkPage() {
   return (
     <div className="pt-14">
-      <CaseStudiesSection showBanners />
+      <CaseStudiesSection />
     </div>
   );
 }

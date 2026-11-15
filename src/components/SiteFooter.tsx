@@ -11,7 +11,7 @@ export function SiteFooter() {
             {brand.name}
           </p>
           <p className="mt-2 max-w-sm text-sm text-muted">
-            Personal marketplace at {brand.domain} — inquire, chat daily, ship.
+            Independent studio at {brand.domain} — inquire, chat daily, ship.
             Sole worker. Verified reviews on{" "}
             <a
               href={brand.clutch}

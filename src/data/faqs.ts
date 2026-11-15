@@ -25,7 +25,7 @@ export const studioFaqs: FaqItem[] = [
     id: "how",
     question: "How does engagement start?",
     answer:
-      "Browse offers and work on the site, send a marketplace brief via the public contact form (no account required), then continue with daily chat after signup for files, briefs, and status.",
+      "Browse offers and work on the site, send a project brief via the public contact form (no account required), then continue with daily chat after signup for files, briefs, and status.",
   },
   {
     id: "remote",
@@ -37,13 +37,13 @@ export const studioFaqs: FaqItem[] = [
     id: "clutch",
     question: "Where are Clutch reviews?",
     answer:
-      "Verified client reviews live on Clutch under Arsalan Arshad (clutch.co/profile/arsalan-arshad). Digitize Turf was an earlier personal brand name for the same sole builder — craft from that chapter carries forward at arsalandev.studio.",
+      "Verified client reviews live on Clutch under Arsalan Arshad (clutch.co/profile/arsalan-arshad).",
   },
   {
     id: "digitize-turf",
     question: "What is Digitize Turf?",
     answer:
-      "Digitize Turf was Arsalan’s earlier personal brand — something he built for himself, not an agency. Mobile and web craft from that chapter carries forward; the studio brand and Clutch profile today are under Arsalan Arshad at arsalandev.studio.",
+      "Digitize Turf was my earlier personal brand. The studio and my Clutch reviews are now under Arsalan Arshad at arsalandev.studio.",
   },
   {
     id: "opensource",

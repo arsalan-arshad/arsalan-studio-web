@@ -2,11 +2,11 @@ export type PresenceLink = {
   id: string;
   label: string;
   href: string;
-  group: "social" | "marketplace" | "influencer" | "studio";
+  group: "social" | "freelance" | "influencer" | "studio";
   note?: string;
 };
 
-/** Live presence — pages and marketplaces where clients can find Arsalan. */
+/** Live presence — pages and freelance profiles where clients can find Arsalan. */
 export const presenceLinks: PresenceLink[] = [
   {
     id: "instagram",
@@ -31,19 +31,19 @@ export const presenceLinks: PresenceLink[] = [
     id: "toptal",
     label: "Toptal",
     href: "https://www.toptal.com/developers/resume/arsalan-arshad",
-    group: "marketplace",
+    group: "freelance",
   },
   {
     id: "upwork",
     label: "Upwork",
     href: "https://www.upwork.com/freelancers/~016f6b130756ef1f1d",
-    group: "marketplace",
+    group: "freelance",
   },
   {
     id: "fiverr",
     label: "Fiverr",
     href: "https://www.fiverr.com/s/BbbENqW",
-    group: "marketplace",
+    group: "freelance",
   },
   {
     id: "clutch",
@@ -78,11 +78,11 @@ export const presenceLinks: PresenceLink[] = [
 export const footerNav = [
   { href: "/#offers", label: "Offers" },
   { href: "/work", label: "Work" },
+  { href: "/job-history", label: "Job history" },
   { href: "/#reviews", label: "Reviews" },
   { href: "/#faq", label: "FAQ" },
   { href: "/work/salesforce-demo", label: "SF demo" },
-  { href: "/#presence", label: "Presence" },
-  { href: "/#experience", label: "Experience" },
+  { href: "/#how", label: "How it works" },
   { href: "/contact", label: "Contact" },
   { href: "/chat", label: "Messages" },
   { href: "/privacy", label: "Privacy" },

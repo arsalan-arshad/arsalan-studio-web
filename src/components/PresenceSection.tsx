@@ -9,8 +9,8 @@ const groups = [
     blurb: "Find me where the work and conversation already live.",
   },
   {
-    key: "marketplace" as const,
-    title: "Marketplaces",
+    key: "freelance" as const,
+    title: "Freelance profiles",
     blurb: "Running profiles on Toptal, Upwork, and Fiverr — hire the same person.",
   },
   {
@@ -31,10 +31,10 @@ export function PresenceSection() {
     <section id="presence" className="section-pad border-t border-line scroll-mt-20">
       <div className="mx-auto max-w-6xl">
         <p className="eyebrow">Presence</p>
-        <h2 className="section-title mt-3">Connect — live pages & marketplaces</h2>
+        <h2 className="section-title mt-3">Connect — live pages & profiles</h2>
         <p className="mt-4 max-w-2xl text-muted">
           Running presence, not placeholders. Same builder across social,
-          freelance marketplaces, Clutch reviews, and Stockroom Studio AI
+          freelance profiles, Clutch reviews, and Stockroom Studio AI
           characters.
         </p>
 

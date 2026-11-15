@@ -6,7 +6,7 @@ const steps = [
   },
   {
     n: "02",
-    title: "Send a marketplace brief",
+    title: "Send your project brief",
     body: "Public contact form for a fast start: project type, goals, constraints. No account required.",
   },
   {

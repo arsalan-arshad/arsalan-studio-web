@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { brand } from "@/lib/brand";
 
 export function Hero() {
+
   return (
     <section className="hero-atmosphere relative flex flex-col justify-start pb-12 pt-[4.25rem] sm:pb-14 sm:pt-[4.5rem]">
       <div
@@ -14,23 +14,19 @@ export function Hero() {
       </div>
 
       <div className="relative z-[2] mx-auto w-full max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] pt-6 sm:pt-8">
-        <p className="eyebrow motion-rise">Marketplace · Sole builder</p>
+        <p className="eyebrow motion-rise">Independent studio, one engineer</p>
         <h1 className="motion-rise-delay-1 mt-3 font-[family-name:var(--font-display)] text-[clamp(2.4rem,7vw,4.75rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">
-          {brand.name}
+          Mobile , Web Apps, Shopify, and Salesforce, with Principle AI built in, by one engineer.
         </h1>
-        <p className="motion-rise-delay-2 mt-4 max-w-xl text-base text-muted sm:text-lg">
-          {brand.tagline} Shopify, Salesforce, mobile, web, and automation —
-          inquire here, keep the thread alive on the app.
+        <p className="motion-rise-delay-2 mt-4 max-w-2xl text-base text-muted sm:text-lg">
+        Eight years of mobile, web and cloud delivery for startups and teams in the US, UK and Europe. Fixed scope, written exclusions, acceptance tests, and daily progress from me, not a team you never meet.
         </p>
         <div className="motion-rise-delay-3 mt-7 flex flex-wrap gap-3">
           <Link href="/contact" className="btn-primary">
-            Get started
+            Send your project brief
           </Link>
-          <Link href="/#offers" className="btn-ghost">
-            See offers
-          </Link>
-          <Link href="/work/salesforce-demo" className="btn-ghost">
-            Try Salesforce demo
+          <Link href="/#work" className="btn-ghost">
+            See the work
           </Link>
         </div>
         <div

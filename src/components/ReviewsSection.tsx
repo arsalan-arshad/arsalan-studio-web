@@ -27,7 +27,7 @@ export function ReviewsSection() {
           Verified Clutch feedback on the{" "}
           <span className="text-ink">{brand.name}</span> profile (same app mark
           you see here) — 5.0★ · 3 reviews — plus the live Fiverr profile for
-          marketplace reviews.
+          client reviews.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-4 text-sm">

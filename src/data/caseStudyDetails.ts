@@ -537,7 +537,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       license: "MIT for recipes/templates (client work under agreement)",
       note: "Being scoped — validate with conversations first. Contributions to recipes welcome when published.",
     },
-    buildingNote: "No clients or published recipes yet — marketplace entry is intentional and honest.",
+    buildingNote: "No clients or published recipes yet — public listing entry is intentional and honest.",
   },
   "eu-ai-act-checker": {
     summary:
@@ -558,7 +558,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       license: "MIT (repo)",
       note: "Public GitHub — github.com/arsalan-arshad/ai-act-check. Issues and PRs welcome.",
     },
-    buildingNote: "Repo is public; marketplace listing / paid report still coming soon.",
+    buildingNote: "Repo is public; public listing / paid report still coming soon.",
   },
   "freight-exceptions": {
     summary:

@@ -36,12 +36,11 @@ export function AppLaunchSection() {
             id="app-launch-heading"
             className="section-title mt-3 max-w-xl"
           >
-            iOS &amp; Android are launching
+            Companion app for project threads
           </h2>
           <p className="mt-4 max-w-xl text-muted">
-            The Arsalan Arshad companion app is coming to both stores — same
-            marketplace thread as the site: inquire, chat daily, and follow
-            your build with native Google sign-in.
+            The companion app for project threads is in final testing before
+            release. You can start a brief today without it.
           </p>
 
           <ul className="mt-7 flex flex-wrap gap-3">
@@ -60,18 +59,18 @@ export function AppLaunchSection() {
                 />
                 {platform.label}
                 <span className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
-                  Launching
+                  Final testing
                 </span>
               </li>
             ))}
           </ul>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/signup" className="btn-primary">
-              Create account
+            <Link href="/contact" className="btn-primary">
+              Send your project brief
             </Link>
-            <Link href="/contact" className="btn-ghost">
-              Start on the web
+            <Link href="/signup" className="btn-ghost">
+              Create account (optional)
             </Link>
           </div>
         </div>
@@ -120,8 +119,8 @@ export function AppLaunchSection() {
               </div>
             </div>
             <p className="mt-8 border-t border-line pt-5 text-sm text-muted">
-              Native Dev Client builds are live in testing. App Store and
-              Google Play listings are next.
+              Native Dev Client builds are in final testing. App Store and Google
+              Play listings are next.
             </p>
           </div>
         </div>

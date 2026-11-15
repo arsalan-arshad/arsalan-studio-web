@@ -2,7 +2,8 @@
 export const brand = {
   name: "Arsalan Arshad",
   shortName: "Arsalan",
-  tagline: "One builder. Clear offers. Daily conversation until it ships.",
+  tagline:
+    "Shopify and Salesforce apps, mobile and web products — built and shipped by one engineer.",
   email: "arsalanarshad.dev@gmail.com",
   /** Primary domain */
   domain: "arsalandev.studio",

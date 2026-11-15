@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/offers",
     "/work",
     "/work/salesforce-demo",
+    "/job-history",
     "/contact",
     "/privacy",
     "/login",

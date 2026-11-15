@@ -1,3 +1,9 @@
+/** Public resume PDF (served from /public/resume). */
+export const resumePdfHref = "/resume/Arsalan-Arshad-Resume.pdf";
+
+export const experienceIntro =
+  "Not a hiring board — roles from the resume. Mobile apps for startups, store CI/CD, cloud backends, and remote freelance for global clients. One builder, end to end.";
+
 export type ExperienceItem = {
   id: string;
   period: string;

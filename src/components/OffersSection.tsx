@@ -6,15 +6,12 @@ export function OffersSection() {
     <section id="offers" className="section-pad border-t border-line scroll-mt-20">
       <div className="mx-auto max-w-6xl">
         <p className="eyebrow">Offers</p>
-        <h2 className="section-title mt-3 max-w-2xl">
-          What I can try to bring for you
-        </h2>
+        <h2 className="section-title mt-3 max-w-2xl">What I build</h2>
         <p className="mt-4 max-w-2xl text-muted">
-          Capability-led packages — outcomes and craft, not a SKU menu. Fixed
-          scope, written exclusions, acceptance tests. You work with me
-          directly. Most product work is{" "}
-          <span className="text-ink">open source (MIT)</span> and open for PRs
-          when we publish recipes.
+          Fixed scope client work — outcomes and craft, not a SKU menu. Written
+          exclusions, acceptance tests. You work with me directly. Most product
+          work is <span className="text-ink">open source (MIT)</span> and open
+          for PRs when we publish recipes.
         </p>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
@@ -35,7 +32,6 @@ export function OffersSection() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-sm text-muted">{offer.startingPoint}</p>
               <Link
                 href={`/contact?need=${offer.needParam}`}
                 className="btn-primary mt-6 !inline-flex"

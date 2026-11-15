@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: `${brand.name} — Studio marketplace`,
+    default: `${brand.name} — Independent studio`,
     template: `%s · ${brand.name}`,
   },
   description,
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     "React Native developer",
     "independent software studio",
     "remote software engineer",
-    "studio marketplace",
+    "independent software studio",
     "Next.js",
     "AI automation",
     "Digitize Turf",
@@ -78,9 +78,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: `${brand.name} Studio`,
-    title: `${brand.name} — Independent studio marketplace`,
+    title: `${brand.name} — Independent studio`,
     description:
-      "Sole builder for Shopify, Salesforce, React Native, web, and AI. Inquire, chat daily, ship — arsalandev.studio.",
+      "One engineer for Shopify, Salesforce, React Native, web, and AI. Inquire, chat daily, ship — arsalandev.studio.",
     images: [
       {
         url: ogImage.url,
@@ -93,7 +93,7 @@ export const metadata: Metadata = {
   twitter: {
     // Square brand mark — summary fits better than a fabricated wide OG art.
     card: "summary",
-    title: `${brand.name} — Independent studio marketplace`,
+    title: `${brand.name} — Independent studio`,
     description:
       "Remote-friendly sole-builder studio at arsalandev.studio — Shopify, Salesforce, mobile, web, AI.",
     images: {

@@ -7,7 +7,7 @@ export function OffersCtaStrip() {
         <div>
           <p className="eyebrow">Clear packages</p>
           <p className="mt-2 max-w-xl font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-ink">
-            Tell me what you need shipped — I can try to bring Shopify, Salesforce, mobile/web, or daily collaboration.
+            Tell me what you need shipped — Shopify, Salesforce, mobile/web, or daily collaboration.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

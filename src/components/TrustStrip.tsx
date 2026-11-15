@@ -1,61 +1,34 @@
-import { presenceLinks } from "@/data/links";
+import { reviewStats } from "@/data/reviews";
 import { brand } from "@/lib/brand";
-import Image from "next/image";
-
-const stripIds = [
-  "toptal",
-  "upwork",
-  "fiverr",
-  "clutch",
-  "github",
-  "linkedin",
-] as const;
 
 export function TrustStrip() {
-  const links = stripIds
-    .map((id) => presenceLinks.find((l) => l.id === id))
-    .filter(Boolean);
-
   return (
     <section
-      aria-label="Where you can find Arsalan"
+      aria-label="Client trust signals"
       className="border-y border-line bg-bg-elevated/80"
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-[clamp(1.25rem,4vw,3.5rem)] py-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-          Also live on
-        </p>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          {links.map((link) =>
-            link ? (
-              <a
-                key={link.id}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-ink/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
-                title={link.note}
-              >
-                {link.id === "clutch" ? (
-                  <>
-                    <Image
-                      src={brand.clutchIcon}
-                      alt=""
-                      width={18}
-                      height={18}
-                      className="h-[18px] w-[18px] rounded-sm"
-                    />
-                    Clutch
-                  </>
-                ) : (
-                  link.label
-                )}
-              </a>
-            ) : null,
-          )}
-        </div>
-        <p className="text-xs text-muted sm:ml-auto">
-          Studio · {brand.domain}
+      <div className="mx-auto max-w-6xl px-[clamp(1.25rem,4vw,3.5rem)] py-5">
+        <p className="text-center text-sm text-ink/90 sm:text-left">
+          <a
+            href={brand.clutch}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline-offset-4 hover:text-accent hover:underline"
+          >
+            {reviewStats.clutchAverage.toFixed(1)} on Clutch
+          </a>
+          <span className="text-muted"> · </span>
+          <a
+            href={reviewStats.fiverrHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline-offset-4 hover:text-accent hover:underline"
+          >
+            {reviewStats.fiverrAverage.toFixed(1)} across {reviewStats.fiverrReviewCount}{" "}
+            Fiverr reviews
+          </a>
+          <span className="text-muted"> · </span>
+          <span>$300K raised by a client whose app I shipped</span>
         </p>
       </div>
     </section>

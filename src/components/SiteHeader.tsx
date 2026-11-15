@@ -6,9 +6,9 @@ import { brand } from "@/lib/brand";
 const links = [
   { href: "/#offers", label: "Offers" },
   { href: "/work", label: "Work" },
+  { href: "/job-history", label: "Job history" },
   { href: "/#reviews", label: "Reviews" },
-  { href: "/#presence", label: "Presence" },
-  { href: "/#experience", label: "Experience" },
+  { href: "/#how", label: "How it works" },
   { href: "/contact", label: "Contact" },
   { href: "/chat", label: "Messages" },
 ];

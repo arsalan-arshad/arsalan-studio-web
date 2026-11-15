@@ -327,3 +327,18 @@ export const categoryLabel: Record<CaseStudy["category"], string> = {
   salesforce: "Salesforce",
   other: "Libraries & web products",
 };
+
+/** Homepage featured six — Shopify/Salesforce first, then web, then AI. */
+export const homeFeaturedCaseStudyIds = [
+  "ai-forecast-agent",
+  "practitioner-protocols",
+  "shopify-sf-connector",
+  "smart-record-cloner",
+  "proposal-guard",
+  "pathwise",
+] as const;
+
+export function caseStudiesByIds(ids: readonly string[]): CaseStudy[] {
+  const byId = new Map(caseStudies.map((c) => [c.id, c]));
+  return ids.map((id) => byId.get(id)).filter((c): c is CaseStudy => Boolean(c));
+}

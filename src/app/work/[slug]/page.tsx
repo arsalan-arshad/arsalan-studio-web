@@ -346,7 +346,7 @@ async function CaseStudyArticle({ params }: Props) {
             Want something like this built for you?
           </p>
           <p className="mt-2 text-sm text-muted">
-            Start a conversation — sole builder, daily chat, fixed-scope offers.
+            Start a conversation — sole builder, daily progress, fixed-scope offers.
           </p>
           <Link href="/contact" className="btn-primary mt-5 !inline-flex">
             Start conversation

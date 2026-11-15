@@ -1,4 +1,5 @@
 import { ContactForm } from "@/components/ContactForm";
+import { brand } from "@/lib/brand";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -25,13 +26,20 @@ export default function ContactPage() {
         <p className="eyebrow">Contact</p>
         <h1 className="section-title mt-3">Get started</h1>
         <p className="mt-4 max-w-xl text-muted">
-          Tell me what you need. Prefer messaging with attachments?{" "}
+          Tell me what you need. Prefer a thread with attachments?{" "}
           <Link
             href="/signup"
             className="text-accent underline-offset-4 hover:underline"
           >
             Create an account
           </Link>
+          , or just email me at{" "}
+          <a
+            href={`mailto:${brand.email}`}
+            className="text-accent underline-offset-4 hover:underline"
+          >
+            {brand.email}
+          </a>
           . App support and privacy questions are welcome here too — see the{" "}
           <Link
             href="/privacy"

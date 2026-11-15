@@ -15,7 +15,7 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="absolute inset-x-0 top-0 z-20 border-b border-line/70 bg-white/85 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-20 border-b border-line/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-3 sm:py-3.5">
         <Link
           href="/"

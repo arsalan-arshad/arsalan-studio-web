@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { canDeactivateTarget, roleLabel, type AppRole } from "@/lib/roles";
@@ -19,6 +20,7 @@ type AdminUserRow = {
   hasGoogle?: boolean;
   accountType?: AccountType;
   accountTypeLabel?: string;
+  threadCount?: number;
 };
 
 function accountBadge(u: AdminUserRow) {
@@ -51,17 +53,20 @@ function accountBadge(u: AdminUserRow) {
 
 export function AdminUsers() {
   const { data: session } = useSession();
+  const router = useRouter();
   const selfId = session?.user?.id;
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [inviteRoles, setInviteRoles] = useState<AppRole[]>(["CLIENT"]);
   const [canDelete, setCanDelete] = useState(false);
   const [canToggleActive, setCanToggleActive] = useState(false);
+  const [canStartConversation, setCanStartConversation] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [inviting, setInviting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [startingId, setStartingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError("");
@@ -80,6 +85,7 @@ export function AdminUsers() {
     );
     setCanDelete(Boolean(data.canDelete));
     setCanToggleActive(Boolean(data.canToggleActive));
+    setCanStartConversation(Boolean(data.canStartConversation));
     setLoading(false);
   }, []);
 
@@ -149,6 +155,37 @@ export function AdminUsers() {
       setError("Delete failed");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function onStartConversation(user: AdminUserRow) {
+    if (!canStartConversation || user.role !== "CLIENT" || !user.active) return;
+    setStartingId(user.id);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/conversation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not start conversation");
+        return;
+      }
+      if (data.created) {
+        setNotice(
+          data.emailSent
+            ? `Started conversation with ${user.email} and sent email.`
+            : `Started conversation with ${user.email}. Email skipped (check RESEND_API_KEY).`,
+        );
+      }
+      router.push(`/chat?thread=${encodeURIComponent(data.threadId)}`);
+    } catch {
+      setError("Could not start conversation");
+    } finally {
+      setStartingId(null);
     }
   }
 
@@ -295,6 +332,10 @@ export function AdminUsers() {
                   canToggleActive &&
                   canDeactivateTarget(u.role) &&
                   u.id !== selfId;
+                const canMessage =
+                  canStartConversation && u.role === "CLIENT" && u.active;
+                const hasThread = (u.threadCount ?? 0) > 0;
+                const hasActions = toggleable || canDelete || canMessage;
                 return (
                   <tr key={u.id} className="hover:bg-bg">
                     <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
@@ -322,6 +363,25 @@ export function AdminUsers() {
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       <div className="flex flex-wrap items-center justify-end gap-2">
+                        {canMessage ? (
+                          <button
+                            type="button"
+                            className="btn-ghost !px-2 !py-1 text-xs text-accent disabled:opacity-40"
+                            disabled={startingId === u.id}
+                            title={
+                              hasThread
+                                ? "Open existing conversation"
+                                : "Start a new conversation (emails the client)"
+                            }
+                            onClick={() => onStartConversation(u)}
+                          >
+                            {startingId === u.id
+                              ? "Opening…"
+                              : hasThread
+                                ? "Open chat"
+                                : "Start conversation"}
+                          </button>
+                        ) : null}
                         {toggleable ? (
                           <button
                             type="button"
@@ -350,7 +410,7 @@ export function AdminUsers() {
                           >
                             {deletingId === u.id ? "Deleting…" : "Delete"}
                           </button>
-                        ) : !toggleable ? (
+                        ) : !hasActions ? (
                           <span className="text-xs text-muted">—</span>
                         ) : null}
                       </div>

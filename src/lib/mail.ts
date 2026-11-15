@@ -10,6 +10,19 @@ function emailFrom() {
   return `Arsalan Studio <${raw}>`;
 }
 
+/** Admin-initiated chat outreach — always From hello@… */
+function studioChatFrom() {
+  return `Arsalan Studio <${brand.studioEmail}>`;
+}
+
+function siteBaseUrl() {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.AUTH_URL ||
+    `https://${brand.domain}`
+  ).replace(/\/$/, "");
+}
+
 function resendClient() {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
@@ -190,6 +203,62 @@ export async function sendInviteSetPasswordEmail(input: {
     `,
   });
   return { sent: true as const, setUrl };
+}
+
+/**
+ * Email the client when an admin opens a brand-new conversation
+ * (user had no prior thread). Not sent on later admin replies.
+ */
+export async function sendAdminStartedChatEmail(input: {
+  to: string;
+  name: string;
+  threadId: string;
+  preview?: string;
+}) {
+  const chatUrl = `${siteBaseUrl()}/chat?thread=${encodeURIComponent(input.threadId)}`;
+  const resend = resendClient();
+
+  if (!resend) {
+    console.info("[mail] RESEND_API_KEY unset — admin chat email skipped (dev)", {
+      to: input.to,
+      chatUrl,
+    });
+    return { sent: false as const, reason: "no_api_key" as const, chatUrl };
+  }
+
+  const preview = input.preview?.trim();
+  await resend.emails.send({
+    from: studioChatFrom(),
+    to: input.to,
+    subject: `${brand.shortName} wants to chat — Arsalan Studio`,
+    text: [
+      `Hi ${input.name},`,
+      "",
+      `${brand.name} started a conversation with you on the studio site.`,
+      preview ? `Message: ${preview}` : null,
+      "",
+      "Open Messages to reply:",
+      chatUrl,
+      "",
+      `— ${brand.name}`,
+      brand.studioEmail,
+    ]
+      .filter((line) => line !== null)
+      .join("\n"),
+    html: `
+      <p>Hi ${escapeHtml(input.name)},</p>
+      <p>${escapeHtml(brand.name)} started a conversation with you on the studio site.</p>
+      ${
+        preview
+          ? `<p style="color:#333">${escapeHtml(preview)}</p>`
+          : ""
+      }
+      <p><a href="${chatUrl}">Open Messages</a></p>
+      <p style="color:#666;font-size:14px">Or paste this link:<br/>${chatUrl}</p>
+      <p>— ${escapeHtml(brand.name)}<br/>${escapeHtml(brand.studioEmail)}</p>
+    `,
+  });
+  return { sent: true as const, chatUrl };
 }
 
 function escapeHtml(s: string) {

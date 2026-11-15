@@ -1,5 +1,6 @@
 import { AlsoLiveStrip } from "@/components/AlsoLiveStrip";
 import { AppLaunchSection } from "@/components/AppLaunchSection";
+import { CapacityStatus } from "@/components/CapacityStatus";
 import { CaseStudiesSection } from "@/components/CaseStudiesSection";
 import { ContactForm } from "@/components/ContactForm";
 import { FaqSection } from "@/components/FaqSection";
@@ -24,6 +25,7 @@ export default function HomePage() {
       />
       <Hero />
       <TrustStrip />
+      <CapacityStatus />
       <OffersSection />
       <AlsoLiveStrip />
       <CaseStudiesSection mode="home" />

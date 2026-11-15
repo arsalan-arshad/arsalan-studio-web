@@ -21,7 +21,7 @@ export function HowItWorks() {
     <section id="how" className="section-pad border-t border-line scroll-mt-20">
       <div className="mx-auto max-w-6xl">
         <p className="eyebrow">How it works</p>
-        <h2 className="section-title mt-3">Browse → inquire → daily chat</h2>
+        <h2 className="section-title mt-3">Browse → brief → talk daily</h2>
         <p className="mt-4 max-w-xl text-muted">
           Web for discovery and briefs. One ongoing thread for the work —
           not a ticket portal staffed by strangers.

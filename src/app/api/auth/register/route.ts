@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/auth-helpers";
 import { issueAndSendVerification } from "@/lib/email-verification";
+import { locationFromHeaders } from "@/lib/geo";
 import {
   clientMetaFromRequest,
   issueTokenBundle,
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(body.password, 12);
+    const geo = locationFromHeaders(request.headers);
     const user = await prisma.user.create({
       data: {
         email,
@@ -37,6 +39,8 @@ export async function POST(request: Request) {
         passwordHash,
         role: "CLIENT",
         emailVerified: null,
+        country: geo.country,
+        city: geo.city,
       },
     });
 

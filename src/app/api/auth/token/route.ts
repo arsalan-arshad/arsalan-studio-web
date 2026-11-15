@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/auth-helpers";
+import { enrichUserLocationIfEmpty } from "@/lib/geo";
 import {
   clientMetaFromRequest,
   issueTokenBundle,
@@ -32,6 +33,10 @@ export async function POST(request: Request) {
         { status: 401 },
       );
     }
+
+    void enrichUserLocationIfEmpty(user.id, request).catch((err) =>
+      console.error("[token] geo enrich failed", err),
+    );
 
     const bundle = await issueTokenBundle(user, clientMetaFromRequest(request));
 

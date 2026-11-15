@@ -29,10 +29,20 @@ export async function GET(request: Request) {
       role: true,
       active: true,
       emailVerified: true,
+      country: true,
+      city: true,
       createdAt: true,
       passwordHash: true,
       accounts: {
         select: { provider: true },
+      },
+      threads: {
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          reminderEmailSentAt: true,
+        },
       },
       _count: { select: { threads: true } },
     },
@@ -48,19 +58,25 @@ export async function GET(request: Request) {
       const hasPassword = Boolean(u.passwordHash);
       const hasGoogle = u.accounts.some((a) => a.provider === "google");
       const accountType = accountTypeFrom(hasPassword, hasGoogle);
+      const latestThread = u.threads[0] ?? null;
       return {
         id: u.id,
         name: u.name,
         email: u.email,
         role: u.role,
         active: u.active,
-        emailVerified: u.emailVerified,
-        createdAt: u.createdAt,
+        emailVerified: u.emailVerified?.toISOString() ?? null,
+        country: u.country,
+        city: u.city,
+        createdAt: u.createdAt.toISOString(),
         hasPassword,
         hasGoogle,
         accountType,
         accountTypeLabel: accountTypeLabel(accountType),
         threadCount: u._count.threads,
+        threadId: latestThread?.id ?? null,
+        reminderEmailSentAt:
+          latestThread?.reminderEmailSentAt?.toISOString() ?? null,
       };
     }),
   });
@@ -148,7 +164,9 @@ export async function POST(request: Request) {
         email: user.email,
         role: user.role,
         emailVerified: user.emailVerified,
-        createdAt: user.createdAt,
+        country: user.country,
+        city: user.city,
+        createdAt: user.createdAt.toISOString(),
         hasPassword: false,
         hasGoogle: false,
         accountType: "none" as const,

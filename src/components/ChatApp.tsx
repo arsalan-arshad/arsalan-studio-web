@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { useEventSource } from "@/hooks/useEventSource";
 
@@ -30,7 +30,8 @@ type ThreadDetail = {
   id: string;
   subject: string;
   status: string;
-  client: { name: string; email: string };
+  reminderEmailSentAt?: string | null;
+  client: { id?: string; name: string; email: string };
   messages: Message[];
 };
 
@@ -76,8 +77,11 @@ function AttachmentBlock({ url, name }: { url: string; name: string }) {
 export function ChatApp() {
   const { data: session, status } = useSession();
   const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const threadFromUrl = params.get("thread");
   const [threads, setThreads] = useState<ThreadListItem[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(params.get("thread"));
+  const [activeId, setActiveId] = useState<string | null>(threadFromUrl);
   const [thread, setThread] = useState<ThreadDetail | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [replyFile, setReplyFile] = useState<File | null>(null);
@@ -85,10 +89,26 @@ export function ChatApp() {
   const [newSubject, setNewSubject] = useState("");
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [reminding, setReminding] = useState(false);
   const isAdmin = session?.user?.role === "ADMIN";
   const isSubAdmin = session?.user?.role === "SUB_ADMIN";
   const emailVerified =
     isAdmin || isSubAdmin || Boolean(session?.user?.isEmailVerified);
+
+  const selectThread = useCallback(
+    (id: string | null) => {
+      setActiveId(id);
+      setThread(null);
+      setError("");
+      setNotice("");
+      const next = id
+        ? `${pathname}?thread=${encodeURIComponent(id)}`
+        : pathname;
+      router.replace(next, { scroll: false });
+    },
+    [pathname, router],
+  );
 
   const loadThreads = useCallback(async () => {
     const res = await fetch("/api/threads");
@@ -101,7 +121,20 @@ export function ChatApp() {
     const res = await fetch(`/api/threads/${id}`);
     const data = await res.json();
     if (res.ok) setThread(data.thread);
+    else {
+      setThread(null);
+      setError(data.error || "Could not load thread");
+    }
   }, []);
+
+  // Keep selection in sync with ?thread= (admin Start/Open, email deep links, soft nav).
+  useEffect(() => {
+    if (!threadFromUrl) return;
+    if (threadFromUrl === activeId) return;
+    setActiveId(threadFromUrl);
+    setThread(null);
+    setError("");
+  }, [threadFromUrl, activeId]);
 
   useEffect(() => {
     if (status === "authenticated" && emailVerified) loadThreads();
@@ -140,7 +173,39 @@ export function ChatApp() {
     setNewSubject("");
     setNewBody("");
     await loadThreads();
-    setActiveId(data.thread.id);
+    selectThread(data.thread.id);
+  }
+
+  async function sendReminder() {
+    if (!activeId || !isAdmin || !thread) return;
+    if (thread.reminderEmailSentAt) return;
+    setReminding(true);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/threads/${activeId}/reminder`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not send reminder");
+        return;
+      }
+      if (data.alreadySent || data.emailSent) {
+        setNotice(
+          data.alreadySent
+            ? "Reminder was already sent for this thread."
+            : "Reminder email sent.",
+        );
+        await loadThread(activeId);
+      } else {
+        setNotice("Reminder not sent (check RESEND_API_KEY). Flag was not set.");
+      }
+    } catch {
+      setError("Could not send reminder");
+    } finally {
+      setReminding(false);
+    }
   }
 
   async function sendMessage(e: FormEvent) {
@@ -265,7 +330,7 @@ export function ChatApp() {
             <li key={t.id}>
               <button
                 type="button"
-                onClick={() => setActiveId(t.id)}
+                onClick={() => selectThread(t.id)}
                 className={`w-full rounded-sm border px-3 py-2 text-left text-sm ${
                   activeId === t.id
                     ? "border-accent bg-accent-wash"
@@ -330,7 +395,7 @@ export function ChatApp() {
                 </p>
               </div>
               {isAdmin ? (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {(["NEW", "ACTIVE", "CLOSED"] as const).map((s) => (
                     <button
                       key={s}
@@ -341,9 +406,31 @@ export function ChatApp() {
                       {s}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className="btn-ghost !px-2 !py-1 text-xs disabled:opacity-40"
+                    disabled={Boolean(thread.reminderEmailSentAt) || reminding}
+                    title={
+                      thread.reminderEmailSentAt
+                        ? "One-time reminder already sent"
+                        : "Email the client to rejoin this chat"
+                    }
+                    onClick={() => void sendReminder()}
+                  >
+                    {reminding
+                      ? "Sending…"
+                      : thread.reminderEmailSentAt
+                        ? "Reminder sent"
+                        : "Send reminder"}
+                  </button>
                 </div>
               ) : null}
             </div>
+            {notice ? (
+              <p className="mt-2 text-sm text-ink rounded-sm border border-accent/40 bg-accent-wash px-3 py-2">
+                {notice}
+              </p>
+            ) : null}
             <div className="flex-1 space-y-3 overflow-y-auto py-4">
               {thread.messages.map((m) => (
                 <div

@@ -1,5 +1,6 @@
 import { upsertGoogleUser } from "@/lib/auth";
 import { toPublicUser } from "@/lib/auth-helpers";
+import { enrichUserLocationIfEmpty } from "@/lib/geo";
 import {
   clientMetaFromRequest,
   issueTokenBundle,
@@ -91,6 +92,10 @@ export async function POST(request: Request) {
       providerAccountId: info.sub!,
       id_token: body.idToken,
     });
+
+    void enrichUserLocationIfEmpty(user.id, request).catch((err) =>
+      console.error("[auth/google] geo enrich failed", err),
+    );
 
     const bundle = await issueTokenBundle(user, clientMetaFromRequest(request));
 

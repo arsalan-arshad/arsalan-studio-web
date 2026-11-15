@@ -1,10 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { consumeBootstrapToken } from "@/lib/email-verification";
+import { enrichUserLocationIfEmpty } from "@/lib/geo";
 import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import type { Role } from "@prisma/client";
+
+async function maybeEnrichLocation(userId: string) {
+  try {
+    const h = await headers();
+    await enrichUserLocationIfEmpty(userId, h);
+  } catch (err) {
+    console.error("[auth] geo enrich failed", err);
+  }
+}
 
 function sessionUserFromDb(user: {
   id: string;
@@ -127,6 +138,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (bootstrapToken) {
           const user = await consumeBootstrapToken(bootstrapToken);
           if (!user || !isActiveUser(user)) return null;
+          void maybeEnrichLocation(user.id);
           return sessionUserFromDb(user);
         }
 
@@ -142,6 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
 
+        void maybeEnrichLocation(user.id);
         return sessionUserFromDb(user);
       },
     }),
@@ -185,6 +198,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!isActiveUser(dbUser)) {
         return "/login?error=AccountInactive";
       }
+      void maybeEnrichLocation(dbUser.id);
       user.id = dbUser.id;
       user.role = dbUser.role;
       user.email = dbUser.email;

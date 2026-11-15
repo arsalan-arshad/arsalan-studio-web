@@ -261,6 +261,54 @@ export async function sendAdminStartedChatEmail(input: {
   return { sent: true as const, chatUrl };
 }
 
+/**
+ * One-time reminder when admin has replied in chat but the client
+ * has not returned — deep-links into the existing thread.
+ */
+export async function sendChatReminderEmail(input: {
+  to: string;
+  name: string;
+  threadId: string;
+}) {
+  const chatUrl = `${siteBaseUrl()}/chat?thread=${encodeURIComponent(input.threadId)}`;
+  const resend = resendClient();
+
+  if (!resend) {
+    console.info("[mail] RESEND_API_KEY unset — chat reminder email skipped (dev)", {
+      to: input.to,
+      chatUrl,
+    });
+    return { sent: false as const, reason: "no_api_key" as const, chatUrl };
+  }
+
+  await resend.emails.send({
+    from: studioChatFrom(),
+    to: input.to,
+    subject: `I checked your chat query — please join — ${brand.shortName}`,
+    text: [
+      `Hi ${input.name},`,
+      "",
+      `I checked your chat query on ${brand.name}'s studio site and left a reply for you.`,
+      "Please join the conversation when you have a moment so we can continue.",
+      "",
+      "Open Messages:",
+      chatUrl,
+      "",
+      `— ${brand.name}`,
+      brand.studioEmail,
+    ].join("\n"),
+    html: `
+      <p>Hi ${escapeHtml(input.name)},</p>
+      <p>I checked your chat query on ${escapeHtml(brand.name)}'s studio site and left a reply for you.</p>
+      <p>Please join the conversation when you have a moment so we can continue.</p>
+      <p><a href="${chatUrl}">Open Messages</a></p>
+      <p style="color:#666;font-size:14px">Or paste this link:<br/>${chatUrl}</p>
+      <p>— ${escapeHtml(brand.name)}<br/>${escapeHtml(brand.studioEmail)}</p>
+    `,
+  });
+  return { sent: true as const, chatUrl };
+}
+
 function escapeHtml(s: string) {
   return s
     .replace(/&/g, "&amp;")

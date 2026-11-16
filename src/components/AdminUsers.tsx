@@ -303,6 +303,14 @@ export function AdminUsers() {
             <Link href="/admin" className="text-accent hover:underline">
               ← Studio desk
             </Link>
+            {canDelete ? (
+              <>
+                {" · "}
+                <Link href="/admin/email" className="text-accent hover:underline">
+                  Send email
+                </Link>
+              </>
+            ) : null}
             {" · "}
             <Link href="/admin/settings" className="text-accent hover:underline">
               Password

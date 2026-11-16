@@ -4,7 +4,8 @@ export const brand = {
   shortName: "Arsalan",
   tagline:
     "Shopify and Salesforce apps, mobile and web products — built and shipped by one engineer.",
-  email: "arsalanarshad.dev@gmail.com",
+  /** Public contact address (mailto, footer, privacy, SEO) */
+  email: "contact@arsalandev.studio",
   /** Studio chat / outreach From address */
   studioEmail: "hello@arsalandev.studio",
   /** Primary domain */

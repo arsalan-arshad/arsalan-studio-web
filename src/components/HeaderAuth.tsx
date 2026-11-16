@@ -44,9 +44,14 @@ export function HeaderAuth() {
             {isAdmin(role) ? "Admin" : "Support"}
           </Link>
           {isAdmin(role) ? (
-            <Link href="/admin/users" className="btn-ghost !px-2.5 !py-1.5 text-sm">
-              Users
-            </Link>
+            <>
+              <Link href="/admin/users" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+                Users
+              </Link>
+              <Link href="/admin/email" className="btn-ghost !px-2.5 !py-1.5 text-sm">
+                Email
+              </Link>
+            </>
           ) : (
             <Link href="/admin/users" className="btn-ghost !px-2.5 !py-1.5 text-sm">
               Invite

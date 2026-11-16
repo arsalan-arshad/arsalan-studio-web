@@ -1,5 +1,13 @@
 import { Resend } from "resend";
+import type { AdminEmailFromAddress } from "@/lib/admin-email";
 import { brand } from "@/lib/brand";
+
+export {
+  ADMIN_EMAIL_FROM_ADDRESSES,
+  ADMIN_EMAIL_MAX_ATTACHMENT_BYTES,
+  isAdminEmailFromAddress,
+  type AdminEmailFromAddress,
+} from "@/lib/admin-email";
 
 function emailFrom() {
   const raw =
@@ -315,4 +323,68 @@ function escapeHtml(s: string) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+export type AdminEmailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+};
+
+/**
+ * Generic admin-composed email via Resend.
+ * `from` must be one of the addresses in `@/lib/admin-email`.
+ */
+export async function sendAdminEmail(input: {
+  from: AdminEmailFromAddress;
+  to: string[];
+  subject: string;
+  text: string;
+  html?: string;
+  attachments?: AdminEmailAttachment[];
+}) {
+  const resend = resendClient();
+  if (!resend) {
+    console.info("[mail] RESEND_API_KEY unset — admin email skipped (dev)", {
+      from: input.from,
+      toCount: input.to.length,
+      subject: input.subject,
+      attachmentCount: input.attachments?.length ?? 0,
+    });
+    return { sent: false as const, reason: "no_api_key" as const };
+  }
+
+  const from = `Arsalan Studio <${input.from}>`;
+  const html =
+    input.html ??
+    `<pre style="font-family:inherit;white-space:pre-wrap">${escapeHtml(input.text)}</pre>`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: input.to,
+    subject: input.subject,
+    text: input.text,
+    html,
+    attachments: input.attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content,
+      contentType: a.contentType,
+    })),
+  });
+
+  if (error) {
+    console.error("[mail] admin email failed", {
+      from: input.from,
+      toCount: input.to.length,
+      message: error.message,
+      name: error.name,
+    });
+    return {
+      sent: false as const,
+      reason: "send_failed" as const,
+      message: error.message,
+    };
+  }
+
+  return { sent: true as const, id: data?.id };
 }

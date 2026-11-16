@@ -32,6 +32,8 @@ model User {
   /** Null for Google-only accounts (no local password). */
   passwordHash  String?
   name          String
+  /** Google OAuth profile picture URL when signed in with Google. */
+  image         String?
   role          Role                     @default(CLIENT)
   /** When false, credentials / Google / Bearer auth are rejected. */
   active        Boolean                  @default(true)
@@ -42,6 +44,10 @@ model User {
    */
   country       String?
   city          String?
+  /** Set on successful signup / login (web + mobile token / Google). */
+  lastLoginAt   DateTime?
+  /** Heartbeat while Messages (or presence ping) is open — used for online dot. */
+  lastSeenAt    DateTime?
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt
   threads       Thread[]                 @relation("ClientThreads")

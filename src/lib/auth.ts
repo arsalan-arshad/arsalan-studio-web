@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { consumeBootstrapToken } from "@/lib/email-verification";
 import { enrichUserLocationIfEmpty } from "@/lib/geo";
+import { touchLastLogin } from "@/lib/presence";
 import bcrypt from "bcryptjs";
 import { headers } from "next/headers";
 import NextAuth from "next-auth";
@@ -15,6 +16,12 @@ async function maybeEnrichLocation(userId: string) {
   } catch (err) {
     console.error("[auth] geo enrich failed", err);
   }
+}
+
+function maybeTouchLogin(userId: string) {
+  void touchLastLogin(userId).catch((err) =>
+    console.error("[auth] lastLogin touch failed", err),
+  );
 }
 
 function sessionUserFromDb(user: {
@@ -42,6 +49,7 @@ function isActiveUser(user: { active?: boolean } | null | undefined) {
 export async function upsertGoogleUser(input: {
   email: string;
   name?: string | null;
+  image?: string | null;
   providerAccountId: string;
   access_token?: string | null;
   refresh_token?: string | null;
@@ -51,6 +59,10 @@ export async function upsertGoogleUser(input: {
   token_type?: string | null;
 }) {
   const email = input.email.trim().toLowerCase();
+  const image =
+    typeof input.image === "string" && input.image.startsWith("https://")
+      ? input.image.slice(0, 500)
+      : null;
   let user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
@@ -58,16 +70,19 @@ export async function upsertGoogleUser(input: {
       data: {
         email,
         name: (input.name || email.split("@")[0] || "Client").slice(0, 120),
+        image,
         passwordHash: null,
         role: "CLIENT",
         emailVerified: new Date(),
       },
     });
-  } else if (!user.emailVerified) {
-    user = await prisma.user.update({
-      where: { id: user.id },
-      data: { emailVerified: new Date() },
-    });
+  } else {
+    const data: { emailVerified?: Date; image?: string } = {};
+    if (!user.emailVerified) data.emailVerified = new Date();
+    if (image && image !== user.image) data.image = image;
+    if (Object.keys(data).length) {
+      user = await prisma.user.update({ where: { id: user.id }, data });
+    }
   }
 
   await prisma.account.upsert({
@@ -139,6 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = await consumeBootstrapToken(bootstrapToken);
           if (!user || !isActiveUser(user)) return null;
           void maybeEnrichLocation(user.id);
+          maybeTouchLogin(user.id);
           return sessionUserFromDb(user);
         }
 
@@ -155,6 +171,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!ok) return null;
 
         void maybeEnrichLocation(user.id);
+        maybeTouchLogin(user.id);
         return sessionUserFromDb(user);
       },
     }),
@@ -184,9 +201,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return "/login?error=AccountInactive";
       }
 
+      const picture =
+        (profile as { picture?: string } | undefined)?.picture ||
+        user.image ||
+        null;
       const dbUser = await upsertGoogleUser({
         email,
         name: user.name,
+        image: picture,
         providerAccountId: account.providerAccountId,
         access_token: account.access_token,
         refresh_token: account.refresh_token,
@@ -199,6 +221,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return "/login?error=AccountInactive";
       }
       void maybeEnrichLocation(dbUser.id);
+      maybeTouchLogin(dbUser.id);
       user.id = dbUser.id;
       user.role = dbUser.role;
       user.email = dbUser.email;

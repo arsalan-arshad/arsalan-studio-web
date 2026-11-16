@@ -1,6 +1,7 @@
 import { upsertGoogleUser } from "@/lib/auth";
 import { toPublicUser } from "@/lib/auth-helpers";
 import { enrichUserLocationIfEmpty } from "@/lib/geo";
+import { touchLastLogin } from "@/lib/presence";
 import {
   clientMetaFromRequest,
   issueTokenBundle,
@@ -18,6 +19,7 @@ type GoogleTokenInfo = {
   email?: string;
   email_verified?: string | boolean;
   name?: string;
+  picture?: string;
   iss?: string;
 };
 
@@ -89,12 +91,16 @@ export async function POST(request: Request) {
     const user = await upsertGoogleUser({
       email: info.email!,
       name: info.name,
+      image: info.picture ?? null,
       providerAccountId: info.sub!,
       id_token: body.idToken,
     });
 
     void enrichUserLocationIfEmpty(user.id, request).catch((err) =>
       console.error("[auth/google] geo enrich failed", err),
+    );
+    void touchLastLogin(user.id).catch((err) =>
+      console.error("[auth/google] lastLogin touch failed", err),
     );
 
     const bundle = await issueTokenBundle(user, clientMetaFromRequest(request));

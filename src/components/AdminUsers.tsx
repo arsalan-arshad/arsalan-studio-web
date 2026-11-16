@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { UserAvatar } from "@/components/UserAvatar";
 import { formatUserLocation } from "@/lib/format-location";
+import { formatLastSeen, isUserOnline } from "@/lib/format-presence";
 import { canDeactivateTarget, roleLabel, type AppRole } from "@/lib/roles";
 
 type AccountType = "password" | "google" | "both" | "none";
@@ -18,6 +20,9 @@ type AdminUserRow = {
   emailVerified: string | null;
   country?: string | null;
   city?: string | null;
+  image?: string | null;
+  lastLoginAt?: string | null;
+  lastSeenAt?: string | null;
   createdAt: string;
   hasPassword: boolean;
   hasGoogle?: boolean;
@@ -370,7 +375,7 @@ export function AdminUsers() {
         <p className="mt-8 text-sm text-muted">Loading users…</p>
       ) : (
         <div className="mt-8 overflow-x-auto border border-line bg-bg-elevated">
-          <table className="w-full min-w-[60rem] text-left text-sm">
+          <table className="w-full min-w-[68rem] text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th className="px-3 py-2 font-semibold">Name</th>
@@ -379,7 +384,7 @@ export function AdminUsers() {
                 <th className="px-3 py-2 font-semibold">Sign-in</th>
                 <th className="px-3 py-2 font-semibold">Role</th>
                 <th className="px-3 py-2 font-semibold">Status</th>
-                <th className="px-3 py-2 font-semibold">Verified</th>
+                <th className="px-3 py-2 font-semibold">Last login</th>
                 <th className="px-3 py-2 font-semibold">Created</th>
                 <th className="px-3 py-2 font-semibold"> </th>
               </tr>
@@ -396,9 +401,27 @@ export function AdminUsers() {
                 const reminderSent = Boolean(u.reminderEmailSentAt);
                 const hasActions = toggleable || canDelete || canMessage;
                 const location = formatUserLocation(u);
+                const online = isUserOnline(u.lastSeenAt);
                 return (
                   <tr key={u.id} className="hover:bg-bg">
-                    <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
+                    <td className="px-3 py-2.5 font-medium text-ink">
+                      <span className="inline-flex items-center gap-2">
+                        <UserAvatar
+                          name={u.name}
+                          image={u.image}
+                          lastSeenAt={u.lastSeenAt}
+                          showPresence
+                        />
+                        <span>
+                          {u.name}
+                          {online ? (
+                            <span className="mt-0.5 block text-[11px] font-normal text-[color:var(--sage)]">
+                              Online
+                            </span>
+                          ) : null}
+                        </span>
+                      </span>
+                    </td>
                     <td className="px-3 py-2.5 text-muted">{u.email}</td>
                     <td
                       className="px-3 py-2.5 text-muted"
@@ -423,10 +446,16 @@ export function AdminUsers() {
                         {u.active ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-muted">
-                      {u.emailVerified
-                        ? new Date(u.emailVerified).toLocaleDateString()
-                        : "—"}
+                    <td
+                      className="px-3 py-2.5 whitespace-nowrap text-muted"
+                      title={u.lastLoginAt ?? undefined}
+                    >
+                      {u.lastLoginAt ? formatCreatedAt(u.lastLoginAt) : "—"}
+                      {u.lastSeenAt && !online ? (
+                        <span className="mt-0.5 block text-[11px]">
+                          {formatLastSeen(u.lastSeenAt)}
+                        </span>
+                      ) : null}
                     </td>
                     <td
                       className="px-3 py-2.5 whitespace-nowrap text-muted"

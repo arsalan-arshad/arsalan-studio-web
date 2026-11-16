@@ -32,6 +32,7 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(body.password, 12);
     const geo = locationFromHeaders(request.headers);
+    const now = new Date();
     const user = await prisma.user.create({
       data: {
         email,
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
         emailVerified: null,
         country: geo.country,
         city: geo.city,
+        lastLoginAt: now,
+        lastSeenAt: now,
       },
     });
 

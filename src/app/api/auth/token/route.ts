@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/auth-helpers";
 import { enrichUserLocationIfEmpty } from "@/lib/geo";
+import { touchLastLogin } from "@/lib/presence";
 import {
   clientMetaFromRequest,
   issueTokenBundle,
@@ -36,6 +37,9 @@ export async function POST(request: Request) {
 
     void enrichUserLocationIfEmpty(user.id, request).catch((err) =>
       console.error("[token] geo enrich failed", err),
+    );
+    void touchLastLogin(user.id).catch((err) =>
+      console.error("[token] lastLogin touch failed", err),
     );
 
     const bundle = await issueTokenBundle(user, clientMetaFromRequest(request));

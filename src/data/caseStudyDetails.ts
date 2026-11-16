@@ -109,6 +109,49 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
       note: "Public GitHub — github.com/arsalan-arshad/pathwise. Issues and PRs welcome; synthetic benchmarks are labeled honestly.",
     },
   },
+  gatekeeper: {
+    summary:
+      "Open-source AI principal: a person's front door for inbound requests. Humans and agents pitch you; Gatekeeper judges against your plain-English rules, blocks spam, and only delivers double-opt-in intros — with a public ledger as its reputation.",
+    problem:
+      "Inbound is noisy. Founders and hiring managers get cold pitches from humans and AI agents with no shared reputation layer. Saying yes/no by hand doesn't scale; a silent auto-accept path invites spam and bad fits.",
+    solution:
+      "Anyone who wants to reach you sends a request to your Gatekeeper. An embedding + LLM judge scores relevance against your published gate rules, rejects spam/deal-breakers (with a public reason and suggested rewrite), and only advances accept-path requests into a double-opt-in intro. A public ledger (requests, accept rate, spam blocked, helpful ratings) is the principal's reputation — inspired by the “Principals” framing that agents are untrusted until they earn trust.",
+    audience:
+      "Indie SaaS founders and remote tech hiring worldwide who want an AI front door that can say no — without hiding how it behaves.",
+    usage: [
+      "Hosted: https://gatekeeper.arsalandev.studio/ — open /start, magic-link onboarding, write plain-English gate rules, publish /@handle.",
+      "Or self-host: clone https://github.com/arsalan-arshad/gatekeeper — Node ≥ 20, pnpm 9; set DATABASE_URL and LLM keys.",
+      "pnpm install && pnpm --filter @gatekeeper/db db:migrate && pnpm dev (API :4000, web :3000).",
+      "Agents/humans POST /v1/requests (Bearer key); Accept/Decline emails complete the double opt-in; /ledger shows reputation.",
+    ],
+    stack: [
+      "Node.js + TypeScript + Fastify (API)",
+      "Next.js + Tailwind (web)",
+      "Postgres + pgvector + Drizzle ORM",
+      "Gemini Flash (+ embeddings) with Groq / xAI fallbacks",
+      "Resend email · Auth.js magic links",
+      "AGPL-3.0",
+    ],
+    architecture: [
+      "Monorepo: apps/api, apps/web, packages/db",
+      "judgeRequest — embed inbound message, cosine vs profile, LLM strict JSON, min_relevance + deal-breakers; sanitize reason_public",
+      "Double opt-in — accept → delivered → receiver Accept/Decline (signed, 72h) → intro email or decline",
+      "Public ledger — global + per-handle stats; trust = helpful ratings / delivered intros",
+      "Agent API — OpenAPI + llms.txt, per-key hourly limits, abuse / rate-limit events",
+    ],
+    features: [
+      "Plain-English gate rules with publishable public profile",
+      "Spam / bad-fit rejection with suggested rewrite",
+      "Double-opt-in intros only — no silent auto-connect",
+      "Public ledger as reputation",
+      "Agent-friendly API (keys, OpenAPI, llms.txt)",
+      "Optional payments / stakes (feature-flagged; off by default)",
+    ],
+    openSource: {
+      license: "AGPL-3.0",
+      note: "Public GitHub — https://github.com/arsalan-arshad/gatekeeper. Hosted at https://gatekeeper.arsalandev.studio/. Contributions welcome.",
+    },
+  },
   "ai-forecast-agent": {
     summary:
       "Embedded Shopify app that forecasts inventory with auditable math, then lets a BYOK AI co-pilot explain those numbers — never invent them.",

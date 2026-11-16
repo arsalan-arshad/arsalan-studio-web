@@ -56,6 +56,19 @@ export const caseStudies: CaseStudy[] = [
     iconSrc: "/brands/ai/pathwise/icon.png",
     bannerSrc: "/brands/ai/pathwise/banner.png",
   },
+  {
+    id: "gatekeeper",
+    title: "Gatekeeper",
+    category: "ai",
+    status: "live",
+    blurb:
+      "Open-source AI principal — your front door for inbound requests. Plain-English rules, double-opt-in intros, public ledger reputation. AGPL.",
+    liveHref: "https://gatekeeper.arsalandev.studio/",
+    liveLabel: "Live",
+    githubHref: "https://github.com/arsalan-arshad/gatekeeper",
+    iconSrc: "/brands/ai/gatekeeper/icon.png",
+    bannerSrc: "/brands/ai/gatekeeper/banner.png",
+  },
   // Shopify — listOrder keeps Protocols #2 after the live forecast app
   {
     id: "ai-forecast-agent",

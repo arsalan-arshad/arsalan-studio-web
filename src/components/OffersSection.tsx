@@ -1,19 +1,25 @@
 import Link from "next/link";
 import { offers } from "@/data/offers";
+import { capacityStatusCopy } from "@/lib/brand";
 
 export function OffersSection() {
   return (
     <section id="offers" className="section-pad border-t border-line scroll-mt-20">
+      
       <div className="mx-auto max-w-6xl">
+        
         <p className="eyebrow">Offers</p>
         <h2 className="section-title mt-3 max-w-2xl">What I build</h2>
+        
         <p className="mt-4 max-w-2xl text-muted">
           Fixed scope client work — outcomes and craft, not a SKU menu. Written
           exclusions, acceptance tests. You work with me directly. Most product
           work is <span className="text-ink">open source (MIT)</span> and open
           for PRs when we publish recipes.
         </p>
-
+<p className="mt-6 border-l-2 border-accent pl-3 text-sm leading-relaxed text-muted" role="note">
+          {capacityStatusCopy()}
+         </p>
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
           {offers.map((offer) => (
             <article key={offer.id} className="border-t border-line pt-6">
@@ -41,6 +47,7 @@ export function OffersSection() {
             </article>
           ))}
         </div>
+        
       </div>
     </section>
   );

@@ -110,6 +110,11 @@ export function AdminDesk() {
           <Link href="/admin/users" className="btn-primary !py-2 text-sm">
             Manage users
           </Link>
+          {admin ? (
+            <Link href="/admin/email" className="btn-ghost !py-2 text-sm">
+              Send email
+            </Link>
+          ) : null}
           <Link href="/admin/settings" className="btn-ghost !py-2 text-sm">
             Password
           </Link>

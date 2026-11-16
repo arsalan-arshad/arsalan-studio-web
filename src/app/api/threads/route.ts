@@ -6,10 +6,20 @@ import {
   unauthorized,
 } from "@/lib/auth-helpers";
 import { safeDecryptBody, sealedMessageFields } from "@/lib/chat-crypto";
+import { isUserOnline } from "@/lib/format-presence";
+import { getStudioPresence } from "@/lib/presence";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+
+const clientPresenceSelect = {
+  id: true,
+  name: true,
+  email: true,
+  image: true,
+  lastSeenAt: true,
+} as const;
 
 export async function GET(request: Request) {
   const user = await getSessionUser(request);
@@ -20,11 +30,12 @@ export async function GET(request: Request) {
   const unverified = requireVerifiedEmail(user);
   if (unverified) return unverified;
 
-  const threads = isAdmin(user.role)
+  const admin = isAdmin(user.role);
+  const threads = admin
     ? await prisma.thread.findMany({
         orderBy: { updatedAt: "desc" },
         include: {
-          client: { select: { id: true, name: true, email: true } },
+          client: { select: clientPresenceSelect },
           messages: {
             orderBy: { createdAt: "desc" },
             take: 1,
@@ -42,7 +53,7 @@ export async function GET(request: Request) {
         where: { clientId: user.id },
         orderBy: { updatedAt: "desc" },
         include: {
-          client: { select: { id: true, name: true, email: true } },
+          client: { select: clientPresenceSelect },
           messages: {
             orderBy: { createdAt: "desc" },
             take: 1,
@@ -57,15 +68,26 @@ export async function GET(request: Request) {
         },
       });
 
+  const studioPresence = admin ? null : await getStudioPresence();
+
   const decrypted = threads.map((t) => ({
     ...t,
+    client: {
+      ...t.client,
+      lastSeenAt: t.client.lastSeenAt?.toISOString() ?? null,
+      online: isUserOnline(t.client.lastSeenAt),
+    },
     messages: t.messages.map((m) => ({
       body: safeDecryptBody(m),
       createdAt: m.createdAt,
     })),
   }));
 
-  return NextResponse.json({ ok: true, threads: decrypted });
+  return NextResponse.json({
+    ok: true,
+    threads: decrypted,
+    studioPresence,
+  });
 }
 
 const createSchema = z.object({

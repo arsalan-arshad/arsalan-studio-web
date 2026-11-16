@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { UserAvatar } from "@/components/UserAvatar";
+import { formatUserLocation } from "@/lib/format-location";
+import { formatLastSeen, isUserOnline } from "@/lib/format-presence";
 import { canDeactivateTarget, roleLabel, type AppRole } from "@/lib/roles";
 
 type AccountType = "password" | "google" | "both" | "none";
@@ -15,13 +18,32 @@ type AdminUserRow = {
   role: AppRole;
   active: boolean;
   emailVerified: string | null;
+  country?: string | null;
+  city?: string | null;
+  image?: string | null;
+  lastLoginAt?: string | null;
+  lastSeenAt?: string | null;
   createdAt: string;
   hasPassword: boolean;
   hasGoogle?: boolean;
   accountType?: AccountType;
   accountTypeLabel?: string;
   threadCount?: number;
+  threadId?: string | null;
+  reminderEmailSentAt?: string | null;
 };
+
+function formatCreatedAt(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 function accountBadge(u: AdminUserRow) {
   const type = u.accountType ?? (u.hasPassword ? "password" : "none");
@@ -67,6 +89,7 @@ export function AdminUsers() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [startingId, setStartingId] = useState<string | null>(null);
+  const [remindingId, setRemindingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError("");
@@ -174,6 +197,11 @@ export function AdminUsers() {
         setError(data.error || "Could not start conversation");
         return;
       }
+      const threadId = typeof data.threadId === "string" ? data.threadId : null;
+      if (!threadId) {
+        setError("Conversation started but no thread id was returned");
+        return;
+      }
       if (data.created) {
         setNotice(
           data.emailSent
@@ -181,11 +209,44 @@ export function AdminUsers() {
             : `Started conversation with ${user.email}. Email skipped (check RESEND_API_KEY).`,
         );
       }
-      router.push(`/chat?thread=${encodeURIComponent(data.threadId)}`);
+      router.push(`/chat?thread=${encodeURIComponent(threadId)}`);
     } catch {
       setError("Could not start conversation");
     } finally {
       setStartingId(null);
+    }
+  }
+
+  async function onSendReminder(user: AdminUserRow) {
+    if (!canStartConversation || user.role !== "CLIENT" || !user.active) return;
+    if (!user.threadId) return;
+    if (user.reminderEmailSentAt) return;
+    setRemindingId(user.id);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/reminder`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not send reminder");
+        return;
+      }
+      if (data.alreadySent) {
+        setNotice(`Reminder was already sent to ${user.email}.`);
+      } else if (data.emailSent) {
+        setNotice(`Reminder email sent to ${user.email}.`);
+      } else {
+        setNotice(
+          `Reminder not sent for ${user.email} (check RESEND_API_KEY). Flag was not set.`,
+        );
+      }
+      await load();
+    } catch {
+      setError("Could not send reminder");
+    } finally {
+      setRemindingId(null);
     }
   }
 
@@ -238,6 +299,7 @@ export function AdminUsers() {
             {!canDelete
               ? "Support can invite CLIENT or SUB_ADMIN; only Admin can delete or deactivate."
               : "Admin can invite any role, deactivate Support/Client accounts, and delete users."}{" "}
+            Location fills from edge geo headers on signup/login when available.{" "}
             <Link href="/admin" className="text-accent hover:underline">
               ← Studio desk
             </Link>
@@ -313,15 +375,16 @@ export function AdminUsers() {
         <p className="mt-8 text-sm text-muted">Loading users…</p>
       ) : (
         <div className="mt-8 overflow-x-auto border border-line bg-bg-elevated">
-          <table className="w-full min-w-[52rem] text-left text-sm">
+          <table className="w-full min-w-[68rem] text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th className="px-3 py-2 font-semibold">Name</th>
                 <th className="px-3 py-2 font-semibold">Email</th>
+                <th className="px-3 py-2 font-semibold">Location</th>
                 <th className="px-3 py-2 font-semibold">Sign-in</th>
                 <th className="px-3 py-2 font-semibold">Role</th>
                 <th className="px-3 py-2 font-semibold">Status</th>
-                <th className="px-3 py-2 font-semibold">Verified</th>
+                <th className="px-3 py-2 font-semibold">Last login</th>
                 <th className="px-3 py-2 font-semibold">Created</th>
                 <th className="px-3 py-2 font-semibold"> </th>
               </tr>
@@ -334,12 +397,42 @@ export function AdminUsers() {
                   u.id !== selfId;
                 const canMessage =
                   canStartConversation && u.role === "CLIENT" && u.active;
-                const hasThread = (u.threadCount ?? 0) > 0;
+                const hasThread = Boolean(u.threadId) || (u.threadCount ?? 0) > 0;
+                const reminderSent = Boolean(u.reminderEmailSentAt);
                 const hasActions = toggleable || canDelete || canMessage;
+                const location = formatUserLocation(u);
+                const online = isUserOnline(u.lastSeenAt);
                 return (
                   <tr key={u.id} className="hover:bg-bg">
-                    <td className="px-3 py-2.5 font-medium text-ink">{u.name}</td>
+                    <td className="px-3 py-2.5 font-medium text-ink">
+                      <span className="inline-flex items-center gap-2">
+                        <UserAvatar
+                          name={u.name}
+                          image={u.image}
+                          lastSeenAt={u.lastSeenAt}
+                          showPresence
+                        />
+                        <span>
+                          {u.name}
+                          {online ? (
+                            <span className="mt-0.5 block text-[11px] font-normal text-[color:var(--sage)]">
+                              Online
+                            </span>
+                          ) : null}
+                        </span>
+                      </span>
+                    </td>
                     <td className="px-3 py-2.5 text-muted">{u.email}</td>
+                    <td
+                      className="px-3 py-2.5 text-muted"
+                      title={
+                        location
+                          ? [u.city, u.country].filter(Boolean).join(" · ")
+                          : "Blank until next signup/login with geo headers"
+                      }
+                    >
+                      {location ?? "—"}
+                    </td>
                     <td className="px-3 py-2.5">{accountBadge(u)}</td>
                     <td className="px-3 py-2.5 text-muted">{roleLabel(u.role)}</td>
                     <td className="px-3 py-2.5">
@@ -353,13 +446,22 @@ export function AdminUsers() {
                         {u.active ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-muted">
-                      {u.emailVerified
-                        ? new Date(u.emailVerified).toLocaleDateString()
-                        : "—"}
+                    <td
+                      className="px-3 py-2.5 whitespace-nowrap text-muted"
+                      title={u.lastLoginAt ?? undefined}
+                    >
+                      {u.lastLoginAt ? formatCreatedAt(u.lastLoginAt) : "—"}
+                      {u.lastSeenAt && !online ? (
+                        <span className="mt-0.5 block text-[11px]">
+                          {formatLastSeen(u.lastSeenAt)}
+                        </span>
+                      ) : null}
                     </td>
-                    <td className="px-3 py-2.5 text-muted">
-                      {new Date(u.createdAt).toLocaleDateString()}
+                    <td
+                      className="px-3 py-2.5 whitespace-nowrap text-muted"
+                      title={u.createdAt}
+                    >
+                      {formatCreatedAt(u.createdAt)}
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       <div className="flex flex-wrap items-center justify-end gap-2">
@@ -380,6 +482,27 @@ export function AdminUsers() {
                               : hasThread
                                 ? "Open chat"
                                 : "Start conversation"}
+                          </button>
+                        ) : null}
+                        {canMessage && hasThread ? (
+                          <button
+                            type="button"
+                            className="btn-ghost !px-2 !py-1 text-xs disabled:opacity-40"
+                            disabled={reminderSent || remindingId === u.id}
+                            title={
+                              reminderSent
+                                ? u.reminderEmailSentAt
+                                  ? `Reminder sent ${formatCreatedAt(u.reminderEmailSentAt)}`
+                                  : "Reminder already sent"
+                                : "Send a one-time email asking them to rejoin chat"
+                            }
+                            onClick={() => onSendReminder(u)}
+                          >
+                            {remindingId === u.id
+                              ? "Sending…"
+                              : reminderSent
+                                ? "Reminder sent"
+                                : "Send reminder"}
                           </button>
                         ) : null}
                         {toggleable ? (
@@ -420,7 +543,7 @@ export function AdminUsers() {
               })}
               {!users.length ? (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-muted">
+                  <td colSpan={9} className="px-3 py-8 text-muted">
                     No users yet.
                   </td>
                 </tr>

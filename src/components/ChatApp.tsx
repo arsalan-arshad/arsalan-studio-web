@@ -3,16 +3,27 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { UserAvatar } from "@/components/UserAvatar";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { useEventSource } from "@/hooks/useEventSource";
+import { usePresenceHeartbeat } from "@/hooks/usePresenceHeartbeat";
+import { formatLastSeen, isUserOnline } from "@/lib/format-presence";
+
+type PresencePerson = {
+  name: string;
+  email?: string;
+  image?: string | null;
+  lastSeenAt?: string | null;
+  online?: boolean;
+};
 
 type ThreadListItem = {
   id: string;
   subject: string;
   status: string;
   updatedAt: string;
-  client: { name: string; email: string };
+  client: PresencePerson & { id?: string; email: string };
   messages: { body: string; createdAt: string }[];
   _count: { messages: number };
 };
@@ -23,14 +34,22 @@ type Message = {
   createdAt: string;
   attachmentName?: string | null;
   attachmentUrl?: string | null;
-  sender: { id: string; name: string; role: string };
+  sender: { id: string; name: string; role: string; image?: string | null };
+};
+
+type StudioPresence = {
+  online: boolean;
+  lastSeenAt: string | null;
+  image?: string | null;
+  name?: string | null;
 };
 
 type ThreadDetail = {
   id: string;
   subject: string;
   status: string;
-  client: { name: string; email: string };
+  reminderEmailSentAt?: string | null;
+  client: PresencePerson & { id?: string; email: string };
   messages: Message[];
 };
 
@@ -76,8 +95,11 @@ function AttachmentBlock({ url, name }: { url: string; name: string }) {
 export function ChatApp() {
   const { data: session, status } = useSession();
   const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const threadFromUrl = params.get("thread");
   const [threads, setThreads] = useState<ThreadListItem[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(params.get("thread"));
+  const [activeId, setActiveId] = useState<string | null>(threadFromUrl);
   const [thread, setThread] = useState<ThreadDetail | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [replyFile, setReplyFile] = useState<File | null>(null);
@@ -85,27 +107,75 @@ export function ChatApp() {
   const [newSubject, setNewSubject] = useState("");
   const [newBody, setNewBody] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [reminding, setReminding] = useState(false);
+  const [studioPresence, setStudioPresence] = useState<StudioPresence | null>(
+    null,
+  );
   const isAdmin = session?.user?.role === "ADMIN";
   const isSubAdmin = session?.user?.role === "SUB_ADMIN";
   const emailVerified =
     isAdmin || isSubAdmin || Boolean(session?.user?.isEmailVerified);
 
+  usePresenceHeartbeat(status === "authenticated" && emailVerified && !isSubAdmin);
+
+  const selectThread = useCallback(
+    (id: string | null) => {
+      setActiveId(id);
+      setThread(null);
+      setError("");
+      setNotice("");
+      const next = id
+        ? `${pathname}?thread=${encodeURIComponent(id)}`
+        : pathname;
+      router.replace(next, { scroll: false });
+    },
+    [pathname, router],
+  );
+
   const loadThreads = useCallback(async () => {
     const res = await fetch("/api/threads");
     const data = await res.json();
-    if (res.ok) setThreads(data.threads);
-    else if (data.code === "EMAIL_NOT_VERIFIED") setThreads([]);
+    if (res.ok) {
+      setThreads(data.threads);
+      if (data.studioPresence) setStudioPresence(data.studioPresence);
+    } else if (data.code === "EMAIL_NOT_VERIFIED") setThreads([]);
   }, []);
 
   const loadThread = useCallback(async (id: string) => {
     const res = await fetch(`/api/threads/${id}`);
     const data = await res.json();
-    if (res.ok) setThread(data.thread);
+    if (res.ok) {
+      setThread(data.thread);
+      if (data.studioPresence) setStudioPresence(data.studioPresence);
+    } else {
+      setThread(null);
+      setError(data.error || "Could not load thread");
+    }
   }, []);
+
+  // Keep selection in sync with ?thread= (admin Start/Open, email deep links, soft nav).
+  useEffect(() => {
+    if (!threadFromUrl) return;
+    if (threadFromUrl === activeId) return;
+    setActiveId(threadFromUrl);
+    setThread(null);
+    setError("");
+  }, [threadFromUrl, activeId]);
 
   useEffect(() => {
     if (status === "authenticated" && emailVerified) loadThreads();
   }, [status, emailVerified, loadThreads]);
+
+  // Refresh presence while chat stays open (heartbeat is separate).
+  useEffect(() => {
+    if (status !== "authenticated" || !emailVerified || isSubAdmin) return;
+    const id = window.setInterval(() => {
+      void loadThreads();
+      if (activeId) void loadThread(activeId);
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [status, emailVerified, isSubAdmin, activeId, loadThreads, loadThread]);
 
   useEffect(() => {
     if (!activeId || !emailVerified) return;
@@ -140,7 +210,39 @@ export function ChatApp() {
     setNewSubject("");
     setNewBody("");
     await loadThreads();
-    setActiveId(data.thread.id);
+    selectThread(data.thread.id);
+  }
+
+  async function sendReminder() {
+    if (!activeId || !isAdmin || !thread) return;
+    if (thread.reminderEmailSentAt) return;
+    setReminding(true);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/threads/${activeId}/reminder`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not send reminder");
+        return;
+      }
+      if (data.alreadySent || data.emailSent) {
+        setNotice(
+          data.alreadySent
+            ? "Reminder was already sent for this thread."
+            : "Reminder email sent.",
+        );
+        await loadThread(activeId);
+      } else {
+        setNotice("Reminder not sent (check RESEND_API_KEY). Flag was not set.");
+      }
+    } catch {
+      setError("Could not send reminder");
+    } finally {
+      setReminding(false);
+    }
   }
 
   async function sendMessage(e: FormEvent) {
@@ -261,25 +363,53 @@ export function ChatApp() {
             : "Only conversations you started — scoped to your account."}
         </p>
         <ul className="mt-3 space-y-2">
-          {threads.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                onClick={() => setActiveId(t.id)}
-                className={`w-full rounded-sm border px-3 py-2 text-left text-sm ${
-                  activeId === t.id
-                    ? "border-accent bg-accent-wash"
-                    : "border-line hover:bg-bg"
-                }`}
-              >
-                <span className="font-medium text-ink line-clamp-1">{t.subject}</span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {t.status}
-                  {isAdmin ? ` · ${t.client.name}` : ""} · {t._count.messages} msgs
-                </span>
-              </button>
-            </li>
-          ))}
+          {threads.map((t) => {
+            const peerOnline = isAdmin
+              ? Boolean(t.client.online ?? isUserOnline(t.client.lastSeenAt))
+              : Boolean(studioPresence?.online);
+            const peerImage = isAdmin
+              ? t.client.image
+              : studioPresence?.image ?? null;
+            const peerName = isAdmin
+              ? t.client.name
+              : studioPresence?.name || "Studio";
+            const peerSeen = isAdmin
+              ? t.client.lastSeenAt
+              : studioPresence?.lastSeenAt ?? null;
+            return (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => selectThread(t.id)}
+                  className={`flex w-full items-start gap-2 rounded-sm border px-3 py-2 text-left text-sm ${
+                    activeId === t.id
+                      ? "border-accent bg-accent-wash"
+                      : "border-line hover:bg-bg"
+                  }`}
+                >
+                  <UserAvatar
+                    name={peerName}
+                    image={peerImage}
+                    lastSeenAt={peerSeen}
+                    showPresence
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="font-medium text-ink line-clamp-1">
+                      {t.subject}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted">
+                      {t.status}
+                      {isAdmin ? ` · ${t.client.name}` : ""} · {t._count.messages}{" "}
+                      msgs
+                      {peerOnline ? (
+                        <span className="text-[color:var(--sage)]"> · online</span>
+                      ) : null}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
           {!threads.length ? (
             <li className="text-sm text-muted">No threads yet.</li>
           ) : null}
@@ -321,16 +451,42 @@ export function ChatApp() {
         ) : (
           <>
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-3">
-              <div>
-                <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
-                  {thread.subject}
-                </h2>
-                <p className="text-xs text-muted">
-                  {thread.status} · {thread.client.name} ({thread.client.email})
-                </p>
+              <div className="flex items-start gap-3 min-w-0">
+                <UserAvatar
+                  name={
+                    isAdmin
+                      ? thread.client.name
+                      : studioPresence?.name || "Studio"
+                  }
+                  image={
+                    isAdmin
+                      ? thread.client.image
+                      : studioPresence?.image ?? null
+                  }
+                  lastSeenAt={
+                    isAdmin
+                      ? thread.client.lastSeenAt
+                      : studioPresence?.lastSeenAt ?? null
+                  }
+                  showPresence
+                  size="md"
+                />
+                <div className="min-w-0">
+                  <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
+                    {thread.subject}
+                  </h2>
+                  <p className="text-xs text-muted">
+                    {thread.status} · {thread.client.name} ({thread.client.email})
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    {isAdmin
+                      ? formatLastSeen(thread.client.lastSeenAt)
+                      : formatLastSeen(studioPresence?.lastSeenAt)}
+                  </p>
+                </div>
               </div>
               {isAdmin ? (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {(["NEW", "ACTIVE", "CLOSED"] as const).map((s) => (
                     <button
                       key={s}
@@ -341,9 +497,31 @@ export function ChatApp() {
                       {s}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className="btn-ghost !px-2 !py-1 text-xs disabled:opacity-40"
+                    disabled={Boolean(thread.reminderEmailSentAt) || reminding}
+                    title={
+                      thread.reminderEmailSentAt
+                        ? "One-time reminder already sent"
+                        : "Email the client to rejoin this chat"
+                    }
+                    onClick={() => void sendReminder()}
+                  >
+                    {reminding
+                      ? "Sending…"
+                      : thread.reminderEmailSentAt
+                        ? "Reminder sent"
+                        : "Send reminder"}
+                  </button>
                 </div>
               ) : null}
             </div>
+            {notice ? (
+              <p className="mt-2 text-sm text-ink rounded-sm border border-accent/40 bg-accent-wash px-3 py-2">
+                {notice}
+              </p>
+            ) : null}
             <div className="flex-1 space-y-3 overflow-y-auto py-4">
               {thread.messages.map((m) => (
                 <div

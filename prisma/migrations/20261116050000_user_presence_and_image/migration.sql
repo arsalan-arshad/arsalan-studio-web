@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "image" TEXT;
+ALTER TABLE "User" ADD COLUMN "lastLoginAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN "lastSeenAt" TIMESTAMP(3);

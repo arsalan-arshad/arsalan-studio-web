@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Thread" ADD COLUMN "reminderEmailSentAt" TIMESTAMP(3);
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "country" TEXT;
+ALTER TABLE "User" ADD COLUMN "city" TEXT;

@@ -13,6 +13,8 @@ import {
   sealedAttachmentNameFields,
   sealedMessageFields,
 } from "@/lib/chat-crypto";
+import { isUserOnline } from "@/lib/format-presence";
+import { getStudioPresence } from "@/lib/presence";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/roles";
 import { withSignedAttachments } from "@/lib/r2";
@@ -25,11 +27,19 @@ async function loadThreadForUser(id: string, userId: string, admin: boolean) {
   const thread = await prisma.thread.findUnique({
     where: { id },
     include: {
-      client: { select: { id: true, name: true, email: true } },
+      client: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          lastSeenAt: true,
+        },
+      },
       messages: {
         orderBy: { createdAt: "asc" },
         include: {
-          sender: { select: { id: true, name: true, role: true } },
+          sender: { select: { id: true, name: true, role: true, image: true } },
         },
       },
     },
@@ -96,9 +106,20 @@ export async function GET(request: Request, ctx: Ctx) {
     attachmentNameVersion: undefined,
   }));
   const messages = await withSignedAttachments(decrypted);
+  const admin = isAdmin(user.role);
+  const studioPresence = admin ? null : await getStudioPresence();
   return NextResponse.json({
     ok: true,
-    thread: { ...thread, messages },
+    thread: {
+      ...thread,
+      client: {
+        ...thread.client,
+        lastSeenAt: thread.client.lastSeenAt?.toISOString() ?? null,
+        online: isUserOnline(thread.client.lastSeenAt),
+      },
+      messages,
+    },
+    studioPresence,
   });
 }
 

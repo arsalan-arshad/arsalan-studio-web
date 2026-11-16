@@ -25,7 +25,7 @@ export const studioFaqs: FaqItem[] = [
     id: "how",
     question: "How does engagement start?",
     answer:
-      "Browse offers and work on the site, send a project brief via the public contact form (no account required), then continue with daily chat after signup for files, briefs, and status.",
+      "Browse the offers, then send a brief through the public contact form. No account required. I reply within one working day and we keep one thread going from there.",
   },
   {
     id: "remote",

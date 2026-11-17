@@ -72,7 +72,9 @@ type InstallGuideUrlProps = {
 
 /** Guide URL as a real link when navigable; otherwise plain `<code>`. */
 export function InstallGuideUrl({ url, className }: InstallGuideUrlProps) {
-  const classes =
+  const plain =
+    className ?? "mt-2 block break-all text-xs text-accent";
+  const link =
     className ??
     "mt-2 block break-all text-xs text-accent underline-offset-2 hover:underline";
 
@@ -82,14 +84,12 @@ export function InstallGuideUrl({ url, className }: InstallGuideUrlProps) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className={classes}
+        className={link}
       >
         <code className="text-inherit">{url}</code>
       </a>
     );
   }
 
-  return (
-    <code className="mt-2 block break-all text-xs text-accent">{url}</code>
-  );
+  return <code className={plain}>{url}</code>;
 }

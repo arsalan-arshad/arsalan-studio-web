@@ -66,6 +66,11 @@ export const caseStudies: CaseStudy[] = [
     liveHref: "https://gatekeeper.arsalandev.studio/",
     liveLabel: "Live",
     githubHref: "https://github.com/arsalan-arshad/gatekeeper",
+    installGuide: {
+      title: "Guide: App usage",
+      body: "Pitch Arsalan through Gatekeeper — humans and agents open this public handler profile:",
+      urlExample: "https://gatekeeper.arsalandev.studio/@arsalandev",
+    },
     iconSrc: "/brands/ai/gatekeeper/icon.png",
     bannerSrc: "/brands/ai/gatekeeper/banner.png",
   },

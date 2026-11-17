@@ -2,6 +2,7 @@
 
 import { CaseStudyVisual } from "@/components/CaseStudyVisual";
 import { statusLabel, type CaseStudy } from "@/data/caseStudies";
+import { InstallGuideUrl } from "@/lib/linkify";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -69,9 +70,10 @@ function ProjectLinks({ study }: { study: CaseStudy }) {
         <div className="rounded-sm border border-line bg-bg-elevated/80 px-3 py-2 text-xs leading-relaxed text-muted">
           <p className="font-semibold text-ink">{study.installGuide.title}</p>
           <p className="mt-1">{study.installGuide.body}</p>
-          <code className="mt-1.5 block break-all text-[0.7rem] text-accent">
-            {study.installGuide.urlExample}
-          </code>
+          <InstallGuideUrl
+            url={study.installGuide.urlExample}
+            className="mt-1.5 block break-all text-[0.7rem] text-accent underline-offset-2 hover:underline"
+          />
         </div>
       ) : null}
     </div>

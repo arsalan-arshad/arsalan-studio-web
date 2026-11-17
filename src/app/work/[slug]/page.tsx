@@ -5,6 +5,7 @@ import {
   statusLabelLong,
 } from "@/data/caseStudyDetails";
 import { categoryLabel, statusLabel } from "@/data/caseStudies";
+import { InstallGuideUrl, linkifyText } from "@/lib/linkify";
 import { absoluteUrl, buildCaseStudyJsonLd, defaultOgImage } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -185,9 +186,7 @@ async function CaseStudyArticle({ params }: Props) {
           <div className="mt-4 max-w-2xl rounded-sm border border-line bg-bg-elevated/80 px-4 py-3 text-sm leading-relaxed text-muted">
             <p className="font-semibold text-ink">{study.installGuide.title}</p>
             <p className="mt-1">{study.installGuide.body}</p>
-            <code className="mt-2 block break-all text-xs text-accent">
-              {study.installGuide.urlExample}
-            </code>
+            <InstallGuideUrl url={study.installGuide.urlExample} />
           </div>
         ) : null}
 
@@ -209,7 +208,7 @@ async function CaseStudyArticle({ params }: Props) {
         <Section title="Usage">
           <ol className="list-decimal space-y-2 pl-5">
             {study.usage.map((step) => (
-              <li key={step}>{step}</li>
+              <li key={step}>{linkifyText(step)}</li>
             ))}
           </ol>
         </Section>

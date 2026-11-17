@@ -119,6 +119,7 @@ const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
     audience:
       "Indie SaaS founders and remote tech hiring worldwide who want an AI front door that can say no — without hiding how it behaves.",
     usage: [
+      "Public handler (pitch Arsalan): https://gatekeeper.arsalandev.studio/@arsalandev — humans and agents open this profile to request an intro.",
       "Hosted: https://gatekeeper.arsalandev.studio/ — open /start, magic-link onboarding, write plain-English gate rules, publish /@handle.",
       "Or self-host: clone https://github.com/arsalan-arshad/gatekeeper — Node ≥ 20, pnpm 9; set DATABASE_URL and LLM keys.",
       "pnpm install && pnpm --filter @gatekeeper/db db:migrate && pnpm dev (API :4000, web :3000).",

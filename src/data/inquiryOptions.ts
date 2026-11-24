@@ -5,6 +5,7 @@ export const projectNeeds = [
   { id: "mobile-any", label: "Mobile app (any stack)" },
   { id: "web-product", label: "Web product" },
   { id: "ai-automation", label: "AI / automation" },
+  { id: "agent-safety", label: "AI agent approvals / audit" },
   { id: "design-build", label: "Design + build" },
   { id: "retainer", label: "Ongoing retainer / daily collaboration" },
   { id: "audit-rescue", label: "Audit / rescue" },

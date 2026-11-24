@@ -13,6 +13,9 @@ export async function POST(request: Request) {
     const timeline = String(body.timeline ?? "").trim() || null;
     const budget = String(body.budget ?? "").trim() || null;
     const otherNeed = String(body.otherNeed ?? "").trim() || null;
+    const agentCapabilities =
+      String(body.agentCapabilities ?? "").trim() || null;
+    const agentBlockers = String(body.agentBlockers ?? "").trim() || null;
     const needs = Array.isArray(body.needs)
       ? body.needs.map((n: unknown) => String(n))
       : [];
@@ -35,6 +38,8 @@ export async function POST(request: Request) {
         company,
         needs,
         otherNeed,
+        agentCapabilities,
+        agentBlockers,
         timeline,
         budget,
         message,
@@ -64,6 +69,12 @@ export async function POST(request: Request) {
                 company ? `Company: ${company}` : null,
                 timeline ? `Timeline: ${timeline}` : null,
                 budget ? `Budget: ${budget}` : null,
+                agentCapabilities
+                  ? `Agent capabilities / write access: ${agentCapabilities}`
+                  : null,
+                agentBlockers
+                  ? `Production blockers: ${agentBlockers}`
+                  : null,
               ]
                 .filter(Boolean)
                 .join("\n"),
@@ -79,7 +90,15 @@ export async function POST(request: Request) {
     }
 
     try {
-      await notifyContactInquiry({ name, email, company: company ?? undefined, message, needs });
+      await notifyContactInquiry({
+        name,
+        email,
+        company: company ?? undefined,
+        message,
+        needs,
+        agentCapabilities: agentCapabilities ?? undefined,
+        agentBlockers: agentBlockers ?? undefined,
+      });
     } catch (err) {
       console.error("[contact] email failed", err);
     }

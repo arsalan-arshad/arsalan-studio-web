@@ -11,6 +11,8 @@ type Inquiry = {
   email: string;
   company: string | null;
   needs: unknown;
+  agentCapabilities: string | null;
+  agentBlockers: string | null;
   message: string;
   status: string;
   createdAt: string;
@@ -196,6 +198,22 @@ export function AdminDesk() {
                 Needs:{" "}
                 {Array.isArray(inq.needs) ? inq.needs.join(", ") || "—" : "—"}
               </p>
+              {inq.agentCapabilities ? (
+                <p className="mt-2 text-xs text-muted">
+                  Agent capabilities / write access:{" "}
+                  <span className="whitespace-pre-wrap text-ink">
+                    {inq.agentCapabilities}
+                  </span>
+                </p>
+              ) : null}
+              {inq.agentBlockers ? (
+                <p className="mt-2 text-xs text-muted">
+                  Production blockers:{" "}
+                  <span className="whitespace-pre-wrap text-ink">
+                    {inq.agentBlockers}
+                  </span>
+                </p>
+              ) : null}
               <p className="mt-2 whitespace-pre-wrap text-sm text-ink">{inq.message}</p>
             </li>
           ))}

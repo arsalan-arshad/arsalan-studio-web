@@ -11,31 +11,19 @@ export type Offer = {
 /** Capability-led offers — what Arsalan builds for client work. */
 export const offers: Offer[] = [
   {
-    id: "shopify-app",
-    name: "Shopify apps that make it to the App Store",
-    forWho: "merchants and agencies who need a real embedded admin app.",
-    includes: [
-      "Inventory forecasting, storefront or admin extensions, custom flows",
-      "Shipped apps through Shopify review, including my own live inventory app",
-      "Deterministic numbers with an AI copilot that explains them instead of inventing them",
-    ],
-    startingPoint: "",
-    cta: "Send your project brief",
-    needParam: "shopify-app",
-  },
-  {
-    id: "salesforce-package",
-    name: "Salesforce packages and Shopify bridges",
+    id: "agent-safety",
+    name: "Approvals and audit trails for production AI agents",
     forWho:
-      "teams that need 2GP utilities, LWC interfaces, or Shopify to Salesforce sync without per-task fees.",
+      "teams shipping AI agents that write to real systems (APIs, databases, customer data) and need a human approval step, a record of what ran, and a way to undo it.",
     includes: [
-      "HMAC webhooks, retry queues and mapping UI",
-      "Test coverage and audit trail",
-      "AppExchange-ready where it matters",
+      "Approval step before risky actions: the pending action and its arguments are shown to a reviewer first",
+      "Tamper-evident audit log of every action (hash-chained, exportable)",
+      "Built on open standards (MCP) and open-source building blocks, no lock-in",
+      "Fixed scope, written exclusions, acceptance tests (same as my other work)",
     ],
     startingPoint: "",
     cta: "Send your project brief",
-    needParam: "salesforce",
+    needParam: "agent-safety",
   },
   {
     id: "mobile-web",
@@ -65,4 +53,34 @@ export const offers: Offer[] = [
     cta: "Send your project brief",
     needParam: "retainer",
   },
+  {
+    id: "shopify-app",
+    name: "Shopify apps that make it to the App Store",
+    forWho: "merchants and agencies who need a real embedded admin app.",
+    includes: [
+      "Inventory forecasting, storefront or admin extensions, custom flows",
+      "Shipped apps through Shopify review, including my own live inventory app",
+      "Deterministic numbers with an AI copilot that explains them instead of inventing them",
+    ],
+    startingPoint: "",
+    cta: "Send your project brief",
+    needParam: "shopify-app",
+  },
+  {
+    id: "salesforce-package",
+    name: "Salesforce packages and Shopify bridges",
+    forWho:
+      "teams that need 2GP utilities, LWC interfaces, or Shopify to Salesforce sync without per-task fees.",
+    includes: [
+      "HMAC webhooks, retry queues and mapping UI",
+      "Test coverage and audit trail",
+      "AppExchange-ready where it matters",
+    ],
+    startingPoint: "",
+    cta: "Send your project brief",
+    needParam: "salesforce",
+  },
+  
+  
+  
 ];

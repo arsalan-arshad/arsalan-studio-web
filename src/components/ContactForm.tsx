@@ -12,11 +12,17 @@ export function ContactForm() {
     preselected ? [preselected] : [],
   );
   const [otherText, setOtherText] = useState("");
+  const [agentCapabilities, setAgentCapabilities] = useState("");
+  const [agentBlockers, setAgentBlockers] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
 
   const showOther = useMemo(() => needs.includes("other"), [needs]);
+  const showAgentSafety = useMemo(
+    () => needs.includes("agent-safety"),
+    [needs],
+  );
 
   function toggleNeed(id: string) {
     setNeeds((prev) =>
@@ -40,6 +46,8 @@ export function ContactForm() {
           company: form.get("company"),
           needs,
           otherNeed: otherText,
+          agentCapabilities: showAgentSafety ? agentCapabilities : "",
+          agentBlockers: showAgentSafety ? agentBlockers : "",
           timeline: form.get("timeline"),
           budget: form.get("budget"),
           message: form.get("message"),
@@ -51,10 +59,17 @@ export function ContactForm() {
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "failed");
       }
-      trackEvent("contact_submit");
+      trackEvent("contact_submit", {
+        has_agent_safety: needs.includes("agent-safety"),
+        ...(needs.includes("agent-safety")
+          ? { need: "agent-safety" }
+          : {}),
+      });
       formEl.reset();
       setNeeds([]);
       setOtherText("");
+      setAgentCapabilities("");
+      setAgentBlockers("");
       setStatus("sent");
     } catch {
       setStatus("error");
@@ -132,6 +147,44 @@ export function ContactForm() {
             placeholder="Describe the other need…"
             aria-label="Other need details"
           />
+        ) : null}
+        {showAgentSafety ? (
+          <div className="mt-4 space-y-4">
+            <div>
+              <label
+                htmlFor="agentCapabilities"
+                className="mb-1.5 block text-sm text-muted"
+              >
+                What can your agent do today, and which systems can it write to?
+                (optional)
+              </label>
+              <textarea
+                id="agentCapabilities"
+                className="input-field"
+                value={agentCapabilities}
+                onChange={(e) => setAgentCapabilities(e.target.value)}
+                placeholder="e.g. can create tickets, update CRM records, call billing APIs…"
+                rows={3}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="agentBlockers"
+                className="mb-1.5 block text-sm text-muted"
+              >
+                Is anything blocking production (security review, a customer
+                ask, compliance)? (optional)
+              </label>
+              <textarea
+                id="agentBlockers"
+                className="input-field"
+                value={agentBlockers}
+                onChange={(e) => setAgentBlockers(e.target.value)}
+                placeholder="e.g. waiting on security review, customer requires audit export…"
+                rows={3}
+              />
+            </div>
+          </div>
         ) : null}
       </fieldset>
 

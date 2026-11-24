@@ -345,6 +345,10 @@ textarea.input-field {
   backdrop-filter: blur(14px);
 }
 
+body[data-mobile-nav-open="true"] .sticky-cta {
+  display: none;
+}
+
 @media (min-width: 768px) {
   .sticky-cta {
     inset: auto 1.25rem 1.25rem auto;

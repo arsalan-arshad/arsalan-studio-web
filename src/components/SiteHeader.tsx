@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeaderAuth } from "@/components/HeaderAuth";
+import { MobileNav } from "@/components/MobileNav";
 import { NotificationBell } from "@/components/NotificationBell";
 import { brand } from "@/lib/brand";
 
@@ -15,7 +16,7 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="fixed inset-x-0 top-0 z-20 border-b border-line/70 bg-white/85 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-line/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[clamp(1.25rem,4vw,3.5rem)] py-3 sm:py-3.5">
         <Link
           href="/"
@@ -35,8 +36,11 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <NotificationBell />
-          <HeaderAuth />
+          <div className="hidden md:contents">
+            <NotificationBell />
+            <HeaderAuth />
+          </div>
+          <MobileNav />
         </div>
       </div>
     </header>

@@ -19,7 +19,7 @@ export const studioFaqs: FaqItem[] = [
     id: "what",
     question: "What kinds of projects do you take?",
     answer:
-      "Shopify apps, Salesforce packages and bridges, React Native / mobile and web products, AI automation, and retainer-style daily collaboration. Browse offers and case studies for concrete examples.",
+      "Shopify apps, Salesforce packages and bridges, React Native / mobile and web products, AI automation, approvals and audit trails for production AI agents, and retainer-style daily collaboration. Browse offers and case studies for concrete examples.",
   },
   {
     id: "how",

@@ -163,6 +163,10 @@ model Inquiry {
   company   String?
   needs     Json          @default("[]")
   otherNeed String?
+  /** Optional — shown when need includes agent-safety */
+  agentCapabilities String?
+  /** Optional — shown when need includes agent-safety */
+  agentBlockers     String?
   timeline  String?
   budget    String?
   message   String

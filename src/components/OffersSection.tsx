@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { offers } from "@/data/offers";
+import { OfferCtaLink } from "@/components/OfferCtaLink";
 import { capacityStatusCopy } from "@/lib/brand";
 
 export function OffersSection() {
@@ -38,12 +38,13 @@ export function OffersSection() {
                   </li>
                 ))}
               </ul>
-              <Link
+              <OfferCtaLink
                 href={`/contact?need=${offer.needParam}`}
+                offerId={offer.id}
                 className="btn-primary mt-6 !inline-flex"
               >
                 {offer.cta}
-              </Link>
+              </OfferCtaLink>
             </article>
           ))}
         </div>

@@ -43,6 +43,8 @@ export async function notifyContactInquiry(input: {
   company?: string;
   message: string;
   needs: string[];
+  agentCapabilities?: string;
+  agentBlockers?: string;
 }) {
   const to = process.env.CONTACT_NOTIFY_TO || process.env.CONTACT_TO_EMAIL;
   const resend = resendClient();
@@ -68,9 +70,17 @@ export async function notifyContactInquiry(input: {
       `Email: ${input.email}`,
       `Company: ${input.company || "—"}`,
       `Needs: ${input.needs.join(", ") || "—"}`,
+      input.agentCapabilities
+        ? `Agent capabilities / write access: ${input.agentCapabilities}`
+        : null,
+      input.agentBlockers
+        ? `Production blockers: ${input.agentBlockers}`
+        : null,
       "",
       input.message,
-    ].join("\n"),
+    ]
+      .filter((line) => line !== null)
+      .join("\n"),
   });
   return { sent: true as const };
 }

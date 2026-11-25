@@ -29,6 +29,51 @@ export type CaseStudyDetail = CaseStudy & {
 };
 
 const details: Record<string, Omit<CaseStudyDetail, keyof CaseStudy>> = {
+  wildwindow: {
+    summary:
+      "Wildlife photo forecast app: pick a species and an area, get a weekly Window score (0–100), the best days and 2-hour blocks, and a starting field card — without pinning sensitive wildlife. Web and mobile apps are under development; the waitlist is live now. Beta regions: Scotland and Sindh (Pakistan).",
+    problem:
+      "Planning a wildlife shoot still means stitching five apps together. ID apps tell you what you saw; photo planners help with landscapes; weather and tides live somewhere else. Nothing answers: when and how do I photograph this species near me this week, without harming it? Exact pins and shared spots draw crowds and disturbance.",
+    solution:
+      "WildWindow snaps location to an area cell (dropping the exact point), then scores the week from historic sightings (season and time of day), golden hour, weather and tides where licensed, plus camera settings and fieldcraft tips. The Window score is a relative index for comparing days — not a probability of seeing the animal. The No-Pin Promise: never an exact location for a wild animal; sensitive species use coarser areas, delayed records, or forecasts switched off in breeding season. Location-protection code is intended to be open source.",
+    audience:
+      "Wildlife photographers and nature observers who want a weekly shoot plan for a species near them — starting with beta regions Scotland (UK) and Sindh (Pakistan) — without risking exact pins.",
+    usage: [
+      "Join the waitlist: https://wildwindow.arsalandev.studio — under development; web + mobile apps launching after beta.",
+      "When apps ship: choose a species + area (search or on-device location snapped to a cell).",
+      "Read this week’s Window score, best day, best 2-hour block, and plain-language “why” (season, light, weather, tides).",
+      "Take the field card — starting settings, fieldcraft, and ethics for that species and region.",
+      "Self-host / explore: https://github.com/arsalan-arshad/wildwindow — pnpm monorepo (Expo mobile, Next.js web, NestJS API).",
+    ],
+    stack: [
+      "Expo (mobile) + Next.js (web)",
+      "NestJS API + worker CLI",
+      "PostgreSQL 18 + PostGIS",
+      "pnpm + Turborepo monorepo",
+      "Shared packages: scoring, geoprivacy, db",
+    ],
+    architecture: [
+      "Area-cell location on device — exact point never required for forecasts",
+      "Window score from historic occurrence (GBIF CC0 / CC BY first), light, weather, tides",
+      "No-Pin Promise + geoprivacy package for sensitive species coarsening / breeding-season off",
+      "Field cards: settings, fieldcraft, ethics per species/region",
+      "Planned: monthly cross-region challenges; later creator field-guides marketplace (location-safe)",
+    ],
+    features: [
+      "Weekly Window score (0–100) with best day and 2-hour block",
+      "Species + area planning without exact pins",
+      "Field card: starting camera settings and ethics",
+      "No-Pin Promise for sensitive wildlife",
+      "Beta: Scotland and Sindh",
+      "Waitlist live while web + mobile apps are built",
+    ],
+    openSource: {
+      license: "Public repo (see GitHub for license)",
+      note: "Public GitHub — https://github.com/arsalan-arshad/wildwindow. Waitlist / marketing site at https://wildwindow.arsalandev.studio. Working name — trademark/domain still under review.",
+    },
+    buildingNote:
+      "Under development: waitlist is live now; web and mobile apps will launch after the beta. Not a live forecast product yet — the site shows the product story and signup.",
+  },
   pathwise: {
     summary:
       "Open-source TypeScript query planner for RAG and agent pipelines: declare the quality (and latency) you need; Pathwise picks the cheapest execution plan per request and keeps learning from scored production runs.",
@@ -717,6 +762,8 @@ export function statusLabelLong(status: CaseStudyStatus): string {
       return "Completed library / product";
     case "pending-shopify":
       return "Pending Shopify review / App Store listing";
+    case "waitlist":
+      return "Under development · waitlist open";
     case "coming-soon":
       return "Coming soon / launching";
   }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" role="img" aria-label="WildWindow banner">
+  <defs>
+    <linearGradient id="ww-sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef5f0"/>
+      <stop offset="45%" stop-color="#dce9e0"/>
+      <stop offset="100%" stop-color="#c5d9cc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="500" fill="url(#ww-sky)"/>
+  <circle cx="1320" cy="110" r="90" fill="#d4a017" opacity="0.55"/>
+  <circle cx="1480" cy="360" r="200" fill="#2f5d45" opacity="0.08"/>
+  <rect x="1180" y="140" width="280" height="260" rx="18" fill="#f7faf7" stroke="#2f5d45" stroke-width="8"/>
+  <line x1="1320" y1="140" x2="1320" y2="400" stroke="#2f5d45" stroke-width="8"/>
+  <line x1="1180" y1="270" x2="1460" y2="270" stroke="#2f5d45" stroke-width="8"/>
+  <path d="M1210 230c22-34 54-48 82-28 8 5 11 14 7 21-14 7-30 3-44-4-14-7-28-4-45 11z" fill="#3d7a58"/>
+  <text x="96" y="210" font-family="Georgia, serif" font-size="72" fill="#1c241f">WildWindow</text>
+  <text x="96" y="280" font-family="system-ui,sans-serif" font-size="32" fill="#4a5a50">Wildlife photo forecast · No-Pin Promise</text>
+  <rect x="96" y="330" width="280" height="48" rx="8" fill="#2f5d45"/>
+  <text x="128" y="362" font-family="system-ui,sans-serif" font-size="22" fill="#f7faf7">Under development · Waitlist</text>
+</svg>

@@ -93,13 +93,15 @@ export function CaseStudyVisual({
       className={`flex shrink-0 items-center justify-center rounded-md border border-line bg-accent-wash text-[10px] font-semibold uppercase tracking-wide text-accent ${className}`}
       style={{ width: dim, height: dim }}
     >
-      {study.category === "ai"
-        ? "AI"
-        : study.category === "shopify"
-          ? "SFY"
-          : study.category === "salesforce"
-            ? "SF"
-            : "•"}
+      {study.category === "products"
+        ? "APP"
+        : study.category === "ai"
+          ? "AI"
+          : study.category === "shopify"
+            ? "SFY"
+            : study.category === "salesforce"
+              ? "SF"
+              : "•"}
     </div>
   );
 }

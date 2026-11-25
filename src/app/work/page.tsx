@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Work",
   description:
-    "AI architecture (Pathwise), Shopify apps, full Salesforce suite with demos, libraries & web products, and coming-soon launches.",
+    "Products on waitlist (WildWindow), AI architecture (Pathwise, Gatekeeper), Shopify apps, full Salesforce suite with demos, and libraries & web products.",
   alternates: {
     canonical: "/work",
   },
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     url: "/work",
     title: "Work · Case studies",
     description:
-      "AI, Shopify, Salesforce, and libraries & web products — case studies from Arsalan Arshad Studio.",
+      "Products, AI, Shopify, Salesforce, and libraries & web products — case studies from Arsalan Arshad Studio.",
   },
 };
 

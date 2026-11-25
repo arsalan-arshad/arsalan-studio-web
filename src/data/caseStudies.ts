@@ -3,12 +3,13 @@ export type CaseStudyStatus =
   | "released"
   | "completed"
   | "pending-shopify"
+  | "waitlist"
   | "coming-soon";
 
 export type CaseStudy = {
   id: string;
   title: string;
-  category: "ai" | "shopify" | "salesforce" | "other";
+  category: "products" | "ai" | "shopify" | "salesforce" | "other";
   status: CaseStudyStatus;
   blurb: string;
   /**
@@ -43,7 +44,22 @@ export type CaseStudy = {
 };
 
 export const caseStudies: CaseStudy[] = [
-  // AI — listed first on home / work
+  // Products — first tab: consumer apps launching / waitlist
+  {
+    id: "wildwindow",
+    title: "WildWindow",
+    category: "products",
+    status: "waitlist",
+    listOrder: 1,
+    blurb:
+      "Wildlife photo forecast — pick a species and area, get a weekly Window score (0–100), best days, and a field card. No-Pin Promise: never an exact location for sensitive species. Web + mobile apps under development; waitlist open. Beta: Scotland & Sindh.",
+    liveHref: "https://wildwindow.arsalandev.studio",
+    liveLabel: "Waitlist",
+    githubHref: "https://github.com/arsalan-arshad/wildwindow",
+    iconSrc: "/brands/products/wildwindow/icon.svg",
+    bannerSrc: "/brands/products/wildwindow/banner.svg",
+  },
+  // AI — Pathwise / Gatekeeper stay here (second tab)
   {
     id: "pathwise",
     title: "Pathwise",
@@ -310,16 +326,18 @@ export const statusLabel: Record<CaseStudyStatus, string> = {
   released: "Released",
   completed: "Completed",
   "pending-shopify": "Pending Shopify",
+  waitlist: "Waitlist",
   "coming-soon": "Coming soon",
 };
 
-/** Live → released/completed → pending Shopify → coming soon. */
+/** Live → released/completed → pending Shopify → waitlist → coming soon. */
 const statusRank: Record<CaseStudyStatus, number> = {
   live: 0,
   released: 1,
   completed: 1,
   "pending-shopify": 2,
-  "coming-soon": 3,
+  waitlist: 3,
+  "coming-soon": 4,
 };
 
 /** Status ranks sit above 100 so explicit listOrder pins stay first. */
@@ -340,6 +358,7 @@ export function studiesByCategory(category: CaseStudy["category"]) {
 }
 
 export const categoryLabel: Record<CaseStudy["category"], string> = {
+  products: "Products",
   ai: "AI",
   shopify: "Shopify",
   salesforce: "Salesforce",

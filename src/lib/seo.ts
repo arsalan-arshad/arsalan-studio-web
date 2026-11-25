@@ -169,6 +169,8 @@ function applicationCategory(study: CaseStudyDetail): string {
       return "BusinessApplication";
     case "ai":
       return "DeveloperApplication";
+    case "products":
+      return "LifestyleApplication";
     default:
       return "WebApplication";
   }
@@ -221,7 +223,9 @@ export function buildCaseStudyJsonLd(study: CaseStudyDetail) {
     creativeWorkStatus:
       study.status === "live" || study.status === "released"
         ? "Published"
-        : study.status === "coming-soon" || study.status === "pending-shopify"
+        : study.status === "coming-soon" ||
+            study.status === "pending-shopify" ||
+            study.status === "waitlist"
           ? "Incomplete"
           : "Published",
   };

@@ -9,7 +9,13 @@ import { useEffect, useMemo, useState } from "react";
 
 export const WORK_CATEGORY_QUERY = "category";
 
-const categoryKeys = ["ai", "shopify", "salesforce", "other"] as const;
+const categoryKeys = [
+  "products",
+  "ai",
+  "shopify",
+  "salesforce",
+  "other",
+] as const;
 
 function parseWorkCategory(
   value: string | null,
@@ -127,7 +133,7 @@ export function CaseStudyCategoryTabs({
     [tabs],
   );
 
-  const defaultKey = populated[0]?.key ?? "ai";
+  const defaultKey = populated[0]?.key ?? "products";
 
   const [active, setActive] = useState<CaseStudy["category"]>(() => {
     const fromUrl = parseWorkCategory(searchParams.get(WORK_CATEGORY_QUERY));

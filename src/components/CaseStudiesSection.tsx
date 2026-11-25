@@ -10,7 +10,13 @@ import {
 import Link from "next/link";
 import { Suspense } from "react";
 
-const categoryKeys = ["ai", "shopify", "salesforce", "other"] as const;
+const categoryKeys = [
+  "products",
+  "ai",
+  "shopify",
+  "salesforce",
+  "other",
+] as const;
 
 function homePreviewForCategory(category: CaseStudy["category"]): CaseStudy[] {
   const sorted = studiesByCategory(category);
@@ -19,6 +25,9 @@ function homePreviewForCategory(category: CaseStudy["category"]): CaseStudy[] {
 }
 
 function panelEyebrow(key: CaseStudy["category"], count: number): string | undefined {
+  if (key === "products") {
+    return "Under development · waitlist";
+  }
   if (key === "salesforce") {
     return `Full suite · ${count} packages`;
   }
